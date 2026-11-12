@@ -12,6 +12,7 @@ import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { MainNav } from "./components/MainNav";
 import { ViewPlaceholder } from "./components/ViewPlaceholder";
+import { DailyCheck } from "./views/DailyCheck";
 
 /** Aplica el tema de config/app.json como CSS variables en <html>. */
 function useTheme(): void {
@@ -69,7 +70,7 @@ function Shell() {
       <DelayBanner />
       <MainNav current={route.id} />
       <main id="main" ref={mainRef} tabIndex={-1} className="mx-auto min-h-[50vh] max-w-5xl px-4 py-6">
-        <ViewPlaceholder titleKey={route.navKey} />
+        {route.id === "check" ? <DailyCheck /> : <ViewPlaceholder titleKey={route.navKey} />}
       </main>
       <Footer />
     </EnvironmentProvider>
