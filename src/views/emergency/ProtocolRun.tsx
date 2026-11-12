@@ -16,7 +16,7 @@ import {
   type EmergencySession,
 } from "../../storage/local";
 import { escalationVars } from "../daily/ResultPanel";
-import { ConfirmDialog } from "./ConfirmDialog";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { StepTimer } from "./StepTimer";
 
 const secondary =
@@ -143,7 +143,7 @@ export function ProtocolRun({
           <p className="flex shrink-0 items-baseline gap-2">
             <span className="hidden text-sm text-[var(--color-muted)] sm:inline">{t("emergency.elapsed")}</span>
             <span role="timer" aria-label={t("emergency.elapsed")} className="font-mono text-2xl font-extrabold md:text-3xl">
-              {formatElapsed((now - session.startedAt) / 1000)}
+              {formatElapsed((now - session.startedAt) / 1000, t("time.day_abbr"))}
             </span>
           </p>
         </div>

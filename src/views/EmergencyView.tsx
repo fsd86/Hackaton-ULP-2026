@@ -7,7 +7,9 @@ import {
   startEmergencySession,
   type EmergencySession,
 } from "../storage/local";
+import { isSessionStale } from "../logic/emergency";
 import { ProtocolList } from "./emergency/ProtocolList";
+import { StaleSessionPrompt } from "./emergency/StaleSessionPrompt";
 import { ProtocolRun } from "./emergency/ProtocolRun";
 
 /**
@@ -25,8 +27,17 @@ export function EmergencyView({
 }) {
   const { content } = useContent();
   const { protocols } = content;
-  const [session, setSession] = useState<EmergencySession | null>(() => getEmergencySession());
+  const [initial] = useState<EmergencySession | null>(() => getEmergencySession()); // una sola lectura
+  const [session, setSession] = useState<EmergencySession | null>(initial);
   const exiting = useRef(false); // evita recrear la sesión mientras el hash aún conserva el id
+  const maxAgeHours = content.app.emergency_session_max_age_hours;
+  // Sesión vieja (o con hora inválida/futura): no se reanuda sola, se pregunta. Se decide una vez al abrir la vista.
+  const [stale, setStale] = useState<boolean>(
+    () =>
+      initial !== null &&
+      (param === undefined || param === initial.protocolId) &&
+      isSessionStale(initial.startedAt, Date.now(), maxAgeHours),
+  );
 
   // Sin id en la ruta pero con sesión activa → retomar (urgencia: cero clics extra).
   const activeId = param ?? session?.protocolId;
@@ -34,10 +45,34 @@ export function EmergencyView({
 
   // Garantiza una sesión para el protocolo abierto (p. ej. llegando desde un enlace del chequeo diario).
   useEffect(() => {
+    if (param === undefined && !stale) exiting.current = false;
     if (!exiting.current && protocol && session?.protocolId !== protocol.id) {
       setSession(startEmergencySession(protocol.id));
+      setStale(false);
     }
-  }, [protocol, session]);
+  }, [protocol, session, param, stale]);
+
+  if (stale && session && protocol && session.protocolId === protocol.id) {
+    return (
+      <StaleSessionPrompt
+        session={session}
+        protocolTitle={protocol.title}
+        now={Date.now()}
+        onContinue={() => setStale(false)}
+        onStartOver={() => {
+          setSession(startEmergencySession(protocol.id));
+          setStale(false);
+        }}
+        onBack={() => {
+          exiting.current = true;
+          clearEmergencySession();
+          setSession(null);
+          setStale(false);
+          navigate("emergency");
+        }}
+      />
+    );
+  }
 
   if (!protocol) {
     return (
@@ -45,6 +80,8 @@ export function EmergencyView({
         protocols={protocols}
         invalidId={param !== undefined}
         onStart={(id) => {
+          exiting.current = false;
+          setStale(false);
           setSession(startEmergencySession(id));
           navigate("emergency", id);
         }}

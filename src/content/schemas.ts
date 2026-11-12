@@ -199,6 +199,8 @@ export const AppConfig = z.object({
   }),
   // Parámetro de DISEÑO (no médico).
   realtime_threshold_s: z.number(),
+  // Parámetro de DISEÑO (no médico): edad máxima para reanudar sola una sesión de emergencia guardada.
+  emergency_session_max_age_hours: z.number().positive(),
   disclaimer: z.string(),
 });
 

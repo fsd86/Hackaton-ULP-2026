@@ -1,5 +1,5 @@
 {
-  "_comment": "realtime_threshold_s es un parametro de DISENO (no medico): a partir de que demora de comunicacion (segundos, solo ida) la app prioriza actuar a bordo antes de esperar a tierra. No proviene de ninguna fuente medica.",
+  "_comment": "realtime_threshold_s es un parametro de DISENO (no medico): a partir de que demora de comunicacion (segundos, solo ida) la app prioriza actuar a bordo antes de esperar a tierra. No proviene de ninguna fuente medica. emergency_session_max_age_hours tambien es un parametro de DISENO (no medico): pasado ese tiempo, una sesion de emergencia guardada no se reanuda sola y se le pregunta a la persona si continua o reinicia.",
   "app_name": "Earth Is Far",
   "tagline": "Health guidance for when help is light-minutes away.",
   "default_language": "en",
@@ -29,5 +29,6 @@
     "gamification": false
   },
   "realtime_threshold_s": 10,
+  "emergency_session_max_age_hours": 12,
   "disclaimer": "Earth Is Far is a decision-support tool. It does not replace a flight surgeon or a physician. If in doubt, contact medical professionals."
 }

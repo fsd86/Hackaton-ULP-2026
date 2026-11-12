@@ -117,7 +117,10 @@ for (const c of CORRUPT) {
     expect.soft(issues.filter((i) => i.startsWith("pageerror")), `${c.name}: uncaught exceptions`).toEqual([]);
     if (c.name === "emergency-session-stale-3-days") {
       await page.goto("/#/emergency");
-      const timer = await page.getByRole("timer").first().innerText().catch(() => "no timer");
+      // count() no espera: innerText() sobre un timer inexistente agotaba el timeout del test.
+      await page.locator("main").waitFor();
+      const timers = page.getByRole("timer");
+      const timer = (await timers.count()) > 0 ? await timers.first().innerText() : "no timer";
       console.log("STORAGE stale-session timer shows", JSON.stringify(timer));
       expect.soft(timer, "a 3-day-old session should not silently resume as if it were a live emergency").toBe("no timer");
     }

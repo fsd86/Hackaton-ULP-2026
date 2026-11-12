@@ -8,7 +8,10 @@ import { useHashRoute } from "./hooks/useHashRoute";
 import { ContentErrorScreen } from "./components/ContentErrorScreen";
 import { DelayBanner } from "./components/DelayBanner";
 import { EmptyState } from "./components/EmptyState";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Footer } from "./components/Footer";
+import { StorageNotice } from "./components/StorageNotice";
+import { useStorageState } from "./hooks/useStorageState";
 import { Header } from "./components/Header";
 import { MainNav } from "./components/MainNav";
 import { DailyCheck } from "./views/DailyCheck";
@@ -37,6 +40,7 @@ function Shell() {
   const { route, param, navigate } = useHashRoute();
   const mainRef = useRef<HTMLElement>(null);
   const first = useRef(true);
+  const { version } = useStorageState();
   useTheme();
 
   // Al cambiar de vista: título del documento y foco al contenido (lectores de pantalla / teclado).
@@ -71,19 +75,23 @@ function Shell() {
       </a>
       <Header onEmergency={() => navigate("emergency")} emergencyActive={route.id === "emergency"} />
       <DelayBanner />
+      <StorageNotice />
       <MainNav current={route.id} />
       <main id="main" ref={mainRef} tabIndex={-1} className="mx-auto min-h-[50vh] max-w-5xl px-4 py-6">
-        {route.id === "check" ? (
-          <DailyCheck key={param ?? ""} param={param} />
-        ) : route.id === "emergency" ? (
-          <EmergencyView param={param} navigate={navigate} />
-        ) : route.id === "report" ? (
-          <ReportView />
-        ) : route.id === "sources" ? (
-          <SourcesView param={param} />
-        ) : (
-          <StatusBoard />
-        )}
+        {/* La clave remonta la vista al cambiar de ruta o al borrar los datos guardados. */}
+        <ErrorBoundary key={`${route.id}/${param ?? ""}/${version}`} t={t}>
+          {route.id === "check" ? (
+            <DailyCheck key={param ?? ""} param={param} />
+          ) : route.id === "emergency" ? (
+            <EmergencyView param={param} navigate={navigate} />
+          ) : route.id === "report" ? (
+            <ReportView />
+          ) : route.id === "sources" ? (
+            <SourcesView param={param} />
+          ) : (
+            <StatusBoard />
+          )}
+        </ErrorBoundary>
       </main>
       <Footer />
     </EnvironmentProvider>
@@ -92,16 +100,19 @@ function Shell() {
 
 export default function App() {
   const result = loadContent();
+  // Usa el JSON de strings directo: funciona aunque el resto del contenido esté roto.
+  const rawT = createT(stringsRaw as Record<string, string>, { strict: false });
 
   if (!result.ok) {
-    // Usa el JSON de strings directo: funciona aunque el resto del contenido esté roto.
-    const t = createT(stringsRaw as Record<string, string>, { strict: false });
-    return <ContentErrorScreen errors={result.errors} t={t} />;
+    return <ContentErrorScreen errors={result.errors} t={rawT} />;
   }
 
+  // Último recurso: si el propio shell explota, nunca queda la pantalla en blanco.
   return (
-    <ContentProvider content={result.content}>
-      <Shell />
-    </ContentProvider>
+    <ErrorBoundary t={rawT} bodyKey="error.fatal.body">
+      <ContentProvider content={result.content}>
+        <Shell />
+      </ContentProvider>
+    </ErrorBoundary>
   );
 }

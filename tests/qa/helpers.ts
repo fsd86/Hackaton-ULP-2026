@@ -79,6 +79,7 @@ export interface AppJson {
   default_environment: string;
   disclaimer: string;
   realtime_threshold_s: number;
+  emergency_session_max_age_hours: number;
   features: Record<string, boolean>;
 }
 

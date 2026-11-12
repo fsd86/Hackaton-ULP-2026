@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 
 interface Props {
   open: boolean;
@@ -13,6 +13,9 @@ interface Props {
 /** Diálogo modal accesible (elemento <dialog> nativo: foco atrapado, Esc cierra). El foco inicial va al botón seguro. */
 export function ConfirmDialog({ open, title, body, stayLabel, leaveLabel, onStay, onLeave }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  const uid = useId();
+  const titleId = `${uid}-title`;
+  const bodyId = `${uid}-body`;
 
   useEffect(() => {
     const el = ref.current;
@@ -24,18 +27,18 @@ export function ConfirmDialog({ open, title, body, stayLabel, leaveLabel, onStay
   return (
     <dialog
       ref={ref}
-      aria-labelledby="confirm-title"
-      aria-describedby="confirm-body"
+      aria-labelledby={titleId}
+      aria-describedby={bodyId}
       onCancel={(e) => {
         e.preventDefault();
         onStay();
       }}
       className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-md border-4 border-[var(--status-critical)] bg-[var(--color-panel)] p-6 text-[var(--color-text)] backdrop:bg-black/75"
     >
-      <h2 id="confirm-title" className="text-2xl font-extrabold">
+      <h2 id={titleId} className="text-2xl font-extrabold">
         {title}
       </h2>
-      <p id="confirm-body" className="mt-3 text-lg">
+      <p id={bodyId} className="mt-3 text-lg">
         {body}
       </p>
       <div className="mt-6 flex flex-col gap-3">
