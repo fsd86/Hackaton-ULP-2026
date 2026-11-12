@@ -1,5 +1,5 @@
 {
-  "_comment": "Toda afirmación científica visible en la app debe apuntar a una fuente de esta lista por su id. Completar con URL real y fecha de consulta.",
+  "_comment": "Toda afirmación científica visible en la app debe apuntar a una fuente de esta lista por su id. Completar con URL real y fecha de consulta antes de marcar VERIFIED.",
   "sources": [
     {
       "id": "nasa_hrp",
@@ -8,7 +8,8 @@
       "url": "PLACEHOLDER: completar con la URL oficial",
       "accessed": "PLACEHOLDER",
       "license": "PLACEHOLDER",
-      "notes": "Riesgos y peligros del vuelo espacial humano."
+      "notes": "Riesgos y peligros del vuelo espacial humano.",
+      "status": "PLACEHOLDER"
     },
     {
       "id": "nasa_osdr",
@@ -17,7 +18,8 @@
       "url": "PLACEHOLDER: completar con la URL oficial",
       "accessed": "PLACEHOLDER",
       "license": "PLACEHOLDER",
-      "notes": "Datos reales de biología espacial para inspirar y probar."
+      "notes": "Datos reales de biología espacial para inspirar y probar.",
+      "status": "PLACEHOLDER"
     }
   ]
 }

@@ -1,0 +1,20 @@
+{
+  "_comment": "Protocolos de emergencia. Estructura completa pero TODO el texto es PLACEHOLDER: no hay contenido medico hasta tener fuente verificada (ver data/sources.json).",
+  "protocols": [
+    {
+      "id": "crew_collapse_chest_pain",
+      "title": "Crewmate collapsed / chest pain",
+      "trigger": ["PLACEHOLDER: symptom that triggers this protocol."],
+      "escalation": "ground",
+      "steps": [
+        { "text": "PLACEHOLDER: step 1.", "detail": "PLACEHOLDER: detail for step 1.", "check": true, "source_ids": [] },
+        { "text": "PLACEHOLDER: step 2.", "detail": "PLACEHOLDER: detail for step 2.", "check": true, "source_ids": [] },
+        { "text": "PLACEHOLDER: step 3.", "detail": "PLACEHOLDER: detail for step 3.", "check": true, "source_ids": [] },
+        { "text": "PLACEHOLDER: step 4.", "detail": "PLACEHOLDER: detail for step 4.", "check": true, "source_ids": [] }
+      ],
+      "report_fields": ["PLACEHOLDER: information to include in the downlink report."],
+      "source_ids": [],
+      "status": "PLACEHOLDER"
+    }
+  ]
+}

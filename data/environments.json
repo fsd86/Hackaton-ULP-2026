@@ -1,28 +1,40 @@
 {
-  "_comment": "Entornos de misión. Los ajustes por entorno (frecuencia, equipo disponible) son PLACEHOLDER hasta tener fuente.",
+  "_comment": "Entornos de mision. La demora de comunicacion (solo ida, en segundos) y el equipo son PLACEHOLDER hasta tener fuente. Los valores null hacen que la app use el mensaje conservador de escalamiento.",
   "environments": [
     {
       "id": "spacecraft",
-      "name": "Spacecraft (transit)",
-      "description": "PLACEHOLDER",
+      "name": "Mars transit vehicle",
+      "description": "PLACEHOLDER: description of the environment.",
+      "comm_delay_one_way_s": { "min": null, "max": null, "source_ids": [] },
       "available_equipment": [],
-      "overrides": {},
+      "indicator_overrides": {},
       "status": "PLACEHOLDER"
     },
     {
       "id": "space_station",
       "name": "Space station",
-      "description": "PLACEHOLDER",
+      "description": "PLACEHOLDER: description of the environment.",
+      "comm_delay_one_way_s": { "min": null, "max": null, "source_ids": [] },
       "available_equipment": [],
-      "overrides": {},
+      "indicator_overrides": {},
       "status": "PLACEHOLDER"
     },
     {
       "id": "lunar_base",
       "name": "Lunar surface base",
-      "description": "PLACEHOLDER",
+      "description": "PLACEHOLDER: description of the environment.",
+      "comm_delay_one_way_s": { "min": null, "max": null, "source_ids": [] },
       "available_equipment": [],
-      "overrides": {},
+      "indicator_overrides": {},
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "remote_clinic_earth",
+      "name": "Remote clinic (Earth)",
+      "description": "PLACEHOLDER: description of the environment.",
+      "comm_delay_one_way_s": { "min": null, "max": null, "source_ids": [] },
+      "available_equipment": [],
+      "indicator_overrides": {},
       "status": "PLACEHOLDER"
     }
   ]

@@ -1,6 +1,7 @@
 {
-  "app_name": "PLACEHOLDER — nombre de la app",
-  "tagline": "PLACEHOLDER",
+  "_comment": "realtime_threshold_s es un parametro de DISENO (no medico): a partir de que demora de comunicacion (segundos, solo ida) la app prioriza actuar a bordo antes de esperar a tierra. No proviene de ninguna fuente medica.",
+  "app_name": "Earth Is Far",
+  "tagline": "Health guidance for when help is light-minutes away.",
   "default_language": "en",
   "default_environment": "spacecraft",
   "theme": {
@@ -10,14 +11,23 @@
       "normal": "#2E9E5B",
       "attention": "#E0A100",
       "critical": "#D64545"
+    },
+    "status_icons": {
+      "normal": "check-circle",
+      "attention": "alert-triangle",
+      "critical": "alert-octagon"
     }
   },
   "features": {
-    "body_map": true,
     "charts": true,
     "reminders": true,
-    "gamification": false,
-    "emergency_guide": true
+    "emergency_guide": true,
+    "downlink_report": true,
+    "offline": false,
+    "body_map": true,
+    "reaction_test": false,
+    "gamification": false
   },
-  "disclaimer": "PLACEHOLDER: texto de aviso (herramienta de apoyo, no reemplaza a un médico)."
+  "realtime_threshold_s": 10,
+  "disclaimer": "Earth Is Far is a decision-support tool. It does not replace a flight surgeon or a physician. If in doubt, contact medical professionals."
 }

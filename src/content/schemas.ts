@@ -1,0 +1,207 @@
+import { z } from "zod";
+
+// Esquemas de contenido. Única definición de tipos: z.infer. Ver docs/04-arquitectura.md §3.
+
+export const Status = z.enum(["VERIFIED", "PLACEHOLDER"]); // calidad del dato
+export const HealthStatus = z.enum(["normal", "attention", "critical"]);
+export const Escalation = z.enum(["self", "crew", "ground"]); // a quién escalar
+const SourceIds = z.array(z.string()).default([]);
+const Comment = z.string().optional(); // "_comment" aceptado en cualquier nivel documentado
+
+const VERIFIED_NEEDS_SOURCES = 'status "VERIFIED" requires at least one entry in source_ids';
+
+function requireSourcesIfVerified(
+  value: { status: "VERIFIED" | "PLACEHOLDER"; source_ids: string[] },
+  ctx: z.RefinementCtx,
+): void {
+  if (value.status === "VERIFIED" && value.source_ids.length === 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["source_ids"], message: VERIFIED_NEEDS_SOURCES });
+  }
+}
+
+// ---- sources.json
+export const Source = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/, "id must match /^[a-z0-9_]+$/"),
+    title: z.string(),
+    publisher: z.string(),
+    url: z.string(), // url real si VERIFIED
+    accessed: z.string(), // YYYY-MM-DD si VERIFIED
+    license: z.string().optional(),
+    notes: z.string().optional(),
+    status: Status,
+  })
+  .superRefine((s, ctx) => {
+    if (s.status !== "VERIFIED") return;
+    // new URL() acepta "PLACEHOLDER: ..." como esquema válido; exigimos http(s) explícito.
+    if (!/^https?:\/\/\S+$/.test(s.url) || !z.string().url().safeParse(s.url).success) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["url"], message: 'status "VERIFIED" requires a real URL' });
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s.accessed)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["accessed"],
+        message: 'status "VERIFIED" requires an access date in YYYY-MM-DD format',
+      });
+    }
+  });
+export const SourcesFile = z.object({ _comment: Comment, sources: z.array(Source) });
+
+// ---- indicators.json
+export const Range = z.object({
+  status: HealthStatus,
+  min: z.number().nullable(), // null = sin límite (o pendiente si PLACEHOLDER)
+  max: z.number().nullable(),
+  source_ids: SourceIds,
+});
+
+export const Input = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("number"),
+    step: z.number().default(1),
+    min: z.number().optional(),
+    max: z.number().optional(),
+  }),
+  z.object({ kind: z.literal("pair"), labels: z.tuple([z.string(), z.string()]) }),
+  z.object({
+    kind: z.literal("scale"),
+    min: z.number(),
+    max: z.number(),
+    labels: z.record(z.string(), z.string()),
+  }),
+]);
+
+export const Frequency = z.object({ every_hours: z.number().nullable(), label: z.string() });
+
+export const Action = z.object({
+  text: z.array(z.string()),
+  escalation: Escalation,
+  protocol_id: z.string().optional(),
+});
+
+export const Hazard = z.enum(["radiation", "isolation", "distance", "gravity", "environment"]);
+
+export const Indicator = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    unit: z.string(),
+    category: z.string(),
+    hazards: z.array(Hazard).default([]),
+    input: Input,
+    how_to_measure: z.array(z.string()),
+    why_it_matters: z.string(),
+    frequency: Frequency,
+    ranges: z.array(Range),
+    ranges_secondary: z.array(Range).optional(),
+    actions: z.record(HealthStatus, Action),
+    source_ids: SourceIds,
+    status: Status,
+  })
+  .superRefine(requireSourcesIfVerified);
+export const IndicatorsFile = z.object({ _comment: Comment, indicators: z.array(Indicator) });
+
+// ---- environments.json
+export const Environment = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    comm_delay_one_way_s: z.object({
+      min: z.number().nullable(),
+      max: z.number().nullable(),
+      source_ids: SourceIds,
+    }),
+    available_equipment: z.array(z.string()),
+    indicator_overrides: z
+      .record(
+        z.string(),
+        z.object({
+          frequency: Frequency.optional(),
+          ranges: z.array(Range).optional(),
+          note: z.string().optional(),
+        }),
+      )
+      .default({}),
+    status: Status,
+  })
+  .superRefine((e, ctx) => {
+    if (e.status === "VERIFIED" && e.comm_delay_one_way_s.source_ids.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["comm_delay_one_way_s", "source_ids"],
+        message: VERIFIED_NEEDS_SOURCES,
+      });
+    }
+  });
+export const EnvironmentsFile = z.object({ _comment: Comment, environments: z.array(Environment) });
+
+// ---- protocols.json
+export const Step = z.object({
+  text: z.string(),
+  detail: z.string().optional(),
+  timer_s: z.number().optional(),
+  check: z.boolean().default(true),
+  source_ids: SourceIds,
+});
+
+export const Protocol = z
+  .object({
+    id: z.string(),
+    title: z.string(),
+    trigger: z.array(z.string()),
+    escalation: Escalation,
+    steps: z.array(Step).min(1),
+    report_fields: z.array(z.string()).default([]),
+    source_ids: SourceIds,
+    status: Status,
+  })
+  .superRefine(requireSourcesIfVerified);
+export const ProtocolsFile = z.object({ _comment: Comment, protocols: z.array(Protocol) });
+
+// ---- config/app.json
+export const AppConfig = z.object({
+  _comment: Comment,
+  app_name: z.string(),
+  tagline: z.string(),
+  default_language: z.literal("en"),
+  default_environment: z.string(),
+  theme: z.object({
+    mode: z.enum(["dark", "light"]),
+    accent: z.string(),
+    status_colors: z.record(HealthStatus, z.string()),
+    status_icons: z.record(HealthStatus, z.string()),
+  }),
+  features: z.object({
+    charts: z.boolean(),
+    reminders: z.boolean(),
+    emergency_guide: z.boolean(),
+    downlink_report: z.boolean(),
+    offline: z.boolean(),
+    body_map: z.boolean(),
+    reaction_test: z.boolean(),
+    gamification: z.boolean(),
+  }),
+  // Parámetro de DISEÑO (no médico).
+  realtime_threshold_s: z.number(),
+  disclaimer: z.string(),
+});
+
+// ---- config/strings.en.json
+export const Strings = z.record(z.string(), z.string());
+
+// ---- tipos
+export type Status = z.infer<typeof Status>;
+export type HealthStatus = z.infer<typeof HealthStatus>;
+export type Escalation = z.infer<typeof Escalation>;
+export type Source = z.infer<typeof Source>;
+export type Range = z.infer<typeof Range>;
+export type Input = z.infer<typeof Input>;
+export type Frequency = z.infer<typeof Frequency>;
+export type Action = z.infer<typeof Action>;
+export type Indicator = z.infer<typeof Indicator>;
+export type Environment = z.infer<typeof Environment>;
+export type Step = z.infer<typeof Step>;
+export type Protocol = z.infer<typeof Protocol>;
+export type AppConfig = z.infer<typeof AppConfig>;
+export type Strings = z.infer<typeof Strings>;

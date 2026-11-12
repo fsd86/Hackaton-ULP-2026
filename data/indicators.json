@@ -1,22 +1,29 @@
 {
-  "_comment": "Estructura de ejemplo. Todo valor con status PLACEHOLDER debe reemplazarse por datos con fuente verificada (ver data/sources.json). No inventar umbrales.",
+  "_comment": "Todo valor con status PLACEHOLDER debe reemplazarse por datos con fuente verificada (ver data/sources.json). No inventar umbrales. Los niveles de escalamiento (self/crew/ground) y los protocol_id son decisiones de DISEÑO tentativas, no medicas; por eso cada indicador sigue en PLACEHOLDER. 'hazards' queda vacio hasta tener fuente. 'step' de inputs number se omite (default 1) hasta definirlo.",
   "indicators": [
     {
       "id": "heart_rate",
       "name": "Heart rate",
       "unit": "bpm",
       "category": "cardiovascular",
-      "how_to_measure": "PLACEHOLDER: step-by-step instructions for a non-expert.",
+      "hazards": [],
+      "input": { "kind": "number" },
+      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
       "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
-      "frequency": "PLACEHOLDER: e.g. daily",
+      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null },
-        { "status": "attention", "min": null, "max": null },
-        { "status": "critical", "min": null, "max": null }
+        { "status": "normal", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
-      "actions_if_abnormal": {
-        "attention": "PLACEHOLDER",
-        "critical": "PLACEHOLDER"
+      "actions": {
+        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
+        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "critical": {
+          "text": ["PLACEHOLDER: what to do when critical."],
+          "escalation": "ground",
+          "protocol_id": "crew_collapse_chest_pain"
+        }
       },
       "source_ids": [],
       "status": "PLACEHOLDER"
@@ -26,15 +33,30 @@
       "name": "Blood pressure",
       "unit": "mmHg",
       "category": "cardiovascular",
-      "how_to_measure": "PLACEHOLDER",
-      "why_it_matters": "PLACEHOLDER",
-      "frequency": "PLACEHOLDER",
+      "hazards": [],
+      "input": { "kind": "pair", "labels": ["Systolic", "Diastolic"] },
+      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
+      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null },
-        { "status": "attention", "min": null, "max": null },
-        { "status": "critical", "min": null, "max": null }
+        { "status": "normal", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
-      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "ranges_secondary": [
+        { "status": "normal", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+      ],
+      "actions": {
+        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
+        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "critical": {
+          "text": ["PLACEHOLDER: what to do when critical."],
+          "escalation": "ground",
+          "protocol_id": "crew_collapse_chest_pain"
+        }
+      },
       "source_ids": [],
       "status": "PLACEHOLDER"
     },
@@ -43,15 +65,21 @@
       "name": "Blood glucose",
       "unit": "mg/dL",
       "category": "metabolic",
-      "how_to_measure": "PLACEHOLDER",
-      "why_it_matters": "PLACEHOLDER",
-      "frequency": "PLACEHOLDER",
+      "hazards": [],
+      "input": { "kind": "number" },
+      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
+      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null },
-        { "status": "attention", "min": null, "max": null },
-        { "status": "critical", "min": null, "max": null }
+        { "status": "normal", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
-      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "actions": {
+        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
+        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+      },
       "source_ids": [],
       "status": "PLACEHOLDER"
     },
@@ -60,15 +88,21 @@
       "name": "Body temperature",
       "unit": "°C",
       "category": "general",
-      "how_to_measure": "PLACEHOLDER",
-      "why_it_matters": "PLACEHOLDER",
-      "frequency": "PLACEHOLDER",
+      "hazards": [],
+      "input": { "kind": "number" },
+      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
+      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null },
-        { "status": "attention", "min": null, "max": null },
-        { "status": "critical", "min": null, "max": null }
+        { "status": "normal", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
-      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "actions": {
+        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
+        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+      },
       "source_ids": [],
       "status": "PLACEHOLDER"
     },
@@ -77,15 +111,21 @@
       "name": "Daily sleep",
       "unit": "hours",
       "category": "behavioral",
-      "how_to_measure": "PLACEHOLDER",
-      "why_it_matters": "PLACEHOLDER",
-      "frequency": "PLACEHOLDER",
+      "hazards": [],
+      "input": { "kind": "number" },
+      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
+      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null },
-        { "status": "attention", "min": null, "max": null },
-        { "status": "critical", "min": null, "max": null }
+        { "status": "normal", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
-      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "actions": {
+        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
+        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+      },
       "source_ids": [],
       "status": "PLACEHOLDER"
     },
@@ -94,15 +134,32 @@
       "name": "Mood",
       "unit": "scale",
       "category": "behavioral",
-      "how_to_measure": "PLACEHOLDER",
-      "why_it_matters": "PLACEHOLDER",
-      "frequency": "PLACEHOLDER",
+      "hazards": [],
+      "input": {
+        "kind": "scale",
+        "min": 1,
+        "max": 5,
+        "labels": {
+          "1": "PLACEHOLDER: label for 1",
+          "2": "PLACEHOLDER: label for 2",
+          "3": "PLACEHOLDER: label for 3",
+          "4": "PLACEHOLDER: label for 4",
+          "5": "PLACEHOLDER: label for 5"
+        }
+      },
+      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
+      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null },
-        { "status": "attention", "min": null, "max": null },
-        { "status": "critical", "min": null, "max": null }
+        { "status": "normal", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
-      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "actions": {
+        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
+        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+      },
       "source_ids": [],
       "status": "PLACEHOLDER"
     }
