@@ -1,0 +1,23 @@
+{
+  "_comment": "Toda afirmación científica visible en la app debe apuntar a una fuente de esta lista por su id. Completar con URL real y fecha de consulta.",
+  "sources": [
+    {
+      "id": "nasa_hrp",
+      "title": "NASA Human Research Program",
+      "publisher": "NASA",
+      "url": "PLACEHOLDER: completar con la URL oficial",
+      "accessed": "PLACEHOLDER",
+      "license": "PLACEHOLDER",
+      "notes": "Riesgos y peligros del vuelo espacial humano."
+    },
+    {
+      "id": "nasa_osdr",
+      "title": "NASA Open Science Data Repository",
+      "publisher": "NASA",
+      "url": "PLACEHOLDER: completar con la URL oficial",
+      "accessed": "PLACEHOLDER",
+      "license": "PLACEHOLDER",
+      "notes": "Datos reales de biología espacial para inspirar y probar."
+    }
+  ]
+}

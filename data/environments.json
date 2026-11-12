@@ -1,0 +1,29 @@
+{
+  "_comment": "Entornos de misión. Los ajustes por entorno (frecuencia, equipo disponible) son PLACEHOLDER hasta tener fuente.",
+  "environments": [
+    {
+      "id": "spacecraft",
+      "name": "Spacecraft (transit)",
+      "description": "PLACEHOLDER",
+      "available_equipment": [],
+      "overrides": {},
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "space_station",
+      "name": "Space station",
+      "description": "PLACEHOLDER",
+      "available_equipment": [],
+      "overrides": {},
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "lunar_base",
+      "name": "Lunar surface base",
+      "description": "PLACEHOLDER",
+      "available_equipment": [],
+      "overrides": {},
+      "status": "PLACEHOLDER"
+    }
+  ]
+}

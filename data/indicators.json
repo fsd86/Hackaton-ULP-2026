@@ -1,0 +1,110 @@
+{
+  "_comment": "Estructura de ejemplo. Todo valor con status PLACEHOLDER debe reemplazarse por datos con fuente verificada (ver data/sources.json). No inventar umbrales.",
+  "indicators": [
+    {
+      "id": "heart_rate",
+      "name": "Heart rate",
+      "unit": "bpm",
+      "category": "cardiovascular",
+      "how_to_measure": "PLACEHOLDER: step-by-step instructions for a non-expert.",
+      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "frequency": "PLACEHOLDER: e.g. daily",
+      "ranges": [
+        { "status": "normal", "min": null, "max": null },
+        { "status": "attention", "min": null, "max": null },
+        { "status": "critical", "min": null, "max": null }
+      ],
+      "actions_if_abnormal": {
+        "attention": "PLACEHOLDER",
+        "critical": "PLACEHOLDER"
+      },
+      "source_ids": [],
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "blood_pressure",
+      "name": "Blood pressure",
+      "unit": "mmHg",
+      "category": "cardiovascular",
+      "how_to_measure": "PLACEHOLDER",
+      "why_it_matters": "PLACEHOLDER",
+      "frequency": "PLACEHOLDER",
+      "ranges": [
+        { "status": "normal", "min": null, "max": null },
+        { "status": "attention", "min": null, "max": null },
+        { "status": "critical", "min": null, "max": null }
+      ],
+      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "source_ids": [],
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "blood_glucose",
+      "name": "Blood glucose",
+      "unit": "mg/dL",
+      "category": "metabolic",
+      "how_to_measure": "PLACEHOLDER",
+      "why_it_matters": "PLACEHOLDER",
+      "frequency": "PLACEHOLDER",
+      "ranges": [
+        { "status": "normal", "min": null, "max": null },
+        { "status": "attention", "min": null, "max": null },
+        { "status": "critical", "min": null, "max": null }
+      ],
+      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "source_ids": [],
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "body_temperature",
+      "name": "Body temperature",
+      "unit": "°C",
+      "category": "general",
+      "how_to_measure": "PLACEHOLDER",
+      "why_it_matters": "PLACEHOLDER",
+      "frequency": "PLACEHOLDER",
+      "ranges": [
+        { "status": "normal", "min": null, "max": null },
+        { "status": "attention", "min": null, "max": null },
+        { "status": "critical", "min": null, "max": null }
+      ],
+      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "source_ids": [],
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "sleep_hours",
+      "name": "Daily sleep",
+      "unit": "hours",
+      "category": "behavioral",
+      "how_to_measure": "PLACEHOLDER",
+      "why_it_matters": "PLACEHOLDER",
+      "frequency": "PLACEHOLDER",
+      "ranges": [
+        { "status": "normal", "min": null, "max": null },
+        { "status": "attention", "min": null, "max": null },
+        { "status": "critical", "min": null, "max": null }
+      ],
+      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "source_ids": [],
+      "status": "PLACEHOLDER"
+    },
+    {
+      "id": "mood",
+      "name": "Mood",
+      "unit": "scale",
+      "category": "behavioral",
+      "how_to_measure": "PLACEHOLDER",
+      "why_it_matters": "PLACEHOLDER",
+      "frequency": "PLACEHOLDER",
+      "ranges": [
+        { "status": "normal", "min": null, "max": null },
+        { "status": "attention", "min": null, "max": null },
+        { "status": "critical", "min": null, "max": null }
+      ],
+      "actions_if_abnormal": { "attention": "PLACEHOLDER", "critical": "PLACEHOLDER" },
+      "source_ids": [],
+      "status": "PLACEHOLDER"
+    }
+  ]
+}

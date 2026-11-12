@@ -1,0 +1,23 @@
+{
+  "app_name": "PLACEHOLDER — nombre de la app",
+  "tagline": "PLACEHOLDER",
+  "default_language": "en",
+  "default_environment": "spacecraft",
+  "theme": {
+    "mode": "dark",
+    "accent": "#4F8CFF",
+    "status_colors": {
+      "normal": "#2E9E5B",
+      "attention": "#E0A100",
+      "critical": "#D64545"
+    }
+  },
+  "features": {
+    "body_map": true,
+    "charts": true,
+    "reminders": true,
+    "gamification": false,
+    "emergency_guide": true
+  },
+  "disclaimer": "PLACEHOLDER: texto de aviso (herramienta de apoyo, no reemplaza a un médico)."
+}
