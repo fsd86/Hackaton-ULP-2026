@@ -2,13 +2,8 @@ import { useId, useState, type FormEvent } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Indicator } from "../../content/schemas";
 import type { ReadingValue } from "../../logic/evaluate";
+import { validateReading } from "../../logic/validateInput";
 import { btnPrimary, inputClass } from "./ui";
-
-function parseNum(s: string): number | null {
-  if (s.trim() === "") return null;
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-}
 
 /** Entrada según input.kind (number | pair | scale). Valida y devuelve el valor tipado. */
 export function ReadingInput({ indicator, onSubmit }: { indicator: Indicator; onSubmit: (v: ReadingValue) => void }) {
@@ -23,23 +18,11 @@ export function ReadingInput({ indicator, onSubmit }: { indicator: Indicator; on
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    if (input.kind === "number") {
-      const n = parseNum(single);
-      const outOfRange = n !== null && ((input.min !== undefined && n < input.min) || (input.max !== undefined && n > input.max));
-      if (n === null || outOfRange) return setError(t("daily.value_invalid"));
-      setError(null);
-      onSubmit(n);
-    } else if (input.kind === "pair") {
-      const a = parseNum(pair[0]);
-      const b = parseNum(pair[1]);
-      if (a === null || b === null) return setError(t("daily.pair_invalid"));
-      setError(null);
-      onSubmit([a, b]);
-    } else {
-      if (scale === null) return setError(t("daily.value_invalid"));
-      setError(null);
-      onSubmit(scale);
-    }
+    const raw = input.kind === "number" ? single : input.kind === "pair" ? pair : scale;
+    const res = validateReading(indicator, raw);
+    if (!res.ok) return setError(t(res.errorKey, res.vars));
+    setError(null);
+    onSubmit(res.value);
   }
 
   const describedBy = error ? errId : undefined;
@@ -79,7 +62,9 @@ export function ReadingInput({ indicator, onSubmit }: { indicator: Indicator; on
               id={`${uid}-p${i}`}
               type="number"
               inputMode="decimal"
-              step="any"
+              step={input.step ?? "any"}
+              min={input.min}
+              max={input.max}
               value={pair[i]}
               onChange={(e) => setPair((p) => (i === 0 ? [e.target.value, p[1]] : [p[0], e.target.value]))}
               aria-invalid={invalid}

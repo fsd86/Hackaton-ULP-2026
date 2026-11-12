@@ -4,7 +4,7 @@
     {
       "id": "spacecraft",
       "name": "Mars transit vehicle",
-      "description": "A crewed spacecraft travelling to Mars, far from Earth.",
+      "description": "A crewed spacecraft travelling to Mars, far from Earth. The 3 to 22 minute one-way delay is the delay once at Mars, per the Perseverance source; in transit it grows from almost zero.",
       "comm_delay_one_way_s": { "min": 180, "max": 1320, "source_ids": ["nasa_perseverance_comms", "nasa_hrp_distance"] },
       "available_equipment": [],
       "indicator_overrides": {},

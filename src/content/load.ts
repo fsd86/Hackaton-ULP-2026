@@ -6,6 +6,7 @@ import protocolsRaw from "../../data/protocols.json";
 import appRaw from "../../config/app.json";
 import stringsRaw from "../../config/strings.en.json";
 import { ESCALATION_MESSAGE_KEYS } from "../logic/escalation";
+import { resolveToken, templateTokens } from "../logic/indicatorText";
 import {
   AppConfig,
   EnvironmentsFile,
@@ -78,30 +79,94 @@ function parseFile<S extends z.ZodTypeAny>(
   return undefined;
 }
 
-function checkOverlap(ranges: Range[], file: string, base: Array<string | number>, errors: ContentError[]): void {
+/**
+ * Cobertura de rangos numéricos (los de min y max nulos se ignoran). Ordenados por min, dos consecutivos deben
+ * tocarse exactamente (max == min siguiente) con exactamente un borde exclusivo. Solape → error.
+ * Hueco → error salvo allowGaps (el hueco evalúa "unknown" a propósito).
+ */
+function checkRanges(
+  ranges: Range[],
+  file: string,
+  base: Array<string | number>,
+  errors: ContentError[],
+  allowGaps: boolean,
+): void {
   const numeric = ranges
     .map((r, i) => ({ r, i }))
     .filter(({ r }) => r.min !== null || r.max !== null);
   for (const { r, i } of numeric) {
     if (r.min !== null && r.max !== null && r.min > r.max) {
-      errors.push({ file, path: formatPath([...base, i, "min"]), message: `min (${r.min}) is greater than max (${r.max})` });
+      errors.push({ file, path: formatPath([...base, i, "min"]), message: `min (${r.min}) is greater than max (${r.max}); swap or fix the values` });
     }
   }
-  for (let a = 0; a < numeric.length; a++) {
-    for (let b = a + 1; b < numeric.length; b++) {
-      const x = numeric[a];
-      const y = numeric[b];
-      const xLo = x.r.min ?? -Infinity;
-      const xHi = x.r.max ?? Infinity;
-      const yLo = y.r.min ?? -Infinity;
-      const yHi = y.r.max ?? Infinity;
-      // Se permite tocar en el borde (ej. normal hasta 100, attention desde 100); evaluate() toma el más severo.
-      if (xLo < yHi && yLo < xHi) {
+  const sorted = [...numeric].sort((p, q) => (p.r.min ?? -Infinity) - (q.r.min ?? -Infinity));
+  for (let k = 0; k < sorted.length - 1; k++) {
+    const x = sorted[k]!;
+    const y = sorted[k + 1]!;
+    const overlap = (): void => {
+      errors.push({
+        file,
+        path: formatPath([...base, y.i]),
+        message: `range overlaps with the range at index ${x.i} (status "${x.r.status}"); fix min/max so that they only touch`,
+      });
+    };
+    if (x.r.max === null || y.r.min === null) {
+      overlap();
+      continue;
+    }
+    const where = formatPath([...base, y.i, "min"]);
+    if (x.r.max > y.r.min) {
+      overlap();
+    } else if (x.r.max < y.r.min) {
+      if (!allowGaps) {
         errors.push({
           file,
-          path: formatPath([...base, y.i]),
-          message: `range overlaps with the range at index ${x.i} (status "${x.r.status}")`,
+          path: where,
+          message: `gap between ${x.r.max} (range ${x.i}) and ${y.r.min} (range ${y.i}); make them touch, or set "allow_gaps": true on the indicator if the source does not define that stretch`,
         });
+      }
+    } else if (Boolean(x.r.max_exclusive) === Boolean(y.r.min_exclusive)) {
+      errors.push({
+        file,
+        path: where,
+        message: `ranges ${x.i} and ${y.i} touch at ${y.r.min} and ${y.r.min_exclusive ? "both" : "neither"} edge is exclusive; exactly one of max_exclusive (range ${x.i}) and min_exclusive (range ${y.i}) must be true`,
+      });
+    }
+  }
+}
+
+function collectTexts(ind: Indicator): Array<{ text: string; path: Array<string | number> }> {
+  const out: Array<{ text: string; path: Array<string | number> }> = [];
+  out.push({ text: ind.why_it_matters, path: ["why_it_matters"] });
+  ind.how_to_measure.forEach((text, k) => out.push({ text, path: ["how_to_measure", k] }));
+  for (const [status, action] of Object.entries(ind.actions)) {
+    action.text.forEach((text, k) => out.push({ text, path: ["actions", status, "text", k] }));
+  }
+  return out;
+}
+
+/** Toda plantilla {…} debe resolver (base y cada override de entorno de este indicador). */
+function checkTemplates(
+  ind: Indicator,
+  base: Array<string | number>,
+  environments: Environment[],
+  errors: ContentError[],
+): void {
+  const contexts: Array<{ env: Environment | undefined; label: string }> = [{ env: undefined, label: "" }];
+  for (const env of environments) {
+    if (env.indicator_overrides[ind.id]?.ranges) contexts.push({ env, label: ` (with ranges overridden by environment "${env.id}")` });
+  }
+  for (const { text, path } of collectTexts(ind)) {
+    for (const token of templateTokens(text)) {
+      for (const { env, label } of contexts) {
+        if (resolveToken(token, ind, env) === undefined) {
+          errors.push({
+            file: FILES.indicators,
+            path: formatPath([...base, ...path]),
+            message: `template {${token}} cannot be resolved${label}; use {unit}, {range.<status>.min|max} or {range2.<status>.min|max}, and make sure exactly one range with that status has that edge`,
+          });
+          break;
+        }
       }
     }
   }
@@ -166,8 +231,9 @@ export function validateContent(raw: RawContent): LoadResult {
     checkSources(ind.source_ids, FILES.indicators, base);
     checkRangeSources(ind.ranges, FILES.indicators, [...base, "ranges"]);
     checkRangeSources(ind.ranges_secondary ?? [], FILES.indicators, [...base, "ranges_secondary"]);
-    checkOverlap(ind.ranges, FILES.indicators, [...base, "ranges"], errors);
-    checkOverlap(ind.ranges_secondary ?? [], FILES.indicators, [...base, "ranges_secondary"], errors);
+    checkRanges(ind.ranges, FILES.indicators, [...base, "ranges"], errors, ind.allow_gaps === true);
+    checkRanges(ind.ranges_secondary ?? [], FILES.indicators, [...base, "ranges_secondary"], errors, ind.allow_gaps === true);
+    checkTemplates(ind, base, environments, errors);
     for (const [status, action] of Object.entries(ind.actions)) {
       if (action.protocol_id !== undefined && !protocolIds.has(action.protocol_id)) {
         errors.push({
@@ -201,7 +267,8 @@ export function validateContent(raw: RawContent): LoadResult {
       }
       if (override.ranges) {
         checkRangeSources(override.ranges, FILES.environments, [...obase, "ranges"]);
-        checkOverlap(override.ranges, FILES.environments, [...obase, "ranges"], errors);
+        const allowGaps = indicators.find((x) => x.id === indId)?.allow_gaps === true;
+        checkRanges(override.ranges, FILES.environments, [...obase, "ranges"], errors, allowGaps);
       }
     }
   });

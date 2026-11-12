@@ -48,12 +48,12 @@ describe("buildTrend", () => {
     expect(t.bands[1]![0]!.status).toBe("critical");
   });
 
-  it("normalizes exclusive cuts (69.99 -> 70) and replaces null with domain edges", () => {
+  it("uses the real cut-offs as band edges and replaces null with domain edges", () => {
     const x = makeIndicator({
       ranges: [
-        { status: "critical", min: null, max: 59.99, source_ids: [] },
-        { status: "attention", min: 60, max: 69.99, source_ids: [] },
-        { status: "normal", min: 70, max: 119.99, source_ids: [] },
+        { status: "critical", min: null, max: 60, max_exclusive: true, source_ids: [] },
+        { status: "attention", min: 60, max: 70, max_exclusive: true, source_ids: [] },
+        { status: "normal", min: 70, max: 120, max_exclusive: true, source_ids: [] },
         { status: "critical", min: 120, max: null, source_ids: [] },
         { status: "normal", min: null, max: null, source_ids: [] }, // ignorado
       ],
@@ -66,8 +66,8 @@ describe("buildTrend", () => {
       { status: "normal", from: 70, to: 120 },
       { status: "critical", from: 120, to: vMax },
     ]);
-    // 10% de padding sobre [59.99, 120]
-    expect(vMin).toBeLessThan(59.99);
+    // 10% de padding sobre [60, 120]
+    expect(vMin).toBeLessThan(60);
     expect(vMax).toBeGreaterThan(120);
   });
 

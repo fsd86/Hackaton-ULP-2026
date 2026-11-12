@@ -9,17 +9,22 @@ function worst(statuses: HealthStatus[]): HealthStatus {
   return statuses.reduce((a, b) => (SEVERITY[b] > SEVERITY[a] ? b : a));
 }
 
+/** ¿El valor cae dentro del rango? Límites inclusivos salvo min_exclusive / max_exclusive; null = sin límite. */
+export function inRange(r: Range, value: number): boolean {
+  const aboveMin = r.min === null || (r.min_exclusive ? value > r.min : value >= r.min);
+  const belowMax = r.max === null || (r.max_exclusive ? value < r.max : value <= r.max);
+  return aboveMin && belowMax;
+}
+
 /**
- * Evalúa un número contra una lista de rangos. Límites inclusivos; null = sin límite.
- * Rangos con min y max nulos (pendientes) se ignoran. Si ninguno aplica → "unknown".
- * Si el valor cae justo en un borde compartido, gana el estado más severo (conservador).
+ * Evalúa un número contra una lista de rangos. Límites inclusivos salvo que el rango declare
+ * min_exclusive / max_exclusive; null = sin límite. Rangos con min y max nulos (pendientes) se ignoran.
+ * Si ninguno aplica → "unknown". Si varios aplican (bordes inclusivos compartidos), gana el más severo.
  */
 export function evaluateRanges(ranges: Range[], value: number): EvalStatus {
   if (typeof value !== "number" || Number.isNaN(value)) return "unknown";
   const usable = ranges.filter((r) => r.min !== null || r.max !== null);
-  const matches = usable.filter(
-    (r) => (r.min === null || value >= r.min) && (r.max === null || value <= r.max),
-  );
+  const matches = usable.filter((r) => inRange(r, value));
   if (matches.length === 0) return "unknown";
   return worst(matches.map((r) => r.status));
 }

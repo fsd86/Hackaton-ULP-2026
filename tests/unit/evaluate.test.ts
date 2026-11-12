@@ -47,6 +47,51 @@ describe("evaluate", () => {
     expect(evaluate(ind, 15, makeEnv())).toBe("normal");
   });
 
+  describe("exclusive edges", () => {
+    const glucose = makeIndicator({
+      ranges: [
+        { status: "critical", min: null, max: 54, max_exclusive: true, source_ids: [] },
+        { status: "attention", min: 54, max: 70, max_exclusive: true, source_ids: [] },
+      ],
+    });
+    it("respects max_exclusive and has no reachable gap", () => {
+      expect(evaluate(glucose, 53.999)).toBe("critical");
+      expect(evaluate(glucose, 54)).toBe("attention");
+      expect(evaluate(glucose, 69.999)).toBe("attention");
+      expect(evaluate(glucose, 70)).toBe("unknown");
+    });
+
+    it("respects min_exclusive", () => {
+      const hr = makeIndicator({
+        ranges: [
+          { status: "normal", min: 60, max: 100, source_ids: [] },
+          { status: "attention", min: 100, min_exclusive: true, max: null, source_ids: [] },
+        ],
+      });
+      expect(evaluate(hr, 100)).toBe("normal");
+      expect(evaluate(hr, 100.001)).toBe("attention");
+    });
+
+    it("systolic 120 is elevated, not normal", () => {
+      const bp = makeIndicator({
+        input: { kind: "pair", labels: ["S", "D"] },
+        ranges: [
+          { status: "normal", min: null, max: 120, max_exclusive: true, source_ids: [] },
+          { status: "attention", min: 120, max: 180, source_ids: [] },
+          { status: "critical", min: 180, min_exclusive: true, max: null, source_ids: [] },
+        ],
+        ranges_secondary: [
+          { status: "normal", min: null, max: 80, max_exclusive: true, source_ids: [] },
+          { status: "attention", min: 80, max: 120, source_ids: [] },
+        ],
+      });
+      expect(evaluate(bp, [119.995, 79])).toBe("normal");
+      expect(evaluate(bp, [120, 79])).toBe("attention");
+      expect(evaluate(bp, [180, 79])).toBe("attention");
+      expect(evaluate(bp, [180.5, 79])).toBe("critical");
+    });
+  });
+
   describe("pair", () => {
     const pair = makeIndicator({
       id: "pair_ind",

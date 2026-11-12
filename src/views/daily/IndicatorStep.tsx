@@ -5,6 +5,7 @@ import { PlaceholderBadge } from "../../components/PlaceholderBadge";
 import { SourceLinks } from "../../components/SourceLinks";
 import { effectiveFrequency } from "../../logic/daily";
 import type { ReadingValue } from "../../logic/evaluate";
+import { renderIndicatorText } from "../../logic/indicatorText";
 import type { Reading } from "../../storage/local";
 import { History } from "./History";
 import { ReadingInput } from "./ReadingInput";
@@ -60,7 +61,7 @@ export function IndicatorStep(p: StepProps) {
         </h3>
         <ol className="list-decimal space-y-1 pl-6">
           {ind.how_to_measure.map((s, i) => (
-            <li key={i}>{s}</li>
+            <li key={i}>{renderIndicatorText(s, ind, p.env)}</li>
           ))}
         </ol>
       </section>
@@ -70,7 +71,7 @@ export function IndicatorStep(p: StepProps) {
           <h3 id={`why-${ind.id}`} className="mb-2 text-xl font-bold">
             {t("daily.why_it_matters")}
           </h3>
-          <p>{ind.why_it_matters}</p>
+          <p>{renderIndicatorText(ind.why_it_matters, ind, p.env)}</p>
           <SourceLinks ids={ind.source_ids} className="mt-3" />
         </section>
         <section aria-labelledby={`freq-${ind.id}`} className={panel}>

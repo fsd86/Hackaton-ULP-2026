@@ -7,6 +7,7 @@ import { useEnvironment } from "../../hooks/useEnvironment";
 import type { EvalStatus } from "../../logic/evaluate";
 import type { EscalationResult } from "../../logic/escalation";
 import { formatTime } from "../../logic/daily";
+import { renderIndicatorText } from "../../logic/indicatorText";
 import type { Reading } from "../../storage/local";
 import { btnSecondary, panel } from "./ui";
 
@@ -60,7 +61,7 @@ export function ResultPanel({ indicator, result }: { indicator: Indicator; resul
         {actions && actions.text.length > 0 ? (
           <ul className="list-disc space-y-1 pl-6">
             {actions.text.map((line, i) => (
-              <li key={i}>{line}</li>
+              <li key={i}>{renderIndicatorText(line, indicator, environment)}</li>
             ))}
           </ul>
         ) : (

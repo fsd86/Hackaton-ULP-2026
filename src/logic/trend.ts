@@ -47,7 +47,6 @@ export interface BuildTrendInput {
 
 export const DEFAULT_SINCE_MS = 7 * 24 * 3_600_000;
 export const DEFAULT_MAX_POINTS = 30;
-const GAP_EPS = 0.02; // cortes exclusivos tipo 69.99 -> 70
 
 interface RawBand {
   status: HealthStatus;
@@ -55,21 +54,12 @@ interface RawBand {
   to: number | null;
 }
 
-/** Ordena, ignora rangos nulos/nulos y cierra huecos < 0.02 entre un rango y el siguiente. */
+/** Ordena e ignora rangos nulos/nulos. Los bordes son los reales de la fuente (sin normalizar). */
 function normalizeRanges(ranges: Range[]): RawBand[] {
-  const bands: RawBand[] = ranges
+  return ranges
     .filter((r) => r.min !== null || r.max !== null)
     .map((r) => ({ status: r.status, from: r.min, to: r.max }))
     .sort((a, b) => (a.from ?? -Infinity) - (b.from ?? -Infinity));
-  for (let i = 0; i < bands.length - 1; i++) {
-    const cur = bands[i]!;
-    const next = bands[i + 1]!;
-    if (cur.to !== null && next.from !== null) {
-      const gap = next.from - cur.to;
-      if (gap > 0 && gap < GAP_EPS) cur.to = next.from;
-    }
-  }
-  return bands;
 }
 
 export function buildTrend({

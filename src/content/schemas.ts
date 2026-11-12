@@ -52,17 +52,29 @@ export const Range = z.object({
   status: HealthStatus,
   min: z.number().nullable(), // null = sin límite (o pendiente si PLACEHOLDER)
   max: z.number().nullable(),
+  // Cortes exclusivos (ej. "<70" = max 70 + max_exclusive). Ausente = inclusivo.
+  min_exclusive: z.boolean().optional(),
+  max_exclusive: z.boolean().optional(),
   source_ids: SourceIds,
 });
 
+// min/max/step de Input son límites de plausibilidad de ENTRADA (parámetro de diseño), no umbrales médicos.
 export const Input = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("number"),
-    step: z.number().default(1),
+    step: z.number().positive().default(1),
     min: z.number().optional(),
     max: z.number().optional(),
   }),
-  z.object({ kind: z.literal("pair"), labels: z.tuple([z.string(), z.string()]) }),
+  z.object({
+    kind: z.literal("pair"),
+    labels: z.tuple([z.string(), z.string()]),
+    step: z.number().positive().optional(),
+    min: z.number().optional(),
+    max: z.number().optional(),
+    // true: el segundo valor debe ser menor que el primero (ej. diastólica < sistólica).
+    second_lower_than_first: z.boolean().optional(),
+  }),
   z.object({
     kind: z.literal("scale"),
     min: z.number(),
@@ -94,6 +106,8 @@ export const Indicator = z
     frequency: Frequency,
     ranges: z.array(Range),
     ranges_secondary: z.array(Range).optional(),
+    // true: el indicador declara a propósito huecos entre rangos (la fuente no define ese tramo → "unknown").
+    allow_gaps: z.boolean().optional(),
     actions: z.record(HealthStatus, Action),
     source_ids: SourceIds,
     status: Status,
