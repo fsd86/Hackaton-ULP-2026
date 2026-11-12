@@ -159,6 +159,11 @@
   "storage.unavailable": "Storage is unavailable. Your data will not be saved after you close this page.",
   "storage.clear": "Clear saved data",
 
+  "view.placeholder": "This view is not built yet.",
+  "view.not_found": "Page not found",
+  "environment.empty": "No environments configured",
+  "environment.empty.help": "Add at least one environment to data/environments.json.",
+  "environment.delay.sr_prefix": "Communication delay:",
   "a11y.status_prefix": "Status:",
   "a11y.loading": "Content is loading",
   "a11y.current_page": "Current page"

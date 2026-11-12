@@ -4,8 +4,10 @@
 - 2026-11-12 — Fase A (planificación): `01-brief.md`, `02-mercado.md`, `03-concepto.md`, `04-arquitectura.md`. Concepto elegido: B "Earth Is Far".
 - 2026-11-12 — S0: scaffold Vite + React 18 + TS + Tailwind v4 + zod 3 + Vitest + ESLint. Esquemas zod de todos los JSON, carga con validaciones cruzadas y errores con archivo + campo, `t()` para textos, lógica pura `evaluate` / `escalate`, storage local con fallback en memoria. JSON migrados al nuevo esquema (todo PLACEHOLDER). Nuevos `data/protocols.json` y `config/strings.en.json`. Lint OK, 28/28 tests, build OK.
 
+- 2026-11-12 — S1: shell (header, nav accesible con hash routing, skip link, footer con disclaimer), pantalla de error de contenido, StatusBadge / PlaceholderBadge, selector de entorno persistente y DelayBanner (lógica pura en `src/logic/delay.ts`). Playwright con Edge del sistema (`npm run test:e2e`), smoke desktop + mobile en verde. Lint OK, 34/34 unit, build OK.
+
 ## En curso
-- S1: shell de la app (layout, navegación, pantalla de error) + selector de entorno + DelayBanner.
+- S2: Daily check.
 
 ## Bloqueado
 - Deploy en Vercel: se hace al final; requiere login del usuario.

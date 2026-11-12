@@ -169,8 +169,9 @@ export const AppConfig = z.object({
   theme: z.object({
     mode: z.enum(["dark", "light"]),
     accent: z.string(),
-    status_colors: z.record(HealthStatus, z.string()),
-    status_icons: z.record(HealthStatus, z.string()),
+    // z.object (no z.record): exige las 3 claves y da tipos no opcionales.
+    status_colors: z.object({ normal: z.string(), attention: z.string(), critical: z.string() }),
+    status_icons: z.object({ normal: z.string(), attention: z.string(), critical: z.string() }),
   }),
   features: z.object({
     charts: z.boolean(),
