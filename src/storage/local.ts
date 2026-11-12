@@ -14,11 +14,21 @@ export interface EmergencyLogEntry {
   protocolId: string;
   stepIndex: number;
   timestamp: number; // epoch ms
+  /** Sesión de emergencia a la que pertenece (ausente en entradas antiguas). */
+  sessionId?: string;
+}
+
+/** Protocolo en curso: sobrevive a recargas. El log histórico no se borra al reiniciar. */
+export interface EmergencySession {
+  sessionId: string;
+  protocolId: string;
+  startedAt: number; // epoch ms
 }
 
 const KEYS = {
   readings: "eif.readings",
   emergencyLog: "eif.emergency_log",
+  emergencySession: "eif.emergency_session",
   environment: "eif.environment",
 } as const;
 
@@ -106,6 +116,27 @@ export function addEmergencyLogEntry(
   const entry: EmergencyLogEntry = { ...input, timestamp: input.timestamp ?? Date.now() };
   writeRaw(KEYS.emergencyLog, JSON.stringify([...getEmergencyLog(), entry]));
   return entry;
+}
+
+export function getEmergencySession(): EmergencySession | null {
+  return readJson<EmergencySession | null>(KEYS.emergencySession, null);
+}
+
+export function startEmergencySession(protocolId: string, startedAt: number = Date.now()): EmergencySession {
+  const session: EmergencySession = { sessionId: newId(), protocolId, startedAt };
+  writeRaw(KEYS.emergencySession, JSON.stringify(session));
+  return session;
+}
+
+/** Cierra la sesión en curso; el log de acciones (histórico) se conserva. */
+export function clearEmergencySession(): void {
+  const s = backend();
+  memory.delete(KEYS.emergencySession);
+  try {
+    s?.removeItem(KEYS.emergencySession);
+  } catch {
+    /* ignorar */
+  }
 }
 
 export function getEnvironmentId(): string | null {

@@ -2,7 +2,7 @@ import { useContent } from "../content/ContentContext";
 import { EnvironmentSelect } from "./EnvironmentSelect";
 import { StatusIcon } from "./StatusIcon";
 
-export function Header({ onEmergency }: { onEmergency: () => void }) {
+export function Header({ onEmergency, emergencyActive = false }: { onEmergency: () => void; emergencyActive?: boolean }) {
   const { t, content } = useContent();
   const { app_name, tagline, theme } = content.app;
   return (
@@ -16,6 +16,7 @@ export function Header({ onEmergency }: { onEmergency: () => void }) {
           <EnvironmentSelect />
           <a
             href="#/emergency"
+            aria-current={emergencyActive ? "page" : undefined}
             onClick={(e) => {
               e.preventDefault();
               onEmergency();

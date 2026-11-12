@@ -8,8 +8,10 @@
 
 - 2026-11-12 — S2: vista Daily check (`#/check`): lista por categoría con última lectura y "due", asistente paso a paso (cómo medir / por qué / frecuencia con override de entorno), inputs number/pair/scale con validación accesible, resultado (StatusBadge), qué hacer y bloque de escalamiento con ETA de respuesta de tierra; historial persistente. `useHashRoute` soporta parámetro (`#/emergency/<id>`). Fechas en locale de la UI ("en"). e2e 6/6 (desktop + mobile).
 
+- 2026-11-12 — S3: Emergency mode (`#/emergency[/id]`): lista con buscador, ejecución paso a paso con tarjetas grandes, "Mark as done" con hora, temporizador opcional (`timer_s`), barra fija con tiempo transcurrido + mensaje de escalamiento con ETA anclada al inicio, log por sesión persistente (retoma al recargar), diálogo de salida accesible. Horas en formato 24 h. e2e 12/12.
+
 ## En curso
-- S3: Emergency mode. (Los datos de S5 ya están cargados en `data/`, sin commitear: van con el commit de S5.)
+- S4: vista Downlink report (lógica `src/logic/report.ts` ya escrita y testeada, sin commitear). Datos de S5 cargados en `data/`, sin commitear.
 
 ## Bloqueado
 - Deploy en Vercel: se hace al final; requiere login del usuario.

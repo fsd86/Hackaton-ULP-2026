@@ -43,11 +43,11 @@ export function formatValue(value: ReadingValue): string {
 
 /** HH:MM en hora local. `locale` = config.default_language (la UI es en inglés, no el idioma del sistema). */
 export function formatTime(ts: number | Date, locale = "en"): string {
-  return new Date(ts).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  return new Date(ts).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 }
 
 export function formatDateTime(ts: number, locale = "en"): string {
-  return new Date(ts).toLocaleString(locale, { dateStyle: "short", timeStyle: "short" });
+  return new Date(ts).toLocaleString(locale, { dateStyle: "short", timeStyle: "short", hourCycle: "h23" });
 }
 
 export function groupByCategory(indicators: Indicator[]): Array<[string, Indicator[]]> {

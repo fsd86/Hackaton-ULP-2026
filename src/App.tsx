@@ -13,6 +13,7 @@ import { Header } from "./components/Header";
 import { MainNav } from "./components/MainNav";
 import { ViewPlaceholder } from "./components/ViewPlaceholder";
 import { DailyCheck } from "./views/DailyCheck";
+import { EmergencyView } from "./views/EmergencyView";
 
 /** Aplica el tema de config/app.json como CSS variables en <html>. */
 function useTheme(): void {
@@ -31,7 +32,7 @@ function useTheme(): void {
 
 function Shell() {
   const { t, content } = useContent();
-  const { route, navigate } = useHashRoute();
+  const { route, param, navigate } = useHashRoute();
   const mainRef = useRef<HTMLElement>(null);
   const first = useRef(true);
   useTheme();
@@ -66,11 +67,17 @@ function Shell() {
       >
         {t("nav.skip_to_content")}
       </a>
-      <Header onEmergency={() => navigate("emergency")} />
+      <Header onEmergency={() => navigate("emergency")} emergencyActive={route.id === "emergency"} />
       <DelayBanner />
       <MainNav current={route.id} />
       <main id="main" ref={mainRef} tabIndex={-1} className="mx-auto min-h-[50vh] max-w-5xl px-4 py-6">
-        {route.id === "check" ? <DailyCheck /> : <ViewPlaceholder titleKey={route.navKey} />}
+        {route.id === "check" ? (
+          <DailyCheck />
+        ) : route.id === "emergency" ? (
+          <EmergencyView param={param} navigate={navigate} />
+        ) : (
+          <ViewPlaceholder titleKey={route.navKey} />
+        )}
       </main>
       <Footer />
     </EnvironmentProvider>
