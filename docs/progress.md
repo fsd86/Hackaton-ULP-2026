@@ -15,15 +15,18 @@
 
 - 2026-11-12 — S6: Status board (`#/`): estado general, contadores (ícono + texto), "Needs attention" con link a `#/check/<id>`, "Due now", tarjetas por indicador con TrendChart SVG propio (franjas de rango, marcadores con forma por estado, `pair` con línea sólida/punteada, `role="img"` + tabla alternativa), selector 24 h / 7 d / todo. Lógica pura `buildBoard` / `buildTrend`. Barra de emergencia compacta en móvil. Lint OK, 60/60 unit, 25/25 e2e (+1 skip intencional).
 
+- 2026-11-12 — QA (qa-auditor): suite `tests/qa/` (demo completo, axe, teclado, no-hardcode, perf, seguridad). 45 ok / 18 fallos (13 bugs reales, 5 falsos positivos del test). 0 bloqueantes, 9 mayores, 12 menores, 13 tickets. Ver `docs/qa-report.md`. `vercel.json` listo.
+
 ## En curso
-- QA final con Playwright (qa-auditor).
+- Nada. S0–S6 completos.
 
 ## Bloqueado
-- Deploy en Vercel: se hace al final; requiere login del usuario.
+- Deploy en Vercel: requiere que el usuario inicie sesión en la CLI de Vercel (GitHub no es accesible desde esta red, así que el deploy es por CLI, no por repo).
 
 ## Notas de entorno
 - Node y Git son portables (Escritorio), no están en PATH: anteponer al PATH en cada comando.
 - Los subagentes no tienen shell en este Windows: escriben código; instalación, lint, tests, build y commits los corre la sesión principal.
 
 ## Próximo
-- S2 Daily check, S3 Emergency, S4 Downlink report, S5 fuentes y datos reales, S6 status board + gráficos.
+- Deploy en Vercel (después del login del usuario).
+- Tickets de `docs/qa-report.md`, priorizando T1 (validación de inputs), T3 (storage corrupto), T4 (contraste) y T8 (presión → RCP).
