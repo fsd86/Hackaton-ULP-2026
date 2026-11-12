@@ -26,6 +26,8 @@ import {
   watchPage,
   type Health,
 } from "./helpers";
+import { renderIndicatorText } from "../../src/logic/indicatorText";
+import type { Indicator } from "../../src/content/schemas";
 
 // Guion de demo completo (desktop y mobile). Usa expect.soft: el flujo sigue aunque un paso falle,
 // asi un solo run lista todos los bugs. Lo que el oracle necesita sale de data/*.json y config/*.json.
@@ -105,7 +107,9 @@ test("demo flow: a-f (empty home, environments, critical check, emergency, repor
       await expect.soft(res.locator(`a[href="#/sources/${id}"]`), `source link ${id} on result`).toHaveCount(1);
     }
     // Acciones del JSON
-    for (const line of critAction.text) await expect.soft(page.getByText(line, { exact: true })).toBeVisible();
+    // Los textos usan plantillas {range...} (QA T10): se comparan ya renderizados, como los muestra la app.
+    for (const line of critAction.text)
+      await expect.soft(page.getByText(renderIndicatorText(line, bp as unknown as Indicator), { exact: true })).toBeVisible();
 
     const { min, max } = defaultEnv.comm_delay_one_way_s;
     const hi = max ?? min;
@@ -124,14 +128,22 @@ test("demo flow: a-f (empty home, environments, critical check, emergency, repor
         console.log("ETA", project, `earliest=+${Math.round((earliest - t0) / 60000)}min`, `latest=+${Math.round((latest - t0) / 60000)}min`);
       }
     }
-    await expect.soft(page.getByRole("link", { name: strings["escalation.open_protocol"], exact: true })).toBeVisible();
+    // El link al protocolo solo existe si la acción declara protocol_id (QA T8 lo quitó de la presión: sin fuente).
+    const openProtocol = page.getByRole("link", { name: strings["escalation.open_protocol"], exact: true });
+    await expect.soft(openProtocol).toHaveCount(critAction.protocol_id ? 1 : 0);
     await shot(page, testInfo, "03-check-critical", true);
   });
 
   // ---------------------------------------------------------------- d. protocolo de emergencia
   await test.step("d. emergency protocol: mark 3 steps, current step must be visible and not covered", async () => {
-    await page.getByRole("link", { name: strings["escalation.open_protocol"], exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`#/emergency/${protocol.id}$`));
+    if (critAction.protocol_id) {
+      await page.getByRole("link", { name: strings["escalation.open_protocol"], exact: true }).click();
+    } else {
+      // Camino real del astronauta: botón Emergency del header → elegir el protocolo.
+      await page.getByRole("link", { name: strings["emergency.button"], exact: true }).first().click();
+      await page.getByRole("button", { name: new RegExp(protocol.title.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")) }).first().click();
+    }
+    await expect(page).toHaveURL(new RegExp(`#/emergency(/${protocol.id})?$`));
     const heading = page.locator("#em-step-title");
     await expect(heading).toHaveText(protocol.steps[0].text);
 
@@ -198,10 +210,13 @@ test("demo flow: a-f (empty home, environments, critical check, emergency, repor
     await expect(eta).toHaveText(templateRegex(strings["report.eta_window"], "\\d{2}:\\d{2}"));
     await expect.soft(page.getByRole("heading", { level: 3, name: bp.name })).toBeVisible();
     await expect.soft(page.getByRole("region", { name: strings["report.eta"] })).toContainText(expectedDelayText(defaultEnv.comm_delay_one_way_s));
-    await expect.soft(page.getByText(strings["report.placeholder_warning"])).toBeVisible();
+    // exact: el aviso aparece en el banner y también dentro de la vista previa <pre> del texto.
+    await expect.soft(page.getByText(strings["report.placeholder_warning"], { exact: true })).toBeVisible();
     await expect.soft(page.locator("#report-emergency + ol li")).toHaveCount(3);
     for (let i = 0; i < 3; i++) {
-      await expect.soft(page.getByText(fill(strings["report.step"], { n: i + 1, text: protocol.steps[i].text }))).toBeVisible();
+      // El paso también aparece dentro de la vista previa <pre> del texto del reporte: se excluye la vista previa.
+      const stepText = fill(strings["report.step"], { n: i + 1, text: protocol.steps[i].text });
+      await expect.soft(page.getByText(stepText).and(page.locator(":not(pre)"))).toBeVisible();
     }
     const ov = await noHorizontalOverflow(page);
     expect.soft(ov.ok, `horizontal overflow on report: ${JSON.stringify(ov)}`).toBe(true);
@@ -274,12 +289,20 @@ test("demo flow: a-f (empty home, environments, critical check, emergency, repor
       /* permisos no soportados: se prueba el fallback manual */
     }
     await page.getByRole("button", { name: strings["report.copy"], exact: true }).click();
-    const feedback = await page.locator('p[role="status"][aria-live="polite"]').last().innerText();
+    // Buscar el feedback por su texto: hay otras regiones role="status" en la página (p. ej. el aviso de storage).
+    const fbLocator = page
+      .getByText(strings["report.copied"], { exact: true })
+      .or(page.getByText(strings["report.copy_manual"], { exact: true }))
+      .first();
+    await fbLocator.waitFor();
+    const feedback = (await fbLocator.innerText()).trim();
     console.log("COPY", project, JSON.stringify(feedback));
     expect.soft([strings["report.copied"], strings["report.copy_manual"]]).toContain(feedback);
     if (feedback === strings["report.copied"]) {
       const clip = await page.evaluate(() => navigator.clipboard.readText());
-      expect.soft(clip.trim()).toBe(txt.trim());
+      // El portapapeles de Windows convierte \n en \r\n: comparar con saltos de línea normalizados.
+      const norm = (s: string) => s.replace(/\r\n/g, "\n").trim();
+      expect.soft(norm(clip)).toBe(norm(txt));
     }
     await shot(page, testInfo, "05b-report-after-copy");
   });

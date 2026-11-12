@@ -157,10 +157,16 @@ test.describe("keyboard", () => {
       if (ind.input.kind === "scale") {
         await page.keyboard.press("Space");
       } else {
-        await page.keyboard.type("1");
+        // Valor válido según los límites de plausibilidad del JSON (QA T1: "1" ya no es aceptado para pulso/presión).
+        const lim = ind.input as { min?: number; max?: number };
+        const low = lim.min ?? 1;
         if (ind.input.kind === "pair") {
+          // second_lower_than_first: la diastólica debe ser menor que la sistólica.
+          await page.keyboard.type(String(low + 40));
           await page.keyboard.press("Tab");
-          await page.keyboard.type("1");
+          await page.keyboard.type(String(low));
+        } else {
+          await page.keyboard.type(String(low));
         }
       }
       const save = await tabUntil(page, (f) => f.name === strings["daily.save"], 10);

@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { renderIndicatorText } from "../../src/logic/indicatorText";
+import type { Indicator } from "../../src/content/schemas";
 import {
   app,
   criticalValueFor,
@@ -119,7 +121,9 @@ test("thresholds come from indicators.json: status, escalation level and actions
       const action = ind.actions[expected];
       if (action) {
         await expect.soft(page.locator(`section[aria-labelledby="esc-${ind.id}"]`), `${label}: escalation level`).toContainText(strings[`escalation.level.${action.escalation}`]);
-        for (const line of action.text) await expect.soft(page.getByText(line, { exact: true }), `${label}: action text`).toBeVisible();
+        // Plantillas {range...} (QA T10): comparar el texto ya renderizado desde los rangos, como lo muestra la app.
+        for (const line of action.text)
+          await expect.soft(page.getByText(renderIndicatorText(line, ind as unknown as Indicator), { exact: true }), `${label}: action text`).toBeVisible();
       }
     }
   }
@@ -148,7 +152,8 @@ test("visible text is traceable to the JSON (hardcode detector, all views)", asy
     if (!/[A-Za-z]/.test(s)) return true; // numeros, horas, glifos
     if (corpus.some((c) => c === s || (s.length >= 6 && c.includes(s)))) return true;
     if (regs.some((r) => r.test(s))) return true;
-    const parts = s.split(/\s[—·–-]\s|:\s|,\s/).filter((p) => p.length > 0);
+    // " / " separa el estado de cada componente de un input pair (p. ej. "Normal / Normal").
+    const parts = s.split(/\s[—·–\-/]\s|:\s|,\s/).filter((p) => p.length > 0);
     return parts.length > 1 && parts.every((p) => isMapped(p));
   };
 
