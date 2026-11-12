@@ -17,8 +17,10 @@
 
 - 2026-11-12 — QA (qa-auditor): suite `tests/qa/` (demo completo, axe, teclado, no-hardcode, perf, seguridad). 45 ok / 18 fallos (13 bugs reales, 5 falsos positivos del test). 0 bloqueantes, 9 mayores, 12 menores, 13 tickets. Ver `docs/qa-report.md`. `vercel.json` listo.
 
+- 2026-11-12 — Arreglos de QA en 4 grupos: G1 datos/umbrales (`be858dc`), G4 seguridad (`17d889d`), G2 robustez (`4a55936`), G3 accesibilidad/config (`4ffe37d`) + ajuste de la suite QA (`13d5cfc`). 9/9 mayores arreglados, 11/12 menores (T12 parcial). Unit 98/98, e2e 39/39, QA 62/63 (el único fallo es el 403 anti-bot de CDC), axe 0 violaciones.
+
 ## En curso
-- Nada. S0–S6 completos.
+- Nada. S0–S6 completos y QA arreglado.
 
 ## Bloqueado
 - Deploy en Vercel: requiere que el usuario inicie sesión en la CLI de Vercel (GitHub no es accesible desde esta red, así que el deploy es por CLI, no por repo).
@@ -29,4 +31,5 @@
 
 ## Próximo
 - Deploy en Vercel (después del login del usuario).
-- Tickets de `docs/qa-report.md`, priorizando T1 (validación de inputs), T3 (storage corrupto), T4 (contraste) y T8 (presión → RCP).
+- T12 pendiente: `hazards` con fuente y actualizar 5 URLs de fuentes que redirigen.
+- S11: README en inglés con link al deploy, capturas y tabla requisito → feature.

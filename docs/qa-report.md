@@ -1,5 +1,46 @@
 # QA report: MVP S0–S6
 
+## Update 2026-11-12: status after the fixes (G1–G4)
+**Result:** 9/9 major fixed · 11/12 minor fixed (1 partial) · 13/13 tickets closed or with a documented remainder.
+
+| Suite | Before | After |
+|---|---|---|
+| Unit (Vitest) | 60/60 | **98/98** |
+| Regular e2e | 25 + 1 skip | **39 + 3 skips** (intentional skips per device) |
+| QA (`-c tests/qa/playwright.qa.config.ts --workers=2`) | 45 ok · 18 failed | **62 ok · 1 failed · 17 skips** |
+| axe (20 views, desktop + mobile) | color-contrast `serious` on every route | **0 violations** |
+| Perf (desktop) | LCP 160 ms, JS 90 KB gz | LCP 112 ms, JS 95 KB gz |
+
+The only remaining QA failure is `cdc_bp` → **403** to Playwright's automated client (CDC anti-bot block). The page opens in a browser and was verified by hand on 2026-11-12. It is not a broken link.
+Run with `--workers=2`: with the default workers, Edge saturates this machine and 30 s timeouts appear that are not app bugs.
+
+### Status by ticket
+| Ticket | Status | What was done | Commit |
+|---|---|---|---|
+| T1 (M1) | ✅ fixed | Input plausibility limits in each `input` of `indicators.json` (pulse 20–250, BP 40–300, glucose 10–1000, temperature 30–45, sleep 0–24; documented as **design parameters, not medical thresholds**). Pure `validateReading` rejects empty, NaN, `1e5`, out-of-range values and values off the step; BP requires diastolic < systolic (`second_lower_than_first`). | `be858dc` |
+| T2 (M2) | ✅ fixed | `min_exclusive` / `max_exclusive` on `Range`; the 69.99 / 119.99 workarounds are gone. **The loader rejects** gaps and overlaps between consecutive ranges (with path and instructions) unless the indicator declares `allow_gaps`. 119.995 is now rejected by the step check, and the real cut-offs (<70, <120…) evaluate correctly. | `be858dc` |
+| T3 (M3) | ✅ fixed | zod validation of everything in localStorage: invalid items are discarded, valid ones kept, and a visible notice shows how many were discarded. Error boundaries per view and at the root (header and Emergency stay usable). QA: 0 blank screens across the 20 combinations. | `4a55936` |
+| T4 (M4) | ✅ fixed | `theme.emergency_button` in config (`#B3261E` / white ≈ 6.5:1). axe: 0 violations. | `4ffe37d` |
+| T5 (M5) | ✅ fixed | After saving, focus goes to the "Result" heading (wizard and single indicator). | `4ffe37d` |
+| T6 (M6) | ✅ fixed | Design parameter `emergency_session_max_age_hours` (12 h). An older session no longer resumes: the app asks Continue / Start over / Back to list. The timer formats `h:mm:ss` and `Xd hh:mm`. | `4a55936` |
+| T7 (M7, M8) | ✅ fixed | `dueState` → `due` / `ok` / `no_frequency`; without a frequency the app shows "No frequency defined" + PLACEHOLDER (no more "Up to date" without a basis). Flags: `charts`, `reminders`, `emergency_guide`, `downlink_report` are wired (they hide routes, nav and CTAs); `offline`, `body_map`, `reaction_test`, `gamification` were **removed**. | `4ffe37d` |
+| T8 (M9) | ✅ fixed | `protocol_id` removed from critical BP (no source). The CDC text with what to do stays. | `be858dc` |
+| T9 (m1, m2) | ✅ fixed | `scroll-margin-top` / `scroll-padding-top` on the step title + `scrollIntoView` after focus; compact card on desktop. e2e: title not covered, and "Mark as done" visible on 1280×720 and Pixel 7. | `4ffe37d` |
+| T10 (m3) | ✅ fixed | `{range.<status>.min|max}`, `{range2…}`, `{unit}` templates in the texts, rendered from the effective ranges. The loader fails if a template does not resolve. Figures that are not range edges (15 g, 15 min, athletes 40–60) stay literal with their source. | `be858dc` |
+| T11 (m4, m6, m7, m8) | ✅ fixed | One `h1` per view; categories with labels from strings; "About this environment" with description and equipment; "Clear saved data" button with confirmation. | `4ffe37d`, `4a55936` |
+| T12 (m5, m6, m12) | 🟡 partial | ✅ Mars transit description clarified (3–22 min is the delay *at* Mars). ✅ Sleep frequency → PLACEHOLDER. ⏳ **Pending:** fill `hazards` with a source (the UI already shows them as chips when present) and update the 5 source URLs that now redirect. | `be858dc` |
+| T13 (m9, m10) | ✅ fixed | CSP + `nosniff` + `Referrer-Policy` + `X-Frame-Options` + `Permissions-Policy` in `vercel.json`, applied to `vite preview` as well (the e2e confirm the CSP breaks nothing). `.env.example` updated. **The README in English stays for S11.** | `17d889d` |
+
+### QA tests adjusted (they were testing the old behavior, not app bugs)
+- The keyboard test typed "1" in every field: that value is now **correctly** rejected (T1). It now uses values inside the limits.
+- Action texts are compared after rendering the templates (T10).
+- The demo flow enters the protocol through the header's Emergency button when the action has no `protocol_id` (T8).
+- Selectors made exact or excluding the `<pre>` preview; the clipboard check is tolerant of CRLF; the "hardcode" detector recognizes "Normal / Normal" (pairs) as composed text. Commit `13d5cfc`.
+
+---
+
+## Original report (before the fixes)
+
 **Date:** 2026-11-12 · **Build:** commit `3ae0559` (S6) · **Browser:** Microsoft Edge (Playwright `channel: "msedge"`), projects `desktop` (Desktop Edge) and `mobile` (Pixel 7).
 **Authorship:** the `qa-auditor` subagent wrote the suite (`tests/qa/`) and the static audit. The main session ran the tests, ran the manual no-hardcode check and wrote this report (the auditor has no shell and cannot write report files).
 
