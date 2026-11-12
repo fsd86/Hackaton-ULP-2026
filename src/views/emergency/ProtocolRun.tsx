@@ -51,6 +51,7 @@ export function ProtocolRun({
   const [index, setIndex] = useState(() => firstUndoneIndex(total, doneAt.keys()));
   const [now, setNow] = useState(() => Date.now());
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [escalationOpen, setEscalationOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
@@ -132,26 +133,40 @@ export function ProtocolRun({
       <div
         role="region"
         aria-label={t("emergency.status_bar")}
-        className="sticky top-0 z-30 -mx-4 mb-6 border-b-4 border-[var(--status-critical)] bg-[var(--color-ink)] px-4 py-3"
+        className="sticky top-0 z-30 -mx-4 mb-3 border-b-4 border-[var(--status-critical)] bg-[var(--color-ink)] px-4 py-2 md:mb-6 md:py-3"
       >
-        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
-          <p className="flex items-center gap-2 text-lg font-extrabold">
+        <div className="flex items-center justify-between gap-x-4 gap-y-1">
+          <p className="flex min-w-0 items-center gap-2 text-base font-extrabold md:text-lg">
             <StatusIcon name={content.app.theme.status_icons.critical} className="h-6 w-6 text-[var(--status-critical)]" />
-            {protocol.title}
+            <span className="min-w-0">{protocol.title}</span>
           </p>
-          <p className="flex items-baseline gap-2">
-            <span className="text-sm text-[var(--color-muted)]">{t("emergency.elapsed")}</span>
-            <span role="timer" aria-label={t("emergency.elapsed")} className="font-mono text-3xl font-extrabold">
+          <p className="flex shrink-0 items-baseline gap-2">
+            <span className="hidden text-sm text-[var(--color-muted)] sm:inline">{t("emergency.elapsed")}</span>
+            <span role="timer" aria-label={t("emergency.elapsed")} className="font-mono text-2xl font-extrabold md:text-3xl">
               {formatElapsed((now - session.startedAt) / 1000)}
             </span>
           </p>
         </div>
-        <p className="text-sm text-[var(--color-muted)]">
+        <p className="hidden text-sm text-[var(--color-muted)] md:block">
           {t("environment.label")}: <span className="font-bold text-[var(--color-text)]">{environment.name}</span>
         </p>
-        <p className="mt-1 text-lg font-semibold">
-          {t(`escalation.level.${escalation.level}`)}: {t(escalation.messageKey, escalationVars(escalation))}
-        </p>
+        <div className="flex items-start gap-2 md:mt-1 md:block">
+          <p
+            id="em-escalation"
+            className={`min-w-0 flex-1 text-base font-semibold md:text-lg ${escalationOpen ? "" : "truncate md:overflow-visible md:whitespace-normal"}`}
+          >
+            {t(`escalation.level.${escalation.level}`)}: {t(escalation.messageKey, escalationVars(escalation))}
+          </p>
+          <button
+            type="button"
+            aria-expanded={escalationOpen}
+            aria-controls="em-escalation"
+            onClick={() => setEscalationOpen((o) => !o)}
+            className="inline-flex min-h-11 shrink-0 items-center px-2 font-bold text-[var(--color-accent)] underline md:hidden"
+          >
+            {escalationOpen ? t("emergency.less") : t("emergency.more")}
+          </button>
+        </div>
       </div>
 
       {!isPersistent() && entries.length > 0 && (
@@ -174,9 +189,9 @@ export function ProtocolRun({
       ) : (
         <article
           aria-labelledby="em-step-title"
-          className="rounded-md border-2 border-l-8 border-[var(--color-line)] border-l-[var(--status-critical)] bg-[var(--color-panel)] p-5"
+          className="rounded-md border-2 border-l-8 border-[var(--color-line)] border-l-[var(--status-critical)] bg-[var(--color-panel)] p-4 md:p-5"
         >
-          <p className="text-base font-bold uppercase tracking-wider text-[var(--color-muted)]">
+          <p className="text-sm font-bold uppercase md:text-base tracking-wider text-[var(--color-muted)]">
             {t("emergency.step_of", { current: index + 1, total })}
             {stepDoneAt !== undefined && (
               <span className="ml-3 rounded border-2 border-[var(--status-normal)] px-2 py-0.5 normal-case tracking-normal text-[var(--color-text)]">
@@ -184,12 +199,12 @@ export function ProtocolRun({
               </span>
             )}
           </p>
-          <h1 id="em-step-title" ref={headingRef} tabIndex={-1} className="mt-2 text-3xl font-extrabold leading-snug outline-none">
+          <h1 id="em-step-title" ref={headingRef} tabIndex={-1} className="mt-1 text-2xl font-extrabold leading-snug outline-none md:mt-2 md:text-3xl">
             {step.text}
           </h1>
-          {step.detail && <p className="mt-3 text-xl leading-relaxed text-[var(--color-muted)]">{step.detail}</p>}
+          {step.detail && <p className="mt-2 text-base leading-snug text-[var(--color-muted)] md:mt-3 md:text-xl md:leading-relaxed">{step.detail}</p>}
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-base">
+          <div className="mt-3 flex flex-wrap md:mt-4 items-center gap-x-4 gap-y-2 text-base">
             {step.source_ids.length > 0 ? (
               <SourceLinks ids={step.source_ids} label={t("emergency.step_sources")} className="text-base" />
             ) : (
@@ -202,7 +217,7 @@ export function ProtocolRun({
           <button
             type="button"
             onClick={markDone}
-            className="mt-6 inline-flex min-h-20 w-full items-center justify-center rounded-md bg-[var(--color-accent)] px-6 text-3xl font-extrabold text-[#070b14] hover:brightness-110"
+            className="mt-4 inline-flex min-h-16 w-full items-center justify-center rounded-md bg-[var(--color-accent)] px-6 text-2xl font-extrabold md:mt-6 md:min-h-20 md:text-3xl text-[#070b14] hover:brightness-110"
           >
             {t("emergency.mark_done")}
           </button>

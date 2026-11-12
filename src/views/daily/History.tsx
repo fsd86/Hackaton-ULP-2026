@@ -41,7 +41,7 @@ export function History({
                   <time dateTime={new Date(r.timestamp).toISOString()}>{formatDateTime(r.timestamp)}</time>
                 </span>
               </span>
-              <StatusBadge status={statusOfReading(indicator, r, environments, env)} />
+              <StatusBadge live={false} status={statusOfReading(indicator, r, environments, env)} />
             </li>
           ))}
         </ul>

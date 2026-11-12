@@ -18,7 +18,7 @@ export function DelayBanner() {
       aria-label={t("environment.delay.label")}
       className="mission-grid border-b border-[var(--color-line)] bg-[var(--color-panel)]"
     >
-      <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:gap-8">
+      <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-2 md:flex-row md:py-4 md:items-center md:gap-8">
         <div className="min-w-0 md:flex-1">
           <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
             {t("environment.delay.label")}

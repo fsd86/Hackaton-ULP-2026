@@ -11,11 +11,11 @@ import { EmptyState } from "./components/EmptyState";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { MainNav } from "./components/MainNav";
-import { ViewPlaceholder } from "./components/ViewPlaceholder";
 import { DailyCheck } from "./views/DailyCheck";
 import { EmergencyView } from "./views/EmergencyView";
 import { ReportView } from "./views/ReportView";
 import { SourcesView } from "./views/SourcesView";
+import { StatusBoard } from "./views/StatusBoard";
 
 /** Aplica el tema de config/app.json como CSS variables en <html>. */
 function useTheme(): void {
@@ -74,7 +74,7 @@ function Shell() {
       <MainNav current={route.id} />
       <main id="main" ref={mainRef} tabIndex={-1} className="mx-auto min-h-[50vh] max-w-5xl px-4 py-6">
         {route.id === "check" ? (
-          <DailyCheck />
+          <DailyCheck key={param ?? ""} param={param} />
         ) : route.id === "emergency" ? (
           <EmergencyView param={param} navigate={navigate} />
         ) : route.id === "report" ? (
@@ -82,7 +82,7 @@ function Shell() {
         ) : route.id === "sources" ? (
           <SourcesView param={param} />
         ) : (
-          <ViewPlaceholder titleKey={route.navKey} />
+          <StatusBoard />
         )}
       </main>
       <Footer />

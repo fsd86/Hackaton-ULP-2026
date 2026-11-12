@@ -14,3 +14,4 @@ Una línea por uso relevante. Sirve para completar la descripción de uso de IA 
 | 2026-11-12 | Subagente backend-data-engineer (Sonnet), en paralelo | S4 (lógica): `buildReport` puro + 8 tests | La sesión principal pasó las horas a 24 h y quitó un import sin uso |
 | 2026-11-12 | Subagente frontend-engineer (Sonnet) | S4 vista de reporte + S5 vista de fuentes, SourceLinks y e2e | Pasó lint/build/60 unit/20 e2e a la primera; la sesión principal separó los commits por slice |
 | 2026-11-12 | Subagente backend-data-engineer (Sonnet), en paralelo | S6 (lógica): `buildBoard` y `buildTrend` + 12 tests | Verde a la primera |
+| 2026-11-12 | Subagente frontend-engineer (Sonnet) | S6: Status board, TrendChart SVG, fix de pliegue en móvil, e2e | Verde a la primera; revisión visual con capturas |

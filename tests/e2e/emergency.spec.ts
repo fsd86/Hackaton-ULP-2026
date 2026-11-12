@@ -34,6 +34,14 @@ test("emergency: open protocol from header, mark 2 steps, log persists after rel
   await expect(page.getByTestId("emergency-log").getByRole("listitem")).toHaveCount(2);
 });
 
+test("emergency: mobile 'Mark as done' is visible without scrolling", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.setViewportSize({ width: 412, height: 915 });
+  await page.goto("/#/emergency");
+  await page.getByRole("button", { name: `${strings["emergency.start"]}: ${protocol.title}` }).click();
+  await expect(page.getByRole("button", { name: strings["emergency.mark_done"], exact: true })).toBeInViewport();
+});
+
 test("emergency: unknown protocol id shows the list with a notice", async ({ page }) => {
   await page.goto("/#/emergency/does_not_exist");
   await expect(page.getByRole("alert")).toContainText(strings["emergency.invalid_protocol"]);

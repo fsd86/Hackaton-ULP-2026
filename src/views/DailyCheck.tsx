@@ -16,11 +16,16 @@ type View =
   | { mode: "done"; ids: string[] };
 
 /** Vista Daily check: lista → asistente (o indicador suelto) → resumen. Todo el contenido sale de data/ y config/. */
-export function DailyCheck() {
+export function DailyCheck({ param }: { param?: string | undefined }) {
   const { t, content } = useContent();
   const { environment, environments } = useEnvironment();
   const [readings, setReadings] = useState<Reading[]>(() => getReadings());
-  const [view, setView] = useState<View>({ mode: "list" });
+  // #/check/<indicatorId> abre ese indicador directamente (p. ej. desde el Status board).
+  const [view, setView] = useState<View>(() =>
+    param && content.indicators.some((i) => i.id === param)
+      ? { mode: "run", ids: [param], index: 0, single: true }
+      : { mode: "list" },
+  );
   const [results, setResults] = useState<Record<string, StepResult>>({});
   const [skipped, setSkipped] = useState(0);
   const [announce, setAnnounce] = useState("");

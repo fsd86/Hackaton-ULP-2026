@@ -13,8 +13,10 @@
 - 2026-11-12 — S4: Downlink report (`#/report`): `buildReport` puro (ventana de respuesta esperada = ahora + 2×demora, lecturas del período con tendencia, log de emergencia, checklist de `report_fields`, aviso de placeholders, disclaimer), vista con período 24 h / todo, copiar al portapapeles con fallback, descarga .txt y .json.
 - 2026-11-12 — S5: datos con fuentes verificadas (11 fuentes VERIFIED: CDC presión / glucosa / fiebre / sueño, MedlinePlus pulso, NASA HRP, NASA Perseverance comms, ESA Luna, guía DGLRM/ESAM de RCP en microgravedad). Rangos con fuente para presión, pulso, glucosa baja, fiebre y sueño; demoras Marte 180–1320 s y Luna 1,27 s; protocolo con pasos de RCP en microgravedad. Indicadores y protocolo siguen PLACEHOLDER porque tienen partes sin fuente (frecuencias, algunos pasos y acciones); ánimo, ISS y clínica remota completos PLACEHOLDER. Vista Sources con resumen de verificación, "cited by" y anclas `#/sources/<id>`; links de fuente en Daily check, Emergency y DelayBanner.
 
+- 2026-11-12 — S6: Status board (`#/`): estado general, contadores (ícono + texto), "Needs attention" con link a `#/check/<id>`, "Due now", tarjetas por indicador con TrendChart SVG propio (franjas de rango, marcadores con forma por estado, `pair` con línea sólida/punteada, `role="img"` + tabla alternativa), selector 24 h / 7 d / todo. Lógica pura `buildBoard` / `buildTrend`. Barra de emergencia compacta en móvil. Lint OK, 60/60 unit, 25/25 e2e (+1 skip intencional).
+
 ## En curso
-- S6: status board + gráficos de tendencia (lógica `board.ts` / `trend.ts` ya escrita y testeada, sin commitear).
+- QA final con Playwright (qa-auditor).
 
 ## Bloqueado
 - Deploy en Vercel: se hace al final; requiere login del usuario.
