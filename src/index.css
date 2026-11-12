@@ -19,7 +19,25 @@
   --status-attention: #e0a100;
   --status-critical: #d64545;
   --status-unknown: #8a97b3;
+  /* Valores por defecto; useTheme los pisa con config/app.json → theme.emergency_button. */
+  --emergency-bg: #b3261e;
+  --emergency-text: #ffffff;
+  --sticky-offset: 12rem;
   color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --sticky-offset: 10rem;
+  }
+}
+
+html {
+  scroll-padding-top: var(--sticky-offset);
+}
+
+#em-step-title {
+  scroll-margin-top: var(--sticky-offset);
 }
 
 :root[data-mode="light"] {

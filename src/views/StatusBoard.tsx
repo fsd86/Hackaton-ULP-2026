@@ -1,6 +1,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import { useContent } from "../content/ContentContext";
 import { EmptyState } from "../components/EmptyState";
+import { DueBadge } from "../components/DueBadge";
 import { PlaceholderBadge } from "../components/PlaceholderBadge";
 import { StatusBadge, type BadgeStatus } from "../components/StatusBadge";
 import { StatusIcon } from "../components/StatusIcon";
@@ -31,6 +32,7 @@ export function StatusBoard() {
   const [readings] = useState(() => getReadings());
   const [period, setPeriod] = useState<PeriodId>("7d");
   const chartsOn = content.app.features.charts;
+  const remindersOn = content.app.features.reminders;
 
   const board = useMemo(
     () =>
@@ -132,19 +134,25 @@ export function StatusBoard() {
           </>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-line)] pt-4">
-          <div>
-            <h3 className="text-xl font-bold">{t("board.due_now")}</h3>
-            <p className="text-[var(--color-muted)]">
-              {board.dueNow.length === 0 ? t("board.all_ok") : board.dueNow.map(nameOf).join(", ")}
-            </p>
+        {remindersOn && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-line)] pt-4">
+            <div>
+              <h3 className="text-xl font-bold">{t("board.due_now")}</h3>
+              <p className="text-[var(--color-muted)]">
+                {board.dueNow.length > 0
+                  ? board.dueNow.map(nameOf).join(", ")
+                  : board.noFrequency.length === content.indicators.length
+                    ? t("board.no_frequency_all")
+                    : t("board.all_ok")}
+              </p>
+            </div>
+            {board.dueNow.length > 0 && hasReadings && (
+              <a href="#/check" className={btnPrimary}>
+                {t("board.due_cta")}
+              </a>
+            )}
           </div>
-          {board.dueNow.length > 0 && hasReadings && (
-            <a href="#/check" className={btnPrimary}>
-              {t("board.due_cta")}
-            </a>
-          )}
-        </div>
+        )}
       </section>
 
       <section aria-labelledby="board-indicators">
@@ -204,15 +212,7 @@ export function StatusBoard() {
                     </>
                   )}
                 </div>
-                <span
-                  className={`inline-flex min-h-7 w-fit items-center rounded border px-2 text-sm font-bold ${
-                    entry.due
-                      ? "border-[var(--status-attention)] bg-[color-mix(in_srgb,var(--status-attention)_16%,var(--color-panel))]"
-                      : "border-[var(--color-line)] text-[var(--color-muted)]"
-                  }`}
-                >
-                  {entry.due ? `⏱ ${t("board.due_now")}` : `✓ ${t("board.up_to_date")}`}
-                </span>
+                <DueBadge state={entry.due} />
                 {chartsOn && (
                   <div>
                     <h4 className="mb-1 text-sm font-bold uppercase tracking-wider text-[var(--color-muted)]">{t("board.trend")}</h4>

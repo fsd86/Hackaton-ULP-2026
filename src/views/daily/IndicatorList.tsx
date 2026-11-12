@@ -1,13 +1,15 @@
 import { useContent } from "../../content/ContentContext";
 import type { Environment, Indicator } from "../../content/schemas";
+import { DueBadge } from "../../components/DueBadge";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
+import { labelFor } from "../../logic/labels";
 import { StatusBadge } from "../../components/StatusBadge";
 import {
   effectiveFrequency,
   formatDateTime,
   formatValue,
   groupByCategory,
-  isDue,
+  dueState,
   readingsFor,
   statusOfReading,
 } from "../../logic/daily";
@@ -29,7 +31,7 @@ export function IndicatorList({
   onStartAll: () => void;
   onOpen: (id: string) => void;
 }) {
-  const { t } = useContent();
+  const { t, content } = useContent();
   const groups = groupByCategory(indicators);
 
   return (
@@ -45,12 +47,12 @@ export function IndicatorList({
       {groups.map(([category, items]) => (
         <section key={category} aria-labelledby={`cat-${category}`}>
           <h2 id={`cat-${category}`} className="mb-2 text-sm font-bold uppercase tracking-wider text-[var(--color-muted)]">
-            {category}
+            {labelFor(content.strings, "category", category)}
           </h2>
           <ul className="grid gap-3 md:grid-cols-2">
             {items.map((ind) => {
               const last = readingsFor(readings, ind.id)[0];
-              const due = isDue(ind, env, readings);
+              const due = dueState(ind, env, readings);
               const freq = effectiveFrequency(ind, env);
               return (
                 <li key={ind.id} className={`${panel} flex flex-col gap-3`}>
@@ -76,15 +78,7 @@ export function IndicatorList({
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <span
-                      className={`inline-flex min-h-7 items-center rounded border px-2 text-sm font-bold ${
-                        due
-                          ? "border-[var(--status-attention)] bg-[color-mix(in_srgb,var(--status-attention)_16%,var(--color-panel))]"
-                          : "border-[var(--color-line)] text-[var(--color-muted)]"
-                      }`}
-                    >
-                      {due ? `⏱ ${t("board.due_now")}` : `✓ ${t("daily.up_to_date")}`}
-                    </span>
+                    <DueBadge state={due} />
                     <button
                       type="button"
                       onClick={() => onOpen(ind.id)}

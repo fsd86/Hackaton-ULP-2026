@@ -12,6 +12,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Footer } from "./components/Footer";
 import { StorageNotice } from "./components/StorageNotice";
 import { useStorageState } from "./hooks/useStorageState";
+import { FeatureDisabled } from "./components/FeatureDisabled";
+import { isRouteEnabled } from "./logic/features";
 import { Header } from "./components/Header";
 import { MainNav } from "./components/MainNav";
 import { DailyCheck } from "./views/DailyCheck";
@@ -29,6 +31,8 @@ function useTheme(): void {
     root.dataset.mode = theme.mode;
     root.style.setProperty("--color-accent", theme.accent);
     root.style.setProperty("--color-emergency", theme.status_colors.critical);
+    root.style.setProperty("--emergency-bg", theme.emergency_button.background);
+    root.style.setProperty("--emergency-text", theme.emergency_button.text);
     for (const [status, color] of Object.entries(theme.status_colors)) {
       root.style.setProperty(`--status-${status}`, color);
     }
@@ -41,6 +45,7 @@ function Shell() {
   const mainRef = useRef<HTMLElement>(null);
   const first = useRef(true);
   const { version } = useStorageState();
+  const features = content.app.features;
   useTheme();
 
   // Al cambiar de vista: título del documento y foco al contenido (lectores de pantalla / teclado).
@@ -83,9 +88,13 @@ function Shell() {
           {route.id === "check" ? (
             <DailyCheck key={param ?? ""} param={param} />
           ) : route.id === "emergency" ? (
-            <EmergencyView param={param} navigate={navigate} />
+            isRouteEnabled("emergency", features) ? (
+              <EmergencyView param={param} navigate={navigate} />
+            ) : (
+              <FeatureDisabled titleKey={route.navKey} />
+            )
           ) : route.id === "report" ? (
-            <ReportView />
+            isRouteEnabled("report", features) ? <ReportView /> : <FeatureDisabled titleKey={route.navKey} />
           ) : route.id === "sources" ? (
             <SourcesView param={param} />
           ) : (

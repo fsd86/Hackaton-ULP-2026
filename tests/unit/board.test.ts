@@ -47,15 +47,16 @@ describe("buildBoard", () => {
     expect(board.overall).toBe("critical");
   });
 
-  it("is noData with no readings and everything is due", () => {
+  it("is noData with no readings; everything with a frequency is due, the rest has no frequency", () => {
     const board = buildBoard({ content, environmentId: env.id, readings: [], now: NOW });
     expect(board.overall).toBe("noData");
     expect(board.counts.noData).toBe(4);
-    expect(board.dueNow).toEqual(["a", "b", "c", "d"]);
+    expect(board.dueNow).toEqual(["a", "c", "d"]);
+    expect(board.noFrequency).toEqual(["b"]);
     expect(board.entries.map((e) => e.indicatorId)).toEqual(["a", "b", "c", "d"]);
   });
 
-  it("due: frequency null never expires once read; others expire after every_hours", () => {
+  it("due: frequency null is no_frequency (never due, never ok); others expire after every_hours", () => {
     const board = buildBoard({
       content,
       environmentId: env.id,
@@ -63,6 +64,9 @@ describe("buildBoard", () => {
       now: NOW,
     });
     expect(board.dueNow).toEqual(["a", "d"]);
+    expect(board.noFrequency).toEqual(["b"]);
+    expect(board.entries.find((e) => e.indicatorId === "c")!.due).toBe("ok");
+    expect(board.entries.find((e) => e.indicatorId === "b")!.due).toBe("no_frequency");
   });
 
   it("uses the environment override of the reading for status and the current one for frequency", () => {
@@ -83,7 +87,7 @@ describe("buildBoard", () => {
       now: NOW,
     });
     expect(board.entries[0]!.status).toBe("normal"); // evaluada con el entorno de la lectura
-    expect(board.entries[0]!.due).toBe(true); // frecuencia del entorno actual (1 h)
+    expect(board.entries[0]!.due).toBe("due"); // frecuencia del entorno actual (1 h)
     const board2 = buildBoard({
       content: cont,
       environmentId: "strict",

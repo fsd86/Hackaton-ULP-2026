@@ -16,17 +16,18 @@
       "normal": "check-circle",
       "attention": "alert-triangle",
       "critical": "alert-octagon"
+    },
+    "emergency_button": {
+      "background": "#B3261E",
+      "text": "#FFFFFF"
     }
   },
   "features": {
+    "_comment": "Supported flags: charts (trend charts on the status board), reminders (due / no-frequency badges and the Due now block), emergency_guide (Emergency button, route and links), downlink_report (nav entry, links and route). Flags are bundled at build time.",
     "charts": true,
     "reminders": true,
     "emergency_guide": true,
-    "downlink_report": true,
-    "offline": false,
-    "body_map": true,
-    "reaction_test": false,
-    "gamification": false
+    "downlink_report": true
   },
   "realtime_threshold_s": 10,
   "emergency_session_max_age_hours": 12,

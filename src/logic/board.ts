@@ -1,7 +1,7 @@
 import type { Environment, Indicator } from "../content/schemas";
 import type { Reading } from "../storage/local";
 import { evaluate, type EvalStatus } from "./evaluate";
-import { isDue, readingsFor } from "./daily";
+import { dueState, readingsFor, type DueState } from "./daily";
 
 export interface BoardContent {
   indicators: Indicator[];
@@ -13,7 +13,7 @@ export interface BoardEntry {
   /** Estado de la última lectura (evaluada con el entorno en que se tomó); "unknown" si no hay lectura. */
   status: EvalStatus;
   lastReading?: Reading;
-  due: boolean;
+  due: DueState;
   /** El indicador tiene datos sin verificar (status PLACEHOLDER). */
   placeholder: boolean;
 }
@@ -34,7 +34,10 @@ export interface Board {
   counts: BoardCounts;
   /** attention + critical, critical primero. */
   needsAttention: string[];
+  /** Solo indicadores con frecuencia definida y vencidos. */
   dueNow: string[];
+  /** Indicadores sin frecuencia definida (no se puede decir si vencen). */
+  noFrequency: string[];
   overall: BoardOverall;
 }
 
@@ -68,7 +71,7 @@ export function buildBoard({ content, environmentId, readings, now }: BuildBoard
     const entry: BoardEntry = {
       indicatorId: ind.id,
       status,
-      due: isDue(ind, dueEnv, readings, now),
+      due: dueState(ind, dueEnv, readings, now),
       placeholder: ind.status === "PLACEHOLDER",
     };
     if (last) entry.lastReading = last;
@@ -81,14 +84,15 @@ export function buildBoard({ content, environmentId, readings, now }: BuildBoard
   const needsAttention = entries
     .filter((e) => e.status === "critical" || e.status === "attention")
     .map((e) => e.indicatorId);
-  const dueNow = content.indicators
-    .map((i) => i.id)
-    .filter((id) => entries.find((e) => e.indicatorId === id)?.due);
+  const idsWith = (state: DueState) =>
+    content.indicators.map((i) => i.id).filter((id) => entries.find((e) => e.indicatorId === id)?.due === state);
+  const dueNow = idsWith("due");
+  const noFrequency = idsWith("no_frequency");
 
   let overall: BoardOverall = "noData";
   for (const x of indexed) {
     if (x.entry.lastReading && x.rank < RANK[overall]) overall = x.entry.status as BoardOverall;
   }
 
-  return { entries, counts, needsAttention, dueNow, overall };
+  return { entries, counts, needsAttention, dueNow, noFrequency, overall };
 }

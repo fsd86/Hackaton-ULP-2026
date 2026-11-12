@@ -12,18 +12,23 @@ export function readingsFor(readings: Reading[], indicatorId: string): Reading[]
   return readings.filter((r) => r.indicatorId === indicatorId).sort((a, b) => b.timestamp - a.timestamp);
 }
 
-/** Pendiente: sin lecturas, o pasó más de every_hours desde la última (every_hours null → nunca vence). */
-export function isDue(
+export type DueState = "due" | "ok" | "no_frequency";
+
+/**
+ * Estado de vencimiento. every_hours efectivo null (sin fuente) → "no_frequency", haya o no lecturas:
+ * no se puede afirmar ni "vencido" ni "al día". Si hay frecuencia: sin lecturas o pasado every_hours → "due".
+ */
+export function dueState(
   ind: Indicator,
   env: Pick<Environment, "indicator_overrides">,
   readings: Reading[],
   now: number = Date.now(),
-): boolean {
-  const last = readingsFor(readings, ind.id)[0];
-  if (!last) return true;
+): DueState {
   const hours = effectiveFrequency(ind, env).every_hours;
-  if (hours === null) return false;
-  return now - last.timestamp >= hours * 3_600_000;
+  if (hours === null) return "no_frequency";
+  const last = readingsFor(readings, ind.id)[0];
+  if (!last) return "due";
+  return now - last.timestamp >= hours * 3_600_000 ? "due" : "ok";
 }
 
 /** Estado de una lectura guardada, evaluada con el entorno en que se tomó (o el actual si ya no existe). */

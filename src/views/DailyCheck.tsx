@@ -133,6 +133,10 @@ export function DailyCheck({ param }: { param?: string | undefined }) {
       <div aria-live="polite" className="sr-only">
         {announce}
       </div>
+      {/* IndicatorList ya trae su propio h1; en asistente y resumen el h1 es el título de la vista. */}
+      {view.mode !== "list" && (
+        <h1 className="mb-3 text-sm font-bold uppercase tracking-widest text-[var(--color-muted)]">{t("daily.title")}</h1>
+      )}
       {body}
     </section>
   );

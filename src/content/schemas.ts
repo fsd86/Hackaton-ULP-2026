@@ -186,16 +186,16 @@ export const AppConfig = z.object({
     // z.object (no z.record): exige las 3 claves y da tipos no opcionales.
     status_colors: z.object({ normal: z.string(), attention: z.string(), critical: z.string() }),
     status_icons: z.object({ normal: z.string(), attention: z.string(), critical: z.string() }),
+    // Fondo/texto del botón Emergency (contraste AA); status_colors.critical queda para íconos y bordes.
+    emergency_button: z.object({ background: z.string(), text: z.string() }),
   }),
+  // Flags soportados (todos cableados): charts, reminders, emergency_guide, downlink_report.
   features: z.object({
+    _comment: Comment,
     charts: z.boolean(),
     reminders: z.boolean(),
     emergency_guide: z.boolean(),
     downlink_report: z.boolean(),
-    offline: z.boolean(),
-    body_map: z.boolean(),
-    reaction_test: z.boolean(),
-    gamification: z.boolean(),
   }),
   // Parámetro de DISEÑO (no médico).
   realtime_threshold_s: z.number(),

@@ -14,6 +14,7 @@ export function Header({ onEmergency, emergencyActive = false }: { onEmergency: 
         </div>
         <div className="grid grid-cols-[1fr_auto] items-end gap-3 sm:w-[28rem]">
           <EnvironmentSelect />
+          {content.app.features.emergency_guide && (
           <a
             href="#/emergency"
             aria-current={emergencyActive ? "page" : undefined}
@@ -21,11 +22,12 @@ export function Header({ onEmergency, emergencyActive = false }: { onEmergency: 
               e.preventDefault();
               onEmergency();
             }}
-            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-[var(--status-critical)] px-5 text-lg font-extrabold text-white shadow-[0_0_0_2px_var(--color-ink),0_0_0_4px_var(--status-critical)] hover:brightness-110"
+            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-[var(--emergency-bg)] px-5 text-lg font-extrabold text-[var(--emergency-text)] shadow-[0_0_0_2px_var(--color-ink),0_0_0_4px_var(--emergency-bg)] hover:brightness-110"
           >
             <StatusIcon name={theme.status_icons.critical} className="h-6 w-6" />
             {t("emergency.button")}
           </a>
+          )}
         </div>
       </div>
     </header>

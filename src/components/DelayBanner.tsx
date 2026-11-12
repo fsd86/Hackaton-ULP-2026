@@ -39,6 +39,27 @@ export function DelayBanner() {
           <span className="h-5 w-5 shrink-0 rounded-full border-2 border-[var(--color-accent)]" />
         </div>
       </div>
+      <details className="mx-auto max-w-5xl px-4 pb-2">
+        <summary className="inline-flex min-h-11 cursor-pointer items-center gap-2 font-bold">
+          {t("environment.description")}
+        </summary>
+        <div className="space-y-2 pb-2">
+          {environment.status === "PLACEHOLDER" && <PlaceholderBadge />}
+          <p>{environment.description}</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
+            {t("environment.equipment")}
+          </p>
+          {environment.available_equipment.length === 0 ? (
+            <p className="text-[var(--color-muted)]">{t("environment.equipment.none")}</p>
+          ) : (
+            <ul className="list-disc pl-6">
+              {environment.available_equipment.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </details>
     </section>
   );
 }

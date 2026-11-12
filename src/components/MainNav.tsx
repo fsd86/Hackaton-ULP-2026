@@ -1,10 +1,11 @@
 import { useContent } from "../content/ContentContext";
-import { ROUTES, type RouteId } from "../hooks/useHashRoute";
+import type { RouteId } from "../hooks/useHashRoute";
+import { visibleNav } from "../logic/features";
 
 /** Navegación principal: barra inferior fija en móvil, inline bajo el banner en escritorio. El Emergency va en el header. */
 export function MainNav({ current }: { current: RouteId }) {
-  const { t } = useContent();
-  const items = ROUTES.filter((r) => r.id !== "emergency");
+  const { t, content } = useContent();
+  const items = visibleNav(content.app.features);
   return (
     <nav
       aria-label={t("nav.main_label")}

@@ -6,6 +6,7 @@ import { SourceLinks } from "../../components/SourceLinks";
 import { effectiveFrequency } from "../../logic/daily";
 import type { ReadingValue } from "../../logic/evaluate";
 import { renderIndicatorText } from "../../logic/indicatorText";
+import { labelFor } from "../../logic/labels";
 import type { Reading } from "../../storage/local";
 import { History } from "./History";
 import { ReadingInput } from "./ReadingInput";
@@ -30,16 +31,22 @@ export interface StepProps {
 }
 
 export function IndicatorStep(p: StepProps) {
-  const { t } = useContent();
+  const { t, content } = useContent();
   const { indicator: ind } = p;
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const resultRef = useRef<HTMLHeadingElement>(null);
+  const prev = useRef<{ id: string; hasResult: boolean } | null>(null);
   const placeholder = ind.status === "PLACEHOLDER";
   const freq = effectiveFrequency(ind, p.env);
+  const hasResult = p.result !== undefined;
 
-  // Foco al título al cambiar de paso (lectores de pantalla y teclado).
+  // Foco: al cambiar de paso va al título; al guardar la lectura (mismo paso) va al heading "Result".
   useEffect(() => {
-    titleRef.current?.focus();
-  }, [ind.id]);
+    const before = prev.current;
+    prev.current = { id: ind.id, hasResult };
+    if (before && before.id === ind.id && !before.hasResult && hasResult) resultRef.current?.focus();
+    else if (!before || before.id !== ind.id) titleRef.current?.focus();
+  }, [ind.id, hasResult]);
 
   return (
     <article aria-label={ind.name} className="space-y-4">
@@ -54,6 +61,15 @@ export function IndicatorStep(p: StepProps) {
         </h2>
         {placeholder && <PlaceholderBadge />}
       </div>
+      {ind.hazards.length > 0 && (
+        <ul aria-label={t("hazard.label")} className="flex flex-wrap gap-2">
+          {ind.hazards.map((h) => (
+            <li key={h} className="rounded border border-[var(--color-line)] px-2 py-0.5 text-sm font-semibold">
+              {labelFor(content.strings, "hazard", h)}
+            </li>
+          ))}
+        </ul>
+      )}
 
       <section aria-labelledby={`how-${ind.id}`} className={panel}>
         <h3 id={`how-${ind.id}`} className="mb-2 text-xl font-bold">
@@ -82,7 +98,7 @@ export function IndicatorStep(p: StepProps) {
         </section>
       </div>
 
-      {p.result ? <ResultPanel indicator={ind} result={p.result} /> : <div className={panel}><ReadingInput key={ind.id} indicator={ind} onSubmit={p.onSave} /></div>}
+      {p.result ? <ResultPanel indicator={ind} result={p.result} headingRef={resultRef} /> : <div className={panel}><ReadingInput key={ind.id} indicator={ind} onSubmit={p.onSave} /></div>}
 
       <div className="flex flex-wrap gap-3">
         {p.position ? (

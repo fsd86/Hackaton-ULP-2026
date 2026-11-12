@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, Ref } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Indicator } from "../../content/schemas";
 import { SourceLinks } from "../../components/SourceLinks";
@@ -28,8 +28,18 @@ export function escalationVars(esc: EscalationResult): Record<string, string> {
 }
 
 /** Resultado + qué hacer + escalamiento (el diferencial: quién y cuándo podría responder). */
-export function ResultPanel({ indicator, result }: { indicator: Indicator; result: StepResult }) {
-  const { t } = useContent();
+export function ResultPanel({
+  indicator,
+  result,
+  headingRef,
+}: {
+  indicator: Indicator;
+  result: StepResult;
+  /** Para mover el foco al heading "Result" tras guardar. */
+  headingRef?: Ref<HTMLHeadingElement>;
+}) {
+  const { t, content } = useContent();
+  const emergencyOn = content.app.features.emergency_guide;
   const { environment } = useEnvironment();
   const { status, escalation, reading } = result;
   const actions = status === "unknown" ? undefined : indicator.actions[status];
@@ -46,7 +56,7 @@ export function ResultPanel({ indicator, result }: { indicator: Indicator; resul
   return (
     <div className="space-y-4">
       <section aria-labelledby={`res-${indicator.id}`} className={panel}>
-        <h3 id={`res-${indicator.id}`} className="mb-2 text-xl font-bold">
+        <h3 ref={headingRef} tabIndex={-1} id={`res-${indicator.id}`} className="mb-2 text-xl font-bold outline-none">
           {t("daily.result")}
         </h3>
         <StatusBadge status={status} />
@@ -95,7 +105,7 @@ export function ResultPanel({ indicator, result }: { indicator: Indicator; resul
             </div>
           </dl>
         )}
-        {escalation.protocolId && (
+        {escalation.protocolId && emergencyOn && (
           <a href={`#/emergency/${encodeURIComponent(escalation.protocolId)}`} className={`${btnSecondary} mt-4`}>
             {t("escalation.open_protocol")}
           </a>

@@ -53,20 +53,24 @@ export function ProtocolRun({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [escalationOpen, setEscalationOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const firstRender = useRef(true);
+  const reportOn = content.app.features.downlink_report;
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // Al cambiar de paso, el foco va al título del paso (teclado / lector de pantalla).
+  // Al montar y al cambiar de paso: foco al título del paso (teclado / lector de pantalla) y scroll para que
+  // nunca quede bajo la barra sticky (scroll-margin-top en index.css). preventScroll evita el salto del foco.
+  // setTimeout: el Shell enfoca <main> en su propio efecto (corre después de los hijos).
   useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    headingRef.current?.focus();
+    const timer = setTimeout(() => {
+      const el = headingRef.current;
+      if (!el) return;
+      el.focus({ preventScroll: true });
+      el.scrollIntoView({ block: "start" });
+    }, 0);
+    return () => clearTimeout(timer);
   }, [index]);
 
   // Anclado al inicio de la sesión: la ventana de respuesta de tierra no se mueve cada segundo.
@@ -179,17 +183,19 @@ export function ProtocolRun({
         <div role="status" className="rounded-md border-2 border-l-8 border-[var(--status-normal)] bg-[var(--color-panel)] p-5">
           <h1 className="text-3xl font-extrabold">{t("emergency.completed")}</h1>
           <p className="mt-2 text-lg">{t("emergency.completed.help")}</p>
-          <a
-            href="#/report"
-            className="mt-4 inline-flex min-h-16 w-full items-center justify-center rounded-md bg-[var(--color-accent)] px-6 text-2xl font-extrabold text-[#070b14] hover:brightness-110"
-          >
-            {t("emergency.report_now")}
-          </a>
+          {reportOn && (
+            <a
+              href="#/report"
+              className="mt-4 inline-flex min-h-16 w-full items-center justify-center rounded-md bg-[var(--color-accent)] px-6 text-2xl font-extrabold text-[#070b14] hover:brightness-110"
+            >
+              {t("emergency.report_now")}
+            </a>
+          )}
         </div>
       ) : (
         <article
           aria-labelledby="em-step-title"
-          className="rounded-md border-2 border-l-8 border-[var(--color-line)] border-l-[var(--status-critical)] bg-[var(--color-panel)] p-4 md:p-5"
+          className="rounded-md border-2 border-l-8 border-[var(--color-line)] border-l-[var(--status-critical)] bg-[var(--color-panel)] p-4 md:p-4"
         >
           <p className="text-sm font-bold uppercase md:text-base tracking-wider text-[var(--color-muted)]">
             {t("emergency.step_of", { current: index + 1, total })}
@@ -199,10 +205,10 @@ export function ProtocolRun({
               </span>
             )}
           </p>
-          <h1 id="em-step-title" ref={headingRef} tabIndex={-1} className="mt-1 text-2xl font-extrabold leading-snug outline-none md:mt-2 md:text-3xl">
+          <h1 id="em-step-title" ref={headingRef} tabIndex={-1} className="mt-1 text-2xl font-extrabold leading-snug outline-none md:mt-1">
             {step.text}
           </h1>
-          {step.detail && <p className="mt-2 text-base leading-snug text-[var(--color-muted)] md:mt-3 md:text-xl md:leading-relaxed">{step.detail}</p>}
+          {step.detail && <p className="mt-2 text-base leading-snug text-[var(--color-muted)] md:mt-2 md:text-lg md:leading-snug">{step.detail}</p>}
 
           <div className="mt-3 flex flex-wrap md:mt-4 items-center gap-x-4 gap-y-2 text-base">
             {step.source_ids.length > 0 ? (
@@ -217,7 +223,7 @@ export function ProtocolRun({
           <button
             type="button"
             onClick={markDone}
-            className="mt-4 inline-flex min-h-16 w-full items-center justify-center rounded-md bg-[var(--color-accent)] px-6 text-2xl font-extrabold md:mt-6 md:min-h-20 md:text-3xl text-[#070b14] hover:brightness-110"
+            className="mt-4 inline-flex min-h-16 w-full items-center justify-center rounded-md bg-[var(--color-accent)] px-6 text-2xl font-extrabold md:mt-4 text-[#070b14] hover:brightness-110"
           >
             {t("emergency.mark_done")}
           </button>
@@ -236,12 +242,14 @@ export function ProtocolRun({
       {log}
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <a
-          href="#/report"
-          className="inline-flex min-h-14 items-center justify-center rounded-md border-2 border-[var(--color-accent)] px-6 text-lg font-bold hover:bg-[var(--color-panel-2)]"
-        >
-          {t("emergency.report_now")}
-        </a>
+        {reportOn && (
+          <a
+            href="#/report"
+            className="inline-flex min-h-14 items-center justify-center rounded-md border-2 border-[var(--color-accent)] px-6 text-lg font-bold hover:bg-[var(--color-panel-2)]"
+          >
+            {t("emergency.report_now")}
+          </a>
+        )}
         <button type="button" className={secondary} onClick={onRestart}>
           {t("emergency.restart")}
         </button>

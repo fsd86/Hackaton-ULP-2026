@@ -174,16 +174,18 @@ const AppConfig = z.object({
   theme: z.object({
     mode: z.enum(["dark","light"]),
     accent: z.string(),
-    status_colors: z.record(HealthStatus, z.string()),
-    status_icons: z.record(HealthStatus, z.string()),   // el color nunca es la única señal
+    status_colors: z.object({ normal, attention, critical }),   // z.object: exige las 3 claves
+    status_icons: z.object({ normal, attention, critical }),    // el color nunca es la única señal
+    emergency_button: z.object({ background, text }),           // ≥ 4.5:1 (AA)
   }),
+  // Solo flags cableados (QA M8): offline, body_map, reaction_test y gamification se eliminaron.
   features: z.object({
-    charts: z.boolean(), reminders: z.boolean(), emergency_guide: z.boolean(),
-    downlink_report: z.boolean(), offline: z.boolean(),
-    body_map: z.boolean(), reaction_test: z.boolean(), gamification: z.boolean(),
+    charts: z.boolean(), reminders: z.boolean(), emergency_guide: z.boolean(), downlink_report: z.boolean(),
   }),
-  // Parámetro de DISEÑO (no médico): a partir de qué demora la app prioriza actuar a bordo.
+  // Parámetros de DISEÑO (no médicos): a partir de qué demora la app prioriza actuar a bordo,
+  // y cuántas horas puede tener una sesión de emergencia antes de preguntar si continuar.
   realtime_threshold_s: z.number(),
+  emergency_session_max_age_hours: z.number().positive(),
   disclaimer: z.string(),
 });
 ```

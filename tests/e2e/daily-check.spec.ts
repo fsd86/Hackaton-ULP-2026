@@ -34,10 +34,17 @@ test("daily check: complete the wizard, see result + escalation, and find it in 
 
   await fillReading(page);
 
-  await expect(page.getByRole("heading", { name: strings["daily.result"], exact: true })).toBeVisible();
+  const resultHeading = page.getByRole("heading", { name: strings["daily.result"], exact: true });
+  await expect(resultHeading).toBeVisible();
+  // Tras guardar, el foco pasa al heading "Result" (no queda en <body>).
+  await expect(resultHeading).toBeFocused();
+  expect(await page.evaluate(() => document.activeElement?.textContent)).toBe(strings["daily.result"]);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("heading", { name: strings["daily.what_to_do"], exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: strings["escalation.label"], exact: true })).toBeVisible();
-  await expect(page.getByText(strings["escalation.level.self"]).or(page.getByText(strings["escalation.level.crew"])).or(page.getByText(strings["escalation.level.ground"])).first()).toBeVisible();
+  // exact: true — "Crew" aparece como substring en otros textos (p. ej. el <details> del entorno, cerrado).
+  const level = (k: string) => page.getByText(strings[k], { exact: true });
+  await expect(level("escalation.level.self").or(level("escalation.level.crew")).or(level("escalation.level.ground")).first()).toBeVisible();
 
   // Recargar: la lectura persiste y aparece en el historial del indicador.
   await page.reload();
