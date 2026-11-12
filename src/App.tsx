@@ -14,6 +14,7 @@ import { MainNav } from "./components/MainNav";
 import { ViewPlaceholder } from "./components/ViewPlaceholder";
 import { DailyCheck } from "./views/DailyCheck";
 import { EmergencyView } from "./views/EmergencyView";
+import { ReportView } from "./views/ReportView";
 
 /** Aplica el tema de config/app.json como CSS variables en <html>. */
 function useTheme(): void {
@@ -75,6 +76,8 @@ function Shell() {
           <DailyCheck />
         ) : route.id === "emergency" ? (
           <EmergencyView param={param} navigate={navigate} />
+        ) : route.id === "report" ? (
+          <ReportView />
         ) : (
           <ViewPlaceholder titleKey={route.navKey} />
         )}

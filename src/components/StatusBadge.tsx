@@ -6,13 +6,22 @@ import { StatusIcon } from "./StatusIcon";
 export type BadgeStatus = HealthStatus | "unknown";
 
 /** Estado = color + ícono + texto (nunca solo color). "unknown" explica que falta umbral verificado. */
-export function StatusBadge({ status, className = "" }: { status: BadgeStatus; className?: string }) {
+export function StatusBadge({
+  status,
+  className = "",
+  live = true,
+}: {
+  status: BadgeStatus;
+  className?: string;
+  /** false en listas/informes: sin role="status" para no saturar a los lectores de pantalla. */
+  live?: boolean;
+}) {
   const { t, content } = useContent();
   const icon = status === "unknown" ? "help-circle" : content.app.theme.status_icons[status];
   const style = { "--sc": `var(--status-${status})` } as CSSProperties;
   return (
     <span
-      role="status"
+      role={live ? "status" : undefined}
       style={style}
       className={`inline-flex min-h-11 items-center gap-2 rounded-md border-2 border-[var(--sc)] bg-[color-mix(in_srgb,var(--sc)_16%,var(--color-panel))] px-3 py-1 text-base font-bold text-[var(--color-text)] ${className}`}
     >
