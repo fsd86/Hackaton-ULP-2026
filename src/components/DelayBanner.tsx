@@ -2,6 +2,7 @@ import { useContent } from "../content/ContentContext";
 import { useEnvironment } from "../hooks/useEnvironment";
 import { classifyDelay, formatDelay } from "../logic/delay";
 import { PlaceholderBadge } from "./PlaceholderBadge";
+import { SourceLinks } from "./SourceLinks";
 
 /** Elemento-firma: demora de comunicación solo ida del entorno actual, siempre visible bajo el header. */
 export function DelayBanner() {
@@ -27,6 +28,7 @@ export function DelayBanner() {
             {text}
           </p>
           {isPlaceholder && <PlaceholderBadge className="mt-2" />}
+          <SourceLinks ids={delay.source_ids} label={t("sources.delay_sources")} className="mt-2 block" />
         </div>
         {/* Enlace visual nave—Tierra: decorativo, el dato está en el texto. */}
         <div aria-hidden="true" className="flex items-center gap-3 md:w-72">

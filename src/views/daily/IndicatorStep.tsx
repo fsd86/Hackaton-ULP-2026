@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Environment, Indicator } from "../../content/schemas";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
+import { SourceLinks } from "../../components/SourceLinks";
 import { effectiveFrequency } from "../../logic/daily";
 import type { ReadingValue } from "../../logic/evaluate";
 import type { Reading } from "../../storage/local";
@@ -70,6 +71,7 @@ export function IndicatorStep(p: StepProps) {
             {t("daily.why_it_matters")}
           </h3>
           <p>{ind.why_it_matters}</p>
+          <SourceLinks ids={ind.source_ids} className="mt-3" />
         </section>
         <section aria-labelledby={`freq-${ind.id}`} className={panel}>
           <h3 id={`freq-${ind.id}`} className="mb-2 text-xl font-bold">

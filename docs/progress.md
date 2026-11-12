@@ -10,8 +10,11 @@
 
 - 2026-11-12 — S3: Emergency mode (`#/emergency[/id]`): lista con buscador, ejecución paso a paso con tarjetas grandes, "Mark as done" con hora, temporizador opcional (`timer_s`), barra fija con tiempo transcurrido + mensaje de escalamiento con ETA anclada al inicio, log por sesión persistente (retoma al recargar), diálogo de salida accesible. Horas en formato 24 h. e2e 12/12.
 
+- 2026-11-12 — S4: Downlink report (`#/report`): `buildReport` puro (ventana de respuesta esperada = ahora + 2×demora, lecturas del período con tendencia, log de emergencia, checklist de `report_fields`, aviso de placeholders, disclaimer), vista con período 24 h / todo, copiar al portapapeles con fallback, descarga .txt y .json.
+- 2026-11-12 — S5: datos con fuentes verificadas (11 fuentes VERIFIED: CDC presión / glucosa / fiebre / sueño, MedlinePlus pulso, NASA HRP, NASA Perseverance comms, ESA Luna, guía DGLRM/ESAM de RCP en microgravedad). Rangos con fuente para presión, pulso, glucosa baja, fiebre y sueño; demoras Marte 180–1320 s y Luna 1,27 s; protocolo con pasos de RCP en microgravedad. Indicadores y protocolo siguen PLACEHOLDER porque tienen partes sin fuente (frecuencias, algunos pasos y acciones); ánimo, ISS y clínica remota completos PLACEHOLDER. Vista Sources con resumen de verificación, "cited by" y anclas `#/sources/<id>`; links de fuente en Daily check, Emergency y DelayBanner.
+
 ## En curso
-- S4: vista Downlink report (lógica `src/logic/report.ts` ya escrita y testeada, sin commitear). Datos de S5 cargados en `data/`, sin commitear.
+- S6: status board + gráficos de tendencia (lógica `board.ts` / `trend.ts` ya escrita y testeada, sin commitear).
 
 ## Bloqueado
 - Deploy en Vercel: se hace al final; requiere login del usuario.

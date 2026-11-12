@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Protocol } from "../../content/schemas";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
+import { SourceLinks } from "../../components/SourceLinks";
 import { StatusIcon } from "../../components/StatusIcon";
 import { useEnvironment } from "../../hooks/useEnvironment";
 import { formatTime } from "../../logic/daily";
@@ -97,10 +98,6 @@ export function ProtocolRun({
     else onExit();
   }
 
-  const sourceTitles = step.source_ids
-    .map((id) => content.sources.find((s) => s.id === id))
-    .filter((s): s is NonNullable<typeof s> => s !== undefined);
-
   const log = (
     <section aria-labelledby="em-log-title" className="mt-8">
       <h2 id="em-log-title" className="mb-2 text-xl font-bold">
@@ -193,15 +190,8 @@ export function ProtocolRun({
           {step.detail && <p className="mt-3 text-xl leading-relaxed text-[var(--color-muted)]">{step.detail}</p>}
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-base">
-            {sourceTitles.length > 0 ? (
-              <>
-                <span className="font-bold">{t("emergency.step_sources")}:</span>
-                {sourceTitles.map((s) => (
-                  <a key={s.id} href="#/sources" className="underline underline-offset-2 hover:text-[var(--color-accent)]">
-                    {s.publisher}
-                  </a>
-                ))}
-              </>
+            {step.source_ids.length > 0 ? (
+              <SourceLinks ids={step.source_ids} label={t("emergency.step_sources")} className="text-base" />
             ) : (
               <PlaceholderBadge />
             )}

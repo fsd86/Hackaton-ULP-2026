@@ -1,7 +1,9 @@
 import type { CSSProperties } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Indicator } from "../../content/schemas";
+import { SourceLinks } from "../../components/SourceLinks";
 import { StatusBadge } from "../../components/StatusBadge";
+import { useEnvironment } from "../../hooks/useEnvironment";
 import type { EvalStatus } from "../../logic/evaluate";
 import type { EscalationResult } from "../../logic/escalation";
 import { formatTime } from "../../logic/daily";
@@ -27,9 +29,18 @@ export function escalationVars(esc: EscalationResult): Record<string, string> {
 /** Resultado + qué hacer + escalamiento (el diferencial: quién y cuándo podría responder). */
 export function ResultPanel({ indicator, result }: { indicator: Indicator; result: StepResult }) {
   const { t } = useContent();
+  const { environment } = useEnvironment();
   const { status, escalation, reading } = result;
   const actions = status === "unknown" ? undefined : indicator.actions[status];
   const style = { "--lc": LEVEL_COLOR[escalation.level] } as CSSProperties;
+  // Fuentes de los rangos que definen este estado (base, secundarios y override del entorno actual).
+  const overrideRanges = environment.indicator_overrides[indicator.id]?.ranges ?? [];
+  const rangeSourceIds =
+    status === "unknown"
+      ? []
+      : [...indicator.ranges, ...(indicator.ranges_secondary ?? []), ...overrideRanges]
+          .filter((r) => r.status === status)
+          .flatMap((r) => r.source_ids);
 
   return (
     <div className="space-y-4">
@@ -39,6 +50,7 @@ export function ResultPanel({ indicator, result }: { indicator: Indicator; resul
         </h3>
         <StatusBadge status={status} />
         <p className="mt-2 text-sm text-[var(--color-muted)]">{t("daily.saved_at", { time: formatTime(reading.timestamp) })}</p>
+        <SourceLinks ids={rangeSourceIds} className="mt-2" />
       </section>
 
       <section aria-labelledby={`todo-${indicator.id}`} className={panel}>
