@@ -1,5 +1,5 @@
 {
-  "_comment": "Todo valor con status PLACEHOLDER debe reemplazarse por datos con fuente verificada (ver data/sources.json). No inventar umbrales. Los niveles de escalamiento (self/crew/ground) y los protocol_id son decisiones de DISEÑO tentativas, no medicas; por eso cada indicador sigue en PLACEHOLDER. 'hazards' queda vacio hasta tener fuente. 'step' de inputs number se omite (default 1) hasta definirlo.",
+  "_comment": "Ranges contain only cut-offs explicit in the cited sources. Range edges: evaluate() uses inclusive min/max, so an exclusive cut-off such as '<70' is written as max 69.99 (and the next range starts at 70). Inputs are integers or 0.1/0.5 steps, so the 0.01 gap is never reachable from the UI. An empty range (min and max null) means the sources do not define it. Escalation levels (self/crew/ground) and protocol_id are DESIGN decisions, not medical. Every indicator stays PLACEHOLDER while any of frequency, how_to_measure or the actions has an unsourced part.",
   "indicators": [
     {
       "id": "heart_rate",
@@ -8,24 +8,37 @@
       "category": "cardiovascular",
       "hazards": [],
       "input": { "kind": "number" },
-      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "how_to_measure": [
+        "To take a pulse at the wrist, place the index and middle fingers on the underside of the opposite wrist, below the base of the thumb.",
+        "To take a pulse at the neck, place the fingers beside the Adam's apple. Do not press on both sides of the neck at the same time.",
+        "Count the beats for 60 seconds, or count for 30 seconds and multiply by 2, for 15 seconds and multiply by 4, or for 10 seconds and multiply by 6."
+      ],
+      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your resting pulse over time helps you notice changes.",
       "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": 59.99, "source_ids": ["medlineplus_pulse"] },
+        { "status": "normal", "min": 60, "max": 100, "source_ids": ["medlineplus_pulse"] },
+        { "status": "attention", "min": 100.01, "max": null, "source_ids": ["medlineplus_pulse"] },
         { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
       "actions": {
-        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
-        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "normal": {
+          "text": ["Resting pulse is within the 60 to 100 beats per minute reported for adults."],
+          "escalation": "self"
+        },
+        "attention": {
+          "text": [
+            "Resting pulse is outside the 60 to 100 beats per minute reported for adults. Well-trained athletes can have a resting pulse of 40 to 60.",
+            "Contact a health care professional if it is consistently high or low at rest, the pulse is bounding for more than a few minutes, it is irregular, or it is hard to find."
+          ],
+          "escalation": "ground"
+        },
         "critical": {
-          "text": ["PLACEHOLDER: what to do when critical."],
-          "escalation": "ground",
-          "protocol_id": "crew_collapse_chest_pain"
+          "text": ["PLACEHOLDER: the sources define no critical pulse threshold."],
+          "escalation": "ground"
         }
       },
-      "source_ids": [],
+      "source_ids": ["medlineplus_pulse", "nasa_hrp_hazards"],
       "status": "PLACEHOLDER"
     },
     {
@@ -36,28 +49,40 @@
       "hazards": [],
       "input": { "kind": "pair", "labels": ["Systolic", "Diastolic"] },
       "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your blood pressure over time helps you notice changes.",
       "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
-        { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": null, "max": null, "source_ids": [] },
-        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+        { "status": "normal", "min": null, "max": 119.99, "source_ids": ["cdc_bp"] },
+        { "status": "attention", "min": 120, "max": 180, "source_ids": ["cdc_bp"] },
+        { "status": "critical", "min": 180.01, "max": null, "source_ids": ["cdc_bp"] }
       ],
       "ranges_secondary": [
-        { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": null, "max": null, "source_ids": [] },
-        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+        { "status": "normal", "min": null, "max": 79.99, "source_ids": ["cdc_bp"] },
+        { "status": "attention", "min": 80, "max": 120, "source_ids": ["cdc_bp"] },
+        { "status": "critical", "min": 120.01, "max": null, "source_ids": ["cdc_bp"] }
       ],
       "actions": {
-        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
-        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
+        "normal": {
+          "text": ["Reading is in the normal category: below 120 systolic and below 80 diastolic."],
+          "escalation": "self"
+        },
+        "attention": {
+          "text": [
+            "Reading falls in the elevated, stage 1 or stage 2 hypertension categories (systolic 120 or higher, or diastolic 80 or higher).",
+            "PLACEHOLDER: what to do for elevated to stage 2 readings."
+          ],
+          "escalation": "crew"
+        },
         "critical": {
-          "text": ["PLACEHOLDER: what to do when critical."],
+          "text": [
+            "Severe hypertension: systolic above 180 and/or diastolic above 120. Contact a health care professional (here: ground control).",
+            "If there are symptoms such as chest pain, shortness of breath, back pain, numbness, weakness, change in vision or difficulty speaking, treat it as a hypertensive emergency and seek emergency help immediately."
+          ],
           "escalation": "ground",
           "protocol_id": "crew_collapse_chest_pain"
         }
       },
-      "source_ids": [],
+      "source_ids": ["cdc_bp", "nasa_hrp_hazards"],
       "status": "PLACEHOLDER"
     },
     {
@@ -68,19 +93,34 @@
       "hazards": [],
       "input": { "kind": "number" },
       "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your blood glucose over time helps you notice changes.",
       "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
         { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": null, "max": null, "source_ids": [] },
-        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+        { "status": "critical", "min": null, "max": 53.99, "source_ids": ["cdc_low_glucose"] },
+        { "status": "attention", "min": 54, "max": 69.99, "source_ids": ["cdc_low_glucose"] }
       ],
       "actions": {
-        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
-        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
-        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+        "normal": {
+          "text": ["PLACEHOLDER: the sources define only low blood sugar, not a normal or high range."],
+          "escalation": "self"
+        },
+        "attention": {
+          "text": [
+            "Low blood sugar (below 70 mg/dL). Follow the 15-15 rule: eat or drink 15 g of carbohydrate, wait 15 minutes, then recheck.",
+            "If it is still below 70 mg/dL, repeat. Once it is back in range, eat a balanced snack."
+          ],
+          "escalation": "crew"
+        },
+        "critical": {
+          "text": [
+            "Severe low blood sugar (below 54 mg/dL). The person may faint and need help from others.",
+            "Glucagon and emergency care are needed."
+          ],
+          "escalation": "ground"
+        }
       },
-      "source_ids": [],
+      "source_ids": ["cdc_low_glucose", "cdc_treat_low_glucose", "nasa_hrp_hazards"],
       "status": "PLACEHOLDER"
     },
     {
@@ -89,21 +129,36 @@
       "unit": "°C",
       "category": "general",
       "hazards": [],
-      "input": { "kind": "number" },
-      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "input": { "kind": "number", "step": 0.1 },
+      "how_to_measure": [
+        "Use a measured temperature (thermometer reading) rather than an estimate; it is the preferred method.",
+        "PLACEHOLDER: remaining steps of the measurement instructions for a non-expert."
+      ],
+      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your temperature over time helps you notice changes.",
       "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
         { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": 38, "max": null, "source_ids": ["cdc_fever"] },
         { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
       "actions": {
-        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
-        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
-        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+        "normal": {
+          "text": ["PLACEHOLDER: the sources define only fever (38 °C or higher), not a normal range."],
+          "escalation": "self"
+        },
+        "attention": {
+          "text": [
+            "Fever: a measured temperature of 38 °C (100.4 °F) or higher.",
+            "PLACEHOLDER: what to do when you have a fever."
+          ],
+          "escalation": "crew"
+        },
+        "critical": {
+          "text": ["PLACEHOLDER: the sources define no critical temperature threshold."],
+          "escalation": "ground"
+        }
       },
-      "source_ids": [],
+      "source_ids": ["cdc_fever", "nasa_hrp_hazards"],
       "status": "PLACEHOLDER"
     },
     {
@@ -112,21 +167,33 @@
       "unit": "hours",
       "category": "behavioral",
       "hazards": [],
-      "input": { "kind": "number" },
+      "input": { "kind": "number", "step": 0.5 },
       "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
-      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
+      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your sleep over time helps you notice changes.",
+      "frequency": { "every_hours": null, "label": "Daily" },
       "ranges": [
-        { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": null, "max": null, "source_ids": [] },
+        { "status": "attention", "min": null, "max": 6.99, "source_ids": ["cdc_sleep"] },
+        { "status": "normal", "min": 7, "max": null, "source_ids": ["cdc_sleep"] },
         { "status": "critical", "min": null, "max": null, "source_ids": [] }
       ],
       "actions": {
-        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
-        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
-        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+        "normal": {
+          "text": ["You reached the at least 7 hours of sleep per day recommended for adults."],
+          "escalation": "self"
+        },
+        "attention": {
+          "text": [
+            "Below the at least 7 hours of sleep per day recommended for adults.",
+            "PLACEHOLDER: what to do after a short night."
+          ],
+          "escalation": "crew"
+        },
+        "critical": {
+          "text": ["PLACEHOLDER: the sources define no critical sleep threshold."],
+          "escalation": "ground"
+        }
       },
-      "source_ids": [],
+      "source_ids": ["cdc_sleep", "nasa_hrp_hazards"],
       "status": "PLACEHOLDER"
     },
     {

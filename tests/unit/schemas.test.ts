@@ -58,6 +58,7 @@ describe("broken content", () => {
   it("VERIFIED without sources", () => {
     const raw = realRaw();
     (raw.indicators as Loose).indicators[1].status = "VERIFIED";
+    (raw.indicators as Loose).indicators[1].source_ids = [];
     const errs = errorsOf(raw);
     expect(errs).toContainEqual(
       expect.objectContaining({ file: "data/indicators.json", path: "indicators[1].source_ids" }),
@@ -67,6 +68,8 @@ describe("broken content", () => {
   it("VERIFIED source needs real url and date", () => {
     const raw = realRaw();
     (raw.sources as Loose).sources[0].status = "VERIFIED";
+    (raw.sources as Loose).sources[0].url = "PLACEHOLDER: official URL";
+    (raw.sources as Loose).sources[0].accessed = "PLACEHOLDER";
     const paths = errorsOf(raw).map((e) => `${e.file}:${e.path}`);
     expect(paths).toContain("data/sources.json:sources[0].url");
     expect(paths).toContain("data/sources.json:sources[0].accessed");

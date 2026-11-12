@@ -1,14 +1,14 @@
 {
-  "_comment": "Entornos de mision. La demora de comunicacion (solo ida, en segundos) y el equipo son PLACEHOLDER hasta tener fuente. Los valores null hacen que la app use el mensaje conservador de escalamiento.",
+  "_comment": "Mission environments. One-way communication delay in seconds. Null = no verified source (the app then shows the conservative escalation message). Mars transit uses the 3-22 minute range for Mars; the delay during transit grows from near zero, so this is the range at Mars. Lunar base uses the ESA average (min = max).",
   "environments": [
     {
       "id": "spacecraft",
       "name": "Mars transit vehicle",
-      "description": "PLACEHOLDER: description of the environment.",
-      "comm_delay_one_way_s": { "min": null, "max": null, "source_ids": [] },
+      "description": "A crewed spacecraft travelling to Mars, far from Earth.",
+      "comm_delay_one_way_s": { "min": 180, "max": 1320, "source_ids": ["nasa_perseverance_comms", "nasa_hrp_distance"] },
       "available_equipment": [],
       "indicator_overrides": {},
-      "status": "PLACEHOLDER"
+      "status": "VERIFIED"
     },
     {
       "id": "space_station",
@@ -22,11 +22,11 @@
     {
       "id": "lunar_base",
       "name": "Lunar surface base",
-      "description": "PLACEHOLDER: description of the environment.",
-      "comm_delay_one_way_s": { "min": null, "max": null, "source_ids": [] },
+      "description": "A crewed base on the surface of the Moon.",
+      "comm_delay_one_way_s": { "min": 1.27, "max": 1.27, "source_ids": ["esa_moon_signal"] },
       "available_equipment": [],
       "indicator_overrides": {},
-      "status": "PLACEHOLDER"
+      "status": "VERIFIED"
     },
     {
       "id": "remote_clinic_earth",

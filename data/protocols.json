@@ -1,5 +1,5 @@
 {
-  "_comment": "Protocolos de emergencia. Estructura completa pero TODO el texto es PLACEHOLDER: no hay contenido medico hasta tener fuente verificada (ver data/sources.json).",
+  "_comment": "Emergency protocols. Steps with source_ids come from the DGLRM/ESAM-SMG CPR-in-microgravity guideline. Steps without source_ids are PLACEHOLDER: the guideline does not detail them. The guideline gives no microgravity compression rate/depth, so no timers are set.",
   "protocols": [
     {
       "id": "crew_collapse_chest_pain",
@@ -7,13 +7,56 @@
       "trigger": ["PLACEHOLDER: symptom that triggers this protocol."],
       "escalation": "ground",
       "steps": [
-        { "text": "PLACEHOLDER: step 1.", "detail": "PLACEHOLDER: detail for step 1.", "check": true, "source_ids": [] },
-        { "text": "PLACEHOLDER: step 2.", "detail": "PLACEHOLDER: detail for step 2.", "check": true, "source_ids": [] },
-        { "text": "PLACEHOLDER: step 3.", "detail": "PLACEHOLDER: detail for step 3.", "check": true, "source_ids": [] },
-        { "text": "PLACEHOLDER: step 4.", "detail": "PLACEHOLDER: detail for step 4.", "check": true, "source_ids": [] }
+        {
+          "text": "PLACEHOLDER: check whether the crewmate responds and is breathing.",
+          "detail": "PLACEHOLDER: recognition steps are not detailed in the cited guideline.",
+          "check": true,
+          "source_ids": []
+        },
+        {
+          "text": "PLACEHOLDER: alert the crew and ground control.",
+          "detail": "PLACEHOLDER: call-for-help steps are not detailed in the cited guideline.",
+          "check": true,
+          "source_ids": []
+        },
+        {
+          "text": "Start chest compressions with the Evetts-Russomano method. No restraint is needed for initial basic life support.",
+          "detail": "The rescuer hooks one leg over the patient's shoulder and the other around the patient's torso, interlocks the ankles at the patient's back, and compresses the chest.",
+          "check": true,
+          "source_ids": ["dglrm_cpr_microgravity"]
+        },
+        {
+          "text": "If the Evetts-Russomano method is inadequate, switch to the reverse bear hug method.",
+          "check": true,
+          "source_ids": ["dglrm_cpr_microgravity"]
+        },
+        {
+          "text": "When possible, restrain the patient on the Crew Medical Restraint System.",
+          "detail": "Use the handstand method if the dimensions allow it; otherwise use a restrained standard or straddling position.",
+          "check": true,
+          "source_ids": ["dglrm_cpr_microgravity"]
+        },
+        {
+          "text": "Use a defibrillator only when the patient is restrained to an electrically isolated, safe surface.",
+          "detail": "Use an AED with voice prompts. Start CPR even if no defibrillator is available.",
+          "check": true,
+          "source_ids": ["dglrm_cpr_microgravity"]
+        },
+        {
+          "text": "Manage the airway only with at least 2 rescuers and the patient restrained.",
+          "check": true,
+          "source_ids": ["dglrm_cpr_microgravity"]
+        }
       ],
-      "report_fields": ["PLACEHOLDER: information to include in the downlink report."],
-      "source_ids": [],
+      "report_fields": [
+        "Time the event was recognised",
+        "Patient condition (responsive, breathing)",
+        "CPR method used",
+        "Whether the patient was restrained",
+        "Whether a defibrillator was used",
+        "Number of rescuers"
+      ],
+      "source_ids": ["dglrm_cpr_microgravity"],
       "status": "PLACEHOLDER"
     }
   ]

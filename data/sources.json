@@ -1,24 +1,124 @@
 {
-  "_comment": "Toda afirmación científica visible en la app debe apuntar a una fuente de esta lista por su id. Completar con URL real y fecha de consulta antes de marcar VERIFIED.",
+  "_comment": "Every scientific claim shown in the app must point to a source in this list by id. All VERIFIED entries were consulted on 2026-11-12. 'notes' are shown in the UI (English).",
   "sources": [
     {
-      "id": "nasa_hrp",
-      "title": "NASA Human Research Program",
-      "publisher": "NASA",
-      "url": "PLACEHOLDER: completar con la URL oficial",
-      "accessed": "PLACEHOLDER",
-      "license": "PLACEHOLDER",
-      "notes": "Riesgos y peligros del vuelo espacial humano.",
-      "status": "PLACEHOLDER"
+      "id": "cdc_bp",
+      "title": "About High Blood Pressure",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/high-blood-pressure/about/index.html",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Blood pressure categories (normal, elevated, stage 1, stage 2) and the >180 systolic and/or >120 diastolic severe-hypertension threshold.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_pulse",
+      "title": "Pulse",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine)",
+      "url": "https://medlineplus.gov/ency/article/003399.htm",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "How to take a pulse (wrist, neck) and the adult resting range of 60 to 100 beats per minute.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_low_glucose",
+      "title": "Low Blood Sugar (Hypoglycemia)",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/diabetes/basics/low-blood-sugar.html",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Low blood sugar is below 70 mg/dL; severe is below 54 mg/dL. The CDC treatment page cites 55 mg/dL for severe; this app uses 54 mg/dL from the definition page.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_treat_low_glucose",
+      "title": "Treatment of Low Blood Sugar (Hypoglycemia)",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/diabetes/treatment/treatment-low-blood-sugar-hypoglycemia.html",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "The 15-15 rule: 15 g of carbohydrate, wait 15 minutes, recheck. Severe low blood sugar needs glucagon and emergency care.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_fever",
+      "title": "Definitions of Signs, Symptoms, and Conditions of Ill Travelers",
+      "publisher": "CDC Port Health",
+      "url": "https://www.cdc.gov/port-health/php/definitions-symptoms-reportable-illness/index.html",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Fever is a measured temperature of 100.4 F (38 C) or higher. A measured temperature is the preferred method.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_sleep",
+      "title": "FastStats: Sleep in Adults",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/sleep/data-and-statistics/adults.html",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Adults (18 and older) should get at least 7 hours of sleep each day.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "dglrm_cpr_microgravity",
+      "title": "Cardiopulmonary resuscitation (CPR) during spaceflight - a guideline for CPR in microgravity from the German Society of Aerospace Medicine (DGLRM) and the European Society of Aerospace Medicine Space Medicine Group (ESAM-SMG)",
+      "publisher": "Scandinavian Journal of Trauma, Resuscitation and Emergency Medicine (Hinkelbein et al., 2020)",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7607644/",
+      "accessed": "2026-11-12",
+      "license": "CC BY 4.0",
+      "notes": "Peer-reviewed guideline for CPR in microgravity (DOI 10.1186/s13049-020-00793-y). It gives no target compression rate or depth for microgravity.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_hrp_distance",
+      "title": "Hazard: Distance From Earth",
+      "publisher": "NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/hazard-distance-from-earth/",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Mars missions face a communication delay of up to 20 minutes one way.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_perseverance_comms",
+      "title": "Speaking Percy's Language: How to Talk So Perseverance Will Listen",
+      "publisher": "NASA Science",
+      "url": "https://science.nasa.gov/blog/speaking-percys-language-how-to-talk-so-perseverance-will-listen/",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Commands take 3 to 22 minutes to reach the Perseverance rover on Mars, depending on planetary orbits.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "esa_moon_signal",
+      "title": "Ten things you didn't know about the Moon - Moon calling Earth",
+      "publisher": "ESA",
+      "url": "https://www.esa.int/ESA_Multimedia/Images/2021/09/Ten_things_you_didn_t_know_about_the_Moon_-_Moon_calling_Earth",
+      "accessed": "2026-11-12",
+      "license": "See publisher terms",
+      "notes": "A signal takes on average 1.27 seconds to travel from the Moon to Earth.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_hrp_hazards",
+      "title": "5 Hazards of Human Spaceflight",
+      "publisher": "NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/hazards",
+      "accessed": "2026-11-12",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "NASA's overview of the main hazards that human spaceflight poses to crew health.",
+      "status": "VERIFIED"
     },
     {
       "id": "nasa_osdr",
       "title": "NASA Open Science Data Repository",
       "publisher": "NASA",
-      "url": "PLACEHOLDER: completar con la URL oficial",
+      "url": "https://osdr.nasa.gov",
       "accessed": "PLACEHOLDER",
       "license": "PLACEHOLDER",
-      "notes": "Datos reales de biología espacial para inspirar y probar.",
+      "notes": "Real space biology datasets, to inspire and test the app. URL not yet verified.",
       "status": "PLACEHOLDER"
     }
   ]
