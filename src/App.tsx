@@ -53,7 +53,9 @@ function Shell() {
   const { t, content } = useContent();
   const { route, param, navigate } = useHashRoute();
   const mainRef = useRef<HTMLElement>(null);
-  const first = useRef(true);
+  // Ultima ruta enfocada: el foco solo se mueve al cambiar de vista (no en el primer render ni en el doble
+  // efecto de StrictMode, que hacia saltar la pagina al cargar).
+  const lastRoute = useRef(route);
   const { version } = useStorageState();
   const features = content.app.features;
   useTheme();
@@ -61,10 +63,8 @@ function Shell() {
   // Al cambiar de vista: título del documento y foco al contenido (lectores de pantalla / teclado).
   useEffect(() => {
     document.title = `${t(route.navKey)} — ${content.app.app_name}`;
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    if (lastRoute.current === route) return;
+    lastRoute.current = route;
     mainRef.current?.focus();
   }, [route, t, content.app.app_name]);
 
@@ -95,7 +95,7 @@ function Shell() {
         id="main"
         ref={mainRef}
         tabIndex={-1}
-        className={`mx-auto min-h-[50vh] px-4 py-6 ${route.id === "home" ? "max-w-[1760px]" : "max-w-5xl"}`}
+        className={`mx-auto min-h-[50vh] px-4 pb-6 ${route.id === "home" ? "max-w-[1760px] pt-3" : "max-w-5xl pt-6"}`}
       >
         {/* La clave remonta la vista al cambiar de ruta o al borrar los datos guardados. */}
         <ErrorBoundary key={`${route.id}/${param ?? ""}/${version}`} t={t}>

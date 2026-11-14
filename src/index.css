@@ -38,6 +38,13 @@
 
 html {
   scroll-padding-top: var(--sticky-offset);
+  /* Movil: la barra de pestanas fija (MainNav) tapa el borde inferior; el foco y los anclajes quedan por encima. */
+  scroll-padding-bottom: 6rem;
+}
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-bottom: 0;
+  }
 }
 
 #em-step-title {
@@ -246,7 +253,7 @@ main:focus {
   .hud-center {
     order: 2;
     /* El titulo solo ocupa la columna izquierda: el cuerpo sube a la altura del titulo. */
-    margin-top: -3.4rem;
+    margin-top: -2.75rem;
   }
   /* Columna central: cuerpo (fila 1) y estado general (fila 2); las laterales ocupan las dos filas. */
   /* Las columnas laterales se estiran a la misma altura y su ultimo panel crece hasta el borde:
@@ -331,10 +338,10 @@ main:focus {
 /* Espacio vertical ocupado por encima del cuerpo (header, titulo y margenes); el banner DEMO DATA suma su alto
    para que los anillos de la plataforma entren completos en la ventana. */
 :root {
-  --hero-top: 12.75rem;
+  --hero-top: 11.4rem;
 }
 :root:has([data-demo-banner]) {
-  --hero-top: 16.75rem;
+  --hero-top: 14.9rem;
 }
 .hero-glow {
   position: absolute;
