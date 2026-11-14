@@ -35,6 +35,12 @@ const KEYS = {
   environment: "eif.environment",
 } as const;
 
+/**
+ * Marca de "ya se sembro la demo de primera visita". Fuera de KEYS a proposito: clearAll() no la borra, asi
+ * que borrar los datos (o quitar la demo) nunca vuelve a sembrar.
+ */
+export const DEMO_SEEDED_KEY = "eif.demo_seeded";
+
 const memory = new Map<string, string>();
 let persistent = true;
 
@@ -233,6 +239,18 @@ export function removeDemoReadings(): void {
   const rest = getReadings().filter((r) => r.demo !== true);
   writeRaw(KEYS.readings, JSON.stringify(rest));
   emit({ ...state, readingsRev: state.readingsRev + 1 });
+}
+
+/**
+ * Primera visita: si nunca se sembro (sin marca) y no hay lecturas guardadas, carga la demo una sola vez.
+ * La marca se escribe siempre, haya o no lecturas, para no sembrar nunca mas. Devuelve true si sembro.
+ */
+export function seedDemoOnFirstVisit(items: DemoReadingInput[]): boolean {
+  if (readRaw(DEMO_SEEDED_KEY) !== null) return false;
+  writeRaw(DEMO_SEEDED_KEY, "1");
+  if (items.length === 0 || getReadings().length > 0) return false;
+  addDemoReadings(items);
+  return true;
 }
 
 export function hasDemoReadings(): boolean {

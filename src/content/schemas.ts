@@ -241,6 +241,8 @@ export const AppConfig = z.object({
     reminders: z.boolean(),
     emergency_guide: z.boolean(),
     downlink_report: z.boolean(),
+    // Primera visita: siembra la demo una sola vez (opcional; ausente = false).
+    demo_on_first_visit: z.boolean().default(false),
   }),
   // Parámetro de DISEÑO (no médico).
   realtime_threshold_s: z.number(),

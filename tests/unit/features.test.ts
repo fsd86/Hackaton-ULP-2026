@@ -9,7 +9,7 @@ describe("labelFor", () => {
   });
 });
 
-const on: Features = { charts: true, reminders: true, emergency_guide: true, downlink_report: true };
+const on: Features = { charts: true, reminders: true, emergency_guide: true, downlink_report: true, demo_on_first_visit: false };
 
 describe("features", () => {
   it("shows every nav entry except Emergency (header) when all flags are on", () => {

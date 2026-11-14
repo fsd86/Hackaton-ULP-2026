@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { environments, indicators, must, protocols, seedStorage, strings, watchPage } from "../qa/helpers";
 
 const indicator = must(indicators[0], "indicator");

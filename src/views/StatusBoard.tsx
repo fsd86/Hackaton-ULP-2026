@@ -7,6 +7,7 @@ import { HazardsPanelBody } from "../components/hud/HazardsPanelBody";
 import { VitalRow } from "../components/hud/VitalRow";
 import { ZoneDetail } from "../components/hud/ZoneDetail";
 import { ZoneStatusList } from "../components/hud/ZoneStatusList";
+import { DemoChip } from "../components/DemoChip";
 import { PlaceholderBadge } from "../components/PlaceholderBadge";
 import { EmptyState } from "../components/EmptyState";
 import { EnvironmentDetails } from "../components/EnvironmentDetails";
@@ -57,6 +58,8 @@ export function StatusBoard() {
   const [snap, setSnap] = useState(() => ({ rev: readingsRev, readings: getReadings(), now: Date.now() }));
   if (snap.rev !== readingsRev) setSnap({ rev: readingsRev, readings: getReadings(), now: Date.now() });
   const { readings, now } = snap;
+  // Marca DEMO una vez por panel (no por valor) mientras haya lecturas sinteticas guardadas.
+  const demoChip = readings.some((r) => r.demo === true) ? <DemoChip /> : null;
   const [period, setPeriod] = useState<PeriodId>("7d");
   const chartsOn = content.app.features.charts;
   const remindersOn = content.app.features.reminders;
@@ -154,7 +157,7 @@ export function StatusBoard() {
       <div className={`hud-grid ${hasReadings ? "" : "hud-grid-empty"}`}>
         {/* Izquierda: signos vitales, estado por zona, tendencia destacada y demora / respuesta de Tierra. */}
         <div className="hud-col hud-col-left">
-          <FramePanel title={t("hud.vitals")} corners delayMs={80} bodyClassName="!p-2">
+          <FramePanel title={t("hud.vitals")} corners delayMs={80} bodyClassName="!p-2" aside={demoChip}>
             <ul className="divide-y divide-[var(--glass-border)]">
               {board.entries.map((entry) => {
                 const ind = byId.get(entry.indicatorId);
@@ -175,6 +178,8 @@ export function StatusBoard() {
               corners
               delayMs={240}
               aside={
+                <span className="flex items-center gap-2">
+                {demoChip}
                 <label className="flex items-center gap-2 text-xs">
                   <span className="sr-only">{t("hud.focus_trend.pick")}</span>
                   <select
@@ -189,6 +194,7 @@ export function StatusBoard() {
                     ))}
                   </select>
                 </label>
+                </span>
               }
             >
               <FocusTrend indicator={focusInd} trend={buildTrend({ indicator: focusInd, readings, environment, sinceMs: WEEK_MS, now })} />
@@ -238,7 +244,7 @@ export function StatusBoard() {
 
         {/* Estado general: bajo el cuerpo (en movil, justo despues del cuerpo). */}
         <div className="hud-overall">
-          <FramePanel title={t("board.overall")} corners delayMs={120}>
+          <FramePanel title={t("board.overall")} corners delayMs={120} aside={hasReadings ? demoChip : null}>
             {!hasReadings ? (
               <EmptyState title={t("board.no_reading")} help={t("board.empty.help")}>
                 <div className="mt-4 flex flex-col items-center gap-3">
@@ -322,7 +328,7 @@ export function StatusBoard() {
 
         {/* Derecha: detalle de la zona elegida y hazards de NASA. */}
         <div className="hud-col hud-col-right">
-          <FramePanel title={t("hud.zone_detail")} corners delayMs={200} id={detailId}>
+          <FramePanel title={t("hud.zone_detail")} corners delayMs={200} id={detailId} aside={demoChip}>
             <div aria-live="polite">
               <ZoneDetail zone={zoneOf} indicators={byId} environment={environment} />
             </div>
@@ -341,6 +347,8 @@ export function StatusBoard() {
           title={t("hud.trends")}
           delayMs={200}
           aside={
+            <div className="flex flex-wrap items-center justify-end gap-2">
+            {demoChip}
             <div role="group" aria-label={t("board.period_label")} className="flex gap-1.5">
               {PERIODS.map((p) => (
                 <button
@@ -358,6 +366,7 @@ export function StatusBoard() {
                   {t(`board.period.${p.id}`)}
                 </button>
               ))}
+            </div>
             </div>
           }
         >

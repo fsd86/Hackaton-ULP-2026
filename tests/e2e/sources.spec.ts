@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 const strings = JSON.parse(readFileSync(resolve("config/strings.en.json"), "utf8")) as Record<string, string>;
 const sources = (JSON.parse(readFileSync(resolve("data/sources.json"), "utf8")) as { sources: Array<{ id: string; title: string }> })

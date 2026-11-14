@@ -10,6 +10,7 @@ import {
   getReadings,
   getStorageIssues,
   getStorageState,
+  seedDemoOnFirstVisit,
   setEnvironmentId,
 } from "../../src/storage/local";
 
@@ -96,5 +97,37 @@ describe("storage (corrupted data)", () => {
     const v = getStorageState().version;
     clearAll();
     expect(getStorageState().version).toBe(v + 1);
+  });
+});
+
+describe("storage (first-visit demo seed)", () => {
+  let store: Map<string, string>;
+  beforeEach(() => {
+    store = new Map();
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k),
+    });
+    clearAll();
+  });
+  afterEach(() => vi.unstubAllGlobals());
+  const item = { indicatorId: "x", value: 1, environmentId: "e", timestamp: 1 };
+
+  it("seeds once, marks readings as demo and never reseeds (not even after clearAll)", () => {
+    expect(seedDemoOnFirstVisit([item])).toBe(true);
+    expect(getReadings()).toHaveLength(1);
+    expect(getReadings()[0]?.demo).toBe(true);
+    expect(seedDemoOnFirstVisit([item])).toBe(false);
+    clearAll();
+    expect(seedDemoOnFirstVisit([item])).toBe(false);
+    expect(getReadings()).toEqual([]);
+    expect(store.get("eif.demo_seeded")).toBe("1");
+  });
+
+  it("does not seed over existing readings", () => {
+    addReading({ indicatorId: "x", value: 2, environmentId: "e" });
+    expect(seedDemoOnFirstVisit([item])).toBe(false);
+    expect(getReadings()).toHaveLength(1);
   });
 });

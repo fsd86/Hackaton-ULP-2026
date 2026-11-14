@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { test, expect } from "@playwright/test";
+import { test as firstVisit } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 const strings = JSON.parse(readFileSync(resolve("config/strings.en.json"), "utf8")) as Record<string, string>;
 const indicators = (
@@ -45,4 +46,18 @@ test("board: card with trend chart and data table after two readings", async ({ 
 
   await card.getByText(strings["board.chart_table"]).click();
   await expect(card.getByRole("table").locator("tbody tr")).toHaveCount(2);
+});
+
+// Sin la marca de los fixtures: primera visita real.
+firstVisit("board: first visit loads DEMO data once; after removing it, reload does not reseed", async ({ page }) => {
+  await page.goto("/#/");
+  await expect(page.getByRole("heading", { name: strings["board.title"], level: 1 })).toBeVisible();
+  await expect(page.getByText(strings["demo.title"]).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: strings["demo.load"] })).toHaveCount(0);
+
+  await page.getByRole("button", { name: strings["demo.remove"] }).click();
+  await expect(page.getByRole("button", { name: strings["demo.load"] })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button", { name: strings["demo.load"] })).toBeVisible();
+  await expect(page.locator("[data-demo-banner]")).toHaveCount(0);
 });

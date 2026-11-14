@@ -451,11 +451,23 @@ main:focus {
   background: radial-gradient(circle, color-mix(in srgb, var(--sc) 22%, transparent), transparent 75%);
   box-shadow: 0 0 12px color-mix(in srgb, var(--sc) 35%, transparent);
 }
-.vital-demo {
-  border: 1px dashed var(--color-line);
+.demo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px dashed var(--status-attention);
   border-radius: 2px;
-  padding: 0 0.3rem;
-  letter-spacing: 0.08em;
+  padding: 0.05rem 0.4rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+.demo-chip svg {
+  color: var(--status-attention);
 }
 .zone-row {
   display: grid;

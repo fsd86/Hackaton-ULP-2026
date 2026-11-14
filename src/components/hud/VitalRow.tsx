@@ -30,7 +30,6 @@ export function VitalRow({ indicator, entry, sparkValues }: { indicator: Indicat
               {formatValue(last.value)}
             </span>
             <span className="font-mono text-xs text-[var(--color-muted)]">{indicator.unit}</span>
-            {last.demo === true && <span className="vital-demo eyebrow !text-[0.55rem]">{t("demo.tag")}</span>}
           </p>
         ) : (
           <p className="text-sm text-[var(--color-muted)]">{t("board.no_reading")}</p>

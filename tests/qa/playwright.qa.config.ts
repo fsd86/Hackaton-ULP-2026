@@ -15,7 +15,14 @@ export default defineConfig({
   testMatch: /.*\.spec\.ts$/,
   outputDir: resolve(root, "test-results/qa"),
   reporter: [["list"], ["html", { open: "never", outputFolder: resolve(root, "playwright-report/qa") }]],
-  use: { ...base.use, screenshot: "on", trace: "off" },
+  // La app siembra DEMO en la primera visita: QA parte de una visita ya sembrada (marca eif.demo_seeded),
+  // con el almacenamiento limpio, como asumen los guiones (inicio vacio, "Load demo data", lecturas propias).
+  use: {
+    ...base.use,
+    screenshot: "on",
+    trace: "off",
+    storageState: { cookies: [], origins: [{ origin: "http://localhost:4173", localStorage: [{ name: "eif.demo_seeded", value: "1" }] }] },
+  },
   webServer: {
     command: "npm run build && npm run preview -- --port 4173 --strictPort",
     url: "http://localhost:4173",

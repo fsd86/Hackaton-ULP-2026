@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 // Humo: la app carga, no muestra la pantalla de error de contenido y no tira errores de consola.
 test("app loads without content errors", async ({ page }) => {
