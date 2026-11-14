@@ -27,8 +27,10 @@
 
 - 2026-11-13 — Resources oficiales (5 PDF en `doc resources/`: NASA HRP hazards / risks / ongoing research, CSA radiación / ciencia en la ISS): análisis en `docs/06-resources-analisis.md`. Ninguno trae umbrales ni frecuencias: rangos y acciones siguen igual. 4 fuentes nuevas VERIFIED y `nasa_hrp_hazards` corregida (URL, fecha, notas). Con respaldo explícito: `hazards` de frecuencia cardíaca y presión (`gravity`) y de ánimo (`isolation`, `radiation`, `distance`), `why_it_matters` del ánimo y descripción de la estación espacial dejan de ser PLACEHOLDER. Las 12 sugerencias de contenido y concepto quedan sin implementar en el doc 06.
 
+- 2026-11-14 — Rediseño etapa 2A (tablero HUD, referencia `doc referencia/ref0-objetivo.png`, sin copiar textos ni números): `public/hero/body.webp` (2,4 MB PNG → 285 KB, `4de8c80`); `data/hazards.json` con los 5 hazards de NASA y fuente + `config/app.json` → `hero` (imagen, anclajes en %) (`38b8bbd`); HUD (`422d834`): cuerpo translúcido con `screen`, halo y plataforma girando, barrido de escaneo, puntos de zona accesibles; izquierda inclinada (Vital signs, estado por zona, tendencia destacada); derecha (detalle de zona con hazards y qué hacer, demora y respuesta de Tierra, hazards de NASA); estado general bajo el cuerpo; móvil en una columna; reduced motion apaga todo; sin imagen, cuerpo SVG. 3 iteraciones contra la referencia (mezcla "screen" rota por contextos de apilamiento, bordes luminosos, equilibrio de columnas). Unit 104/104, e2e 39/39, QA 62/63 (403 de CDC), axe 0 violaciones.
+
 ## En curso
-- Rediseño visual: etapa 1 commiteada (WIP); próximas etapas a definir.
+- Rediseño visual: etapa 2A commiteada; próximas etapas a definir.
 
 ## Bloqueado
 - Nada.
