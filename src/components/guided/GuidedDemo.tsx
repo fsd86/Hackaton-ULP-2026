@@ -9,6 +9,7 @@ import { parseStepRoute, stepTarget } from "../../logic/guidedDemo";
 import {
   addGuidedDemoReadings,
   beginGuidedDemoSandbox,
+  clearConsultDraft,
   clearEmergencySession,
   endGuidedDemoSandbox,
   getReadings,
@@ -182,6 +183,7 @@ function GuidedDemoOverlay({
         status: t(`status.${status}`),
         zone: t(`zone.${zoneId}`),
         protocol: protocol?.title ?? scenario.protocol_id,
+        symptom: content.consult?.symptoms.find((x) => x.id === scenario.consult?.symptom_id)?.label ?? scenario.consult?.symptom_id ?? "",
       },
     };
     // readingsRev: se recalcula al cargar/quitar las lecturas DEMO.
@@ -199,6 +201,9 @@ function GuidedDemoOverlay({
       clearEmergencySession();
       executed.current.add(run.index);
     }
+    // open_consult: borrador nuevo (el que hubiera quedo guardado en la caja de arena). Se borra antes de montar el
+    // informe, que lee el borrador al montarse.
+    if (action?.type === "open_consult") clearConsultDraft();
     if (window.location.hash !== step.route) window.location.hash = step.route;
     const runAction = async () => {
       if (!action) return;
@@ -208,6 +213,24 @@ function GuidedDemoOverlay({
         const el = await waitFor(`[data-zone="${vars.zoneId}"]`, isCancelled);
         if (!(el instanceof HTMLElement)) return;
         if (el.getAttribute("aria-pressed") !== "true") el.click();
+      } else if (action.type === "open_consult") {
+        const el = await waitFor('[data-gd="consult-start"]', isCancelled);
+        if (!(el instanceof HTMLElement)) return;
+        el.click();
+      } else if (action.type === "select_consult_symptom") {
+        const id = scenario.consult?.symptom_id;
+        if (!id) return;
+        const el = await waitFor(`input[name="consult-symptom"][value="${CSS.escape(id)}"]`, isCancelled);
+        if (!(el instanceof HTMLInputElement)) return;
+        if (!el.checked) el.click();
+      } else if (action.type === "fill_consult_demo") {
+        // Respuestas DEMO (choice o escala 0-10): se eligen como lo haria la persona, una por una.
+        for (const a of scenario.consult?.demo_answers ?? []) {
+          const sel = `[data-question="${CSS.escape(a.question_id)}"] input[type="radio"][value="${CSS.escape(String(a.value))}"]`;
+          const el = await waitFor(sel, isCancelled);
+          if (!(el instanceof HTMLInputElement)) return;
+          if (!el.checked) el.click();
+        }
       } else if (action.type === "mark_step_done") {
         const el = await waitFor('[data-gd="mark-done"]', isCancelled);
         if (!(el instanceof HTMLElement)) return;

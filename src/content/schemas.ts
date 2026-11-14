@@ -360,6 +360,11 @@ export const GuidedDemoAction = z.discriminatedUnion("type", [
   z.object({ type: z.literal("select_alert_zone") }),
   z.object({ type: z.literal("open_protocol") }),
   z.object({ type: z.literal("mark_step_done") }),
+  // One-shot consult (Downlink report): abre un borrador nuevo, elige scenario.consult.symptom_id y completa
+  // scenario.consult.demo_answers. El borrador del consult se restaura al salir (caja de arena).
+  z.object({ type: z.literal("open_consult") }),
+  z.object({ type: z.literal("select_consult_symptom") }),
+  z.object({ type: z.literal("fill_consult_demo") }),
 ]);
 export const GuidedDemoStep = z.object({
   _comment: Comment,
@@ -368,7 +373,7 @@ export const GuidedDemoStep = z.object({
   route: z.string().regex(/^#\/[A-Za-z0-9_\-/]*$/, 'route must be a hash like "#/" or "#/report"'),
   // Selector CSS del elemento a destacar (null = sin destacado). Admite {zone} y {indicator} del escenario.
   target: z.string().min(1).nullable(),
-  // Clave de config/strings.en.json; admite {environment}, {indicator}, {status}, {zone} y {protocol}.
+  // Clave de config/strings.en.json; admite {environment}, {indicator}, {status}, {zone}, {protocol} y {symptom}.
   caption_key: z.string().min(1),
   duration_ms: z.number().int().min(1000).max(60_000),
   action: GuidedDemoAction.optional(),
@@ -381,6 +386,17 @@ export const GuidedDemoFile = z.object({
     environment_id: z.string().min(1),
     alert_indicator_id: z.string().min(1),
     protocol_id: z.string().min(1),
+    // Opcional: One-shot consult de la demo. demo_answers son respuestas DEMO (no medicas) a preguntas de tipo
+    // choice (una de sus options) o scale_0_10 (entero 0-10); el loader verifica ids y valores contra data/consult.json.
+    consult: z
+      .object({
+        _comment: Comment,
+        symptom_id: z.string().min(1),
+        demo_answers: z
+          .array(z.object({ question_id: z.string().min(1), value: z.union([z.string().min(1), z.number().int()]) }))
+          .min(1),
+      })
+      .optional(),
   }),
   steps: z.array(GuidedDemoStep).min(1),
 });

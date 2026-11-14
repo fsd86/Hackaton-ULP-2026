@@ -421,7 +421,11 @@
   "guided_demo.step.protocol_open": "Emergency mode opens the protocol “{protocol}”, one large step at a time.",
   "guided_demo.step.protocol_step": "Each step is marked as done; the next one appears at once.",
   "guided_demo.step.protocol_log": "Every action is logged with its time, ready to send to Earth. This demo log is cleaned up at the end.",
-  "guided_demo.step.report": "The Downlink report sums it up with the communication delay and the expected window for Earth’s answer. Press Finish or Esc to leave.",
+  "guided_demo.step.consult_open": "While they wait, the crew prepares a One-shot consult: the questions a doctor on Earth would usually ask back, answered before sending.",
+  "guided_demo.step.consult_symptom": "Main problem: “{symptom}”. The app lists the questions a doctor would usually ask, each with its source. It does not diagnose.",
+  "guided_demo.step.consult_answers": "A couple of answers are filled in (DEMO). Everything goes out in one message instead of a question-and-answer loop.",
+  "guided_demo.step.consult_counter": "The counter shows how many round trips with Earth this can avoid, and how many minutes. It is a maximum estimate based only on this environment’s communication delay.",
+  "guided_demo.step.report": "The Downlink report puts it all in one message with the communication delay and the expected window for Earth’s answer. The demo answers are removed when you leave. Press Finish or Esc.",
 
   "consult.title": "One-shot consult",
   "consult.start": "Prepare a one-shot consult",

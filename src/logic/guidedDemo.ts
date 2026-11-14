@@ -1,4 +1,5 @@
-import type { GuidedDemo, GuidedDemoStep, Indicator, Strings } from "../content/schemas";
+import type { Consult, GuidedDemo, GuidedDemoStep, Indicator, Strings } from "../content/schemas";
+import { activeSets } from "./consult";
 import { ROUTES, type RouteId } from "../hooks/useHashRoute";
 
 // Logica pura del modo Guided demo: validacion cruzada del guion y resolucion de plantillas.
@@ -10,7 +11,10 @@ export interface GuidedDemoIssue {
 
 /** Variables permitidas en target (selector) y en caption (texto). */
 export const TARGET_TOKENS = ["zone", "indicator"] as const;
-export const CAPTION_TOKENS = ["environment", "indicator", "status", "zone", "protocol"] as const;
+export const CAPTION_TOKENS = ["environment", "indicator", "status", "zone", "protocol", "symptom"] as const;
+
+/** Vista donde vive el One-shot consult. */
+export const CONSULT_ROUTE = "#/report";
 
 function tokens(text: string): string[] {
   return [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]!);
@@ -35,6 +39,8 @@ export function checkGuidedDemo(
     strings: Strings;
     /** Indicadores con lecturas en data/demo-readings.json; null = no se verifica. */
     demoIndicatorIds: Set<string> | null;
+    /** data/consult.json; null = no se entrega (las acciones del consult quedan invalidas). Ausente = no se verifica. */
+    consult?: Consult | null;
   },
 ): GuidedDemoIssue[] {
   const issues: GuidedDemoIssue[] = [];
@@ -57,10 +63,42 @@ export function checkGuidedDemo(
     issues.push({ path: "scenario.protocol_id", message: `protocol "${scenario.protocol_id}" does not exist in data/protocols.json` });
   }
 
+  // One-shot consult de la demo: sintoma y respuestas DEMO deben existir y ser validos en data/consult.json.
+  const consultScenario = scenario.consult;
+  if (consultScenario && ctx.consult !== undefined) {
+    const symptom = ctx.consult?.symptoms.find((s) => s.id === consultScenario.symptom_id);
+    if (!ctx.consult) {
+      issues.push({ path: "scenario.consult", message: "data/consult.json is not available, so the demo cannot open the One-shot consult" });
+    } else if (!symptom) {
+      issues.push({ path: "scenario.consult.symptom_id", message: `symptom "${consultScenario.symptom_id}" does not exist in data/consult.json` });
+    } else {
+      const questions = activeSets(ctx.consult, symptom.id).flatMap((s) => s.questions);
+      consultScenario.demo_answers.forEach((a, i) => {
+        const at = `scenario.consult.demo_answers[${i}]`;
+        const q = questions.find((x) => x.id === a.question_id);
+        if (!q) {
+          issues.push({ path: `${at}.question_id`, message: `question "${a.question_id}" is not in a question set of symptom "${symptom.id}"` });
+        } else if (q.answer.type === "choice") {
+          if (!q.answer.options.includes(String(a.value))) {
+            issues.push({ path: `${at}.value`, message: `"${a.value}" is not an option of question "${q.id}" (${q.answer.options.join(", ")})` });
+          }
+        } else if (q.answer.type === "scale_0_10") {
+          if (typeof a.value !== "number" || a.value < 0 || a.value > 10) {
+            issues.push({ path: `${at}.value`, message: `question "${q.id}" takes an integer from 0 to 10` });
+          }
+        } else {
+          issues.push({ path: `${at}.question_id`, message: `question "${q.id}" is "${q.answer.type}"; demo answers only support "choice" and "scale_0_10"` });
+        }
+      });
+    }
+  }
+
   const protocolRoute = `#/emergency/${scenario.protocol_id}`;
   const seen = new Set<string>();
   let total = 0;
   let protocolOpened = false;
+  let consultOpened = false;
+  let symptomSelected = false;
   demo.steps.forEach((step, i) => {
     const at = (field: string) => `steps[${i}].${field}`;
     total += step.duration_ms;
@@ -95,6 +133,18 @@ export function checkGuidedDemo(
     if (type === "open_protocol") protocolOpened = true;
     if ((type === "open_protocol" || type === "mark_step_done") && step.route !== protocolRoute) {
       issues.push({ path: at("route"), message: `action "${type}" needs route "${protocolRoute}" (scenario.protocol_id)` });
+    }
+    if (type === "open_consult" || type === "select_consult_symptom" || type === "fill_consult_demo") {
+      if (step.route !== CONSULT_ROUTE) issues.push({ path: at("route"), message: `action "${type}" needs route "${CONSULT_ROUTE}"` });
+      if (!scenario.consult) issues.push({ path: at("action"), message: `action "${type}" needs scenario.consult` });
+      if (type === "open_consult") consultOpened = true;
+      if (type === "select_consult_symptom") {
+        if (!consultOpened) issues.push({ path: at("action"), message: `action "${type}" needs an earlier step with action "open_consult"` });
+        symptomSelected = true;
+      }
+      if (type === "fill_consult_demo" && !symptomSelected) {
+        issues.push({ path: at("action"), message: `action "${type}" needs an earlier step with action "select_consult_symptom"` });
+      }
     }
     if (type === "mark_step_done" && !protocolOpened) {
       issues.push({ path: at("action"), message: `action "mark_step_done" needs an earlier step with action "open_protocol"` });

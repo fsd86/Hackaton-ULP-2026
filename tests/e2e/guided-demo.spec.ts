@@ -7,7 +7,12 @@ import { test, expect, type Page } from "./fixtures";
 const read = <T,>(p: string) => JSON.parse(readFileSync(resolve(p), "utf8")) as T;
 const strings = read<Record<string, string>>("config/strings.en.json");
 const demo = read<{
-  scenario: { environment_id: string; alert_indicator_id: string; protocol_id: string };
+  scenario: {
+    environment_id: string;
+    alert_indicator_id: string;
+    protocol_id: string;
+    consult?: { symptom_id: string; demo_answers: Array<{ question_id: string; value: string | number }> };
+  };
   steps: Array<{ id: string; route: string; target: string | null; caption_key: string; duration_ms: number }>;
 }>("data/guided-demo.json");
 const env = read<{ environments: Array<{ id: string; name: string }> }>("data/environments.json").environments.find(
@@ -19,6 +24,9 @@ const ind = read<{ indicators: Array<{ id: string; name: string; body_zone?: str
 const protocol = read<{ protocols: Array<{ id: string; title: string }> }>("data/protocols.json").protocols.find(
   (p) => p.id === demo.scenario.protocol_id,
 )!;
+const symptom = read<{ symptoms: Array<{ id: string; label: string }> }>("data/consult.json").symptoms.find(
+  (s) => s.id === demo.scenario.consult?.symptom_id,
+);
 const total = demo.steps.length;
 const zone = ind.body_zone ?? "body";
 
@@ -30,6 +38,7 @@ function captionRe(key: string): RegExp {
     indicator: ind.name,
     zone: strings[`zone.${zone}`]!,
     protocol: protocol.title,
+    symptom: symptom?.label ?? "",
   };
   const parts = strings[key]!.split(/(\{\w+\})/).map((part) => {
     const m = /^\{(\w+)\}$/.exec(part);
@@ -71,13 +80,28 @@ test("guided demo: Next through every step, then Esc restores focus and leaves n
     if (step.id === "environment") {
       await expect(page.locator('[data-gd="environment"] select')).toHaveValue(env.id);
     }
+    if (step.id === "consult_symptom") {
+      await expect(page.locator(`input[name="consult-symptom"][value="${symptom!.id}"]`)).toBeChecked();
+    }
+    if (step.id === "consult_counter") {
+      // Las respuestas DEMO quedaron elegidas y el contador ya cuenta round trips (no el texto "sin respuestas").
+      for (const a of demo.scenario.consult!.demo_answers) {
+        await expect(page.locator(`[data-question="${a.question_id}"] input[value="${a.value}"]`)).toBeChecked();
+      }
+      await expect(page.getByTestId("consult-counter-headline")).not.toHaveText(strings["consult.counter.none"]!);
+      await expect(page.getByTestId("consult-counter-headline")).toContainText(
+        strings["consult.counter.trips_other"]!.replace("{n}", String(demo.scenario.consult!.demo_answers.length)),
+      );
+    }
     if (i < total - 1) await panel.getByRole("button", { name: strings["guided_demo.next"], exact: true }).click();
   }
   // Los pasos marcados quedaron en el log de la sesion de demo; recargar a mitad de la demo la termina y la deshace.
   expect(await page.evaluate(() => (JSON.parse(localStorage.getItem("eif.emergency_log") ?? "[]") as unknown[]).length)).toBe(2);
   await page.reload();
   await expect(page.locator("[data-gd-panel]")).toHaveCount(0);
-  expect(await page.evaluate(() => [localStorage.getItem("eif.emergency_log"), localStorage.getItem("eif.guided_demo_sandbox")])).toEqual([null, null]);
+  expect(
+    await page.evaluate(() => [localStorage.getItem("eif.emergency_log"), localStorage.getItem("eif.guided_demo_sandbox"), localStorage.getItem("eif.consult_draft")]),
+  ).toEqual([null, null, null]);
 
   // Segunda pasada, ahora saliendo con Esc desde el ultimo paso.
   await startDemo(page);
@@ -98,8 +122,9 @@ test("guided demo: Next through every step, then Esc restores focus and leaves n
     env: localStorage.getItem("eif.environment"),
     readings: JSON.parse(localStorage.getItem("eif.readings") ?? "[]") as unknown[],
     sandbox: localStorage.getItem("eif.guided_demo_sandbox"),
+    consult: localStorage.getItem("eif.consult_draft"),
   }));
-  expect(stored).toEqual({ log: null, session: null, env: null, readings: [], sandbox: null });
+  expect(stored).toEqual({ log: null, session: null, env: null, readings: [], sandbox: null, consult: null });
   await expect(page.locator("[data-demo-banner]")).toHaveCount(0);
 });
 
@@ -116,4 +141,23 @@ test("guided demo: advances on its own (timers) and Pause stops it", async ({ pa
   await expect(caption.getByText(stepOf(2), { exact: true })).toBeVisible();
   await page.getByRole("button", { name: strings["guided_demo.exit"], exact: true }).click();
   await expect(page.getByRole("button", { name: strings["guided_demo.button"], exact: true })).toBeFocused();
+});
+
+test("guided demo: a consult draft saved before the demo comes back unchanged after it", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const before = JSON.stringify({ symptomId: "headache", answers: { p: { text: "kept" } }, updatedAt: 1 });
+  await page.evaluate((v) => localStorage.setItem("eif.consult_draft", v), before);
+  await startDemo(page);
+  const panel = page.locator("[data-gd-panel]");
+  const counterStep = demo.steps.findIndex((s) => s.id === "consult_counter");
+  for (let i = 0; i < counterStep; i++) {
+    await panel.getByRole("button", { name: strings["guided_demo.next"], exact: true }).click();
+    await expect(panel.locator("[data-gd-caption]").getByText(stepOf(i + 2), { exact: true })).toBeVisible();
+  }
+  // Durante la demo el borrador es el de la demo (sintoma del escenario), no el guardado.
+  await expect(page.locator(`input[name="consult-symptom"][value="${symptom!.id}"]`)).toBeChecked();
+  await page.keyboard.press("Escape");
+  await expect(panel).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("eif.consult_draft"))).toBe(before);
 });

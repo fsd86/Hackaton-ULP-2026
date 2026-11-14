@@ -10,12 +10,15 @@ import {
   addGuidedDemoReadings,
   beginGuidedDemoSandbox,
   clearAll,
+  clearConsultDraft,
   endGuidedDemoSandbox,
+  getConsultDraft,
   getEmergencyLog,
   getEmergencySession,
   getEnvironmentId,
   getReadings,
   recoverGuidedDemoSandbox,
+  setConsultDraft,
   setEnvironmentId,
   startEmergencySession,
 } from "../../src/storage/local";
@@ -101,6 +104,50 @@ describe("data/guided-demo.json", () => {
     expect(errorsOf(bad)).toContainEqual(expect.objectContaining({ path: "steps[0].action.type" }));
   });
 
+  it("walks into the One-shot consult: open → symptom → demo answers, then ends on the report", () => {
+    const types = guidedDemo.steps.map((s) => (s as { action?: { type: string } }).action?.type);
+    const open = types.indexOf("open_consult");
+    expect(open).toBeGreaterThan(types.lastIndexOf("mark_step_done"));
+    expect(types.indexOf("select_consult_symptom")).toBeGreaterThan(open);
+    expect(types.indexOf("fill_consult_demo")).toBeGreaterThan(types.indexOf("select_consult_symptom"));
+    expect(guidedDemo.steps.some((s) => s.target === "[data-testid=\"consult-counter\"]")).toBe(true);
+  });
+
+  it("consult scenario: unknown symptom, unknown question, invalid option and unsupported type are reported", () => {
+    const r = raw();
+    r.guidedDemo.scenario.consult.symptom_id = "nope";
+    expect(errorsOf(r)).toContainEqual(expect.objectContaining({ path: "scenario.consult.symptom_id" }));
+    const q = raw();
+    q.guidedDemo.scenario.consult.demo_answers = [
+      { question_id: "injury_loc", value: "No" }, // set "injury" no esta en chest_pain
+      { question_id: "o_how", value: "Maybe" },
+      { question_id: "pain_now", value: 11 },
+      { question_id: "p", value: "x" }, // free_text
+    ];
+    expect(errorsOf(q).map((e) => e.path)).toEqual(
+      expect.arrayContaining([
+        "scenario.consult.demo_answers[0].question_id",
+        "scenario.consult.demo_answers[1].value",
+        "scenario.consult.demo_answers[2].value",
+        "scenario.consult.demo_answers[3].question_id",
+      ]),
+    );
+  });
+
+  it("consult actions need the report route, scenario.consult and the right order", () => {
+    const r = raw();
+    const i = r.guidedDemo.steps.findIndex((s: Loose) => s.action?.type === "fill_consult_demo");
+    r.guidedDemo.steps[0].action = { type: "fill_consult_demo" };
+    r.guidedDemo.steps[i].route = "#/";
+    const errs = errorsOf(r);
+    expect(errs).toContainEqual(expect.objectContaining({ path: "steps[0].route" }));
+    expect(errs).toContainEqual(expect.objectContaining({ path: "steps[0].action" }));
+    expect(errs).toContainEqual(expect.objectContaining({ path: `steps[${i}].route` }));
+    const n = raw();
+    delete n.guidedDemo.scenario.consult;
+    expect(errorsOf(n)).toContainEqual(expect.objectContaining({ message: expect.stringContaining("needs scenario.consult") }));
+  });
+
   it("the feature flag defaults to false when absent", () => {
     const app = structuredClone(realRaw().app) as Loose;
     delete app.features.guided_demo;
@@ -136,6 +183,21 @@ describe("guided demo sandbox (storage)", () => {
     expect(getEmergencySession()).toEqual(real);
     expect(getEmergencyLog().map((e) => e.sessionId)).toEqual(["real"]);
     expect(getReadings()).toEqual([]);
+  });
+
+  it("restores the consult draft that existed before the demo (or none)", () => {
+    setConsultDraft({ symptomId: "headache", answers: { p: { text: "real" } } });
+    beginGuidedDemoSandbox();
+    clearConsultDraft(); // open_consult
+    setConsultDraft({ symptomId: "chest_pain", answers: { o_how: { value: "Suddenly" } } });
+    endGuidedDemoSandbox();
+    expect(getConsultDraft()?.symptomId).toBe("headache");
+
+    clearConsultDraft();
+    beginGuidedDemoSandbox();
+    setConsultDraft({ symptomId: "chest_pain", answers: {} });
+    endGuidedDemoSandbox();
+    expect(getConsultDraft()).toBeNull();
   });
 
   it("recovers an interrupted demo on startup", () => {

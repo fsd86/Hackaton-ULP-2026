@@ -66,7 +66,7 @@ export function ConsultSection({ consult, draft, section, environment, now, onCh
       {!draft ? (
         <div className="space-y-3">
           <p className="text-[var(--color-muted)]">{t("consult.start_hint")}</p>
-          <button type="button" className={btnPrimary} onClick={() => onChange({ symptomId: null, answers: {}, updatedAt: Date.now() })}>
+          <button type="button" data-gd="consult-start" className={btnPrimary} onClick={() => onChange({ symptomId: null, answers: {}, updatedAt: Date.now() })}>
             {t("consult.start")}
           </button>
         </div>
@@ -125,7 +125,7 @@ function SymptomPicker({ consult, draft, onChange }: { consult: Consult; draft: 
   const { t } = useContent();
   const selected = consult.symptoms.find((s) => s.id === draft.symptomId);
   return (
-    <fieldset className="space-y-2">
+    <fieldset data-gd="consult-symptoms" className="space-y-2">
       <legend className="mb-2 text-lg font-bold">{t("consult.symptom.legend")}</legend>
       <div className="grid gap-2 sm:grid-cols-2">
         {consult.symptoms.map((s) => (

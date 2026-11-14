@@ -391,6 +391,7 @@ export function validateContent(raw: RawContent): LoadResult {
         strings,
         // Sin archivo de demo (tests antiguos) no se exige que la alerta tenga lecturas demo.
         demoIndicatorIds: raw.demoReadings === undefined ? null : new Set(demoFile.readings.map((r) => r.indicator_id)),
+        consult,
       }).map((e) => ({ file: FILES.guidedDemo, ...e })),
     );
   }
