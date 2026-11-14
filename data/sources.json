@@ -1,5 +1,5 @@
 {
-  "_comment": "Every scientific claim shown in the app must point to a source in this list by id. All VERIFIED entries were consulted on 2026-11-12. 'notes' are shown in the UI (English).",
+  "_comment": "Every scientific claim shown in the app must point to a source in this list by id. Each VERIFIED entry records its consultation date in 'accessed'. 'notes' are shown in the UI (English).",
   "sources": [
     {
       "id": "cdc_bp",
@@ -105,10 +105,50 @@
       "id": "nasa_hrp_hazards",
       "title": "5 Hazards of Human Spaceflight",
       "publisher": "NASA Human Research Program",
-      "url": "https://www.nasa.gov/hrp/hazards",
-      "accessed": "2026-11-12",
+      "url": "https://www.nasa.gov/hrp/hazards/",
+      "accessed": "2026-11-13",
       "license": "Public domain (U.S. Government work)",
-      "notes": "NASA's overview of the main hazards that human spaceflight poses to crew health.",
+      "notes": "The five hazards of human spaceflight: space radiation, isolation and confinement, distance from Earth, gravity fields (and the lack of gravity), and hostile or closed environments. The hazards can feed off one another.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_hrp_risks",
+      "title": "Risks of Human Spaceflight",
+      "publisher": "NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/risks/",
+      "accessed": "2026-11-13",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Specific health risks linked to the five hazards. Weightlessness alters blood circulation and how the heart and blood vessels function. Isolation, radiation, distance from Earth and other stressors may take a toll on crew mental health. Also covers immune changes, bone loss, sleep loss and irregular schedules, nutrition, SANS (eye and brain changes), hypoxia and decompression sickness.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_hrp_ongoing_research",
+      "title": "Ongoing HRP Research",
+      "publisher": "NASA Human Research Program",
+      "url": "https://www.nasa.gov/hrp/ongoing-hrp-research/",
+      "accessed": "2026-11-13",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Current human research studies, e.g. Artemis II monitoring of well-being, activity and sleep (ARCHeR), Standard Measures (a consistent set of physiological and psychological measurements) and Tempus Pro (a telemedicine device for remote, near real-time diagnoses).",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "csa_radiation_monitoring",
+      "title": "Monitoring radiation for astronaut health",
+      "publisher": "Canadian Space Agency",
+      "url": "https://www.asc-csa.gc.ca/eng/news/articles/2026/2026-02-26-monitoring-radiation-astronaut-health.asp",
+      "accessed": "2026-11-13",
+      "license": "Crown copyright (Government of Canada); see the site's terms and conditions",
+      "notes": "Radiation is a key challenge beyond Earth's atmosphere. Neutron radiation contributes about 30% of total radiation on the ISS; the CANS instrument measures neutron exposure continuously and autonomously.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "csa_why_science_in_space",
+      "title": "Why do we conduct science experiments in space?",
+      "publisher": "Canadian Space Agency",
+      "url": "https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp",
+      "accessed": "2026-11-13",
+      "license": "Crown copyright (Government of Canada); see the site's terms and conditions",
+      "notes": "The ISS is an orbiting laboratory. Moon and Mars missions mean more weightlessness, more radiation, longer isolation, longer communication delays with Earth, and less ability to rely on Earth for emergency medical assistance.",
       "status": "VERIFIED"
     },
     {

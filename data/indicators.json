@@ -6,7 +6,7 @@
       "name": "Heart rate",
       "unit": "bpm",
       "category": "cardiovascular",
-      "hazards": [],
+      "hazards": ["gravity"],
       "body_zone": "chest",
       "icon": "heart",
       "input": {
@@ -46,7 +46,7 @@
           "escalation": "ground"
         }
       },
-      "source_ids": ["medlineplus_pulse", "nasa_hrp_hazards"],
+      "source_ids": ["medlineplus_pulse", "nasa_hrp_hazards", "nasa_hrp_risks"],
       "status": "PLACEHOLDER"
     },
     {
@@ -54,7 +54,7 @@
       "name": "Blood pressure",
       "unit": "mmHg",
       "category": "cardiovascular",
-      "hazards": [],
+      "hazards": ["gravity"],
       "body_zone": "chest",
       "icon": "gauge",
       "input": {
@@ -99,7 +99,7 @@
           "escalation": "ground"
         }
       },
-      "source_ids": ["cdc_bp", "nasa_hrp_hazards"],
+      "source_ids": ["cdc_bp", "nasa_hrp_hazards", "nasa_hrp_risks"],
       "status": "PLACEHOLDER"
     },
     {
@@ -242,7 +242,7 @@
       "name": "Mood",
       "unit": "scale",
       "category": "behavioral",
-      "hazards": [],
+      "hazards": ["isolation", "radiation", "distance"],
       "body_zone": "body",
       "icon": "smile",
       "input": {
@@ -258,7 +258,7 @@
         }
       },
       "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "PLACEHOLDER: how spaceflight hazards affect this indicator.",
+      "why_it_matters": "NASA's Human Research Program notes that isolation, radiation, distance from Earth and other intense space stressors may all take a toll on crew mental health; tracking your mood over time helps you notice changes.",
       "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
       "ranges": [
         { "status": "normal", "min": null, "max": null, "source_ids": [] },
@@ -270,7 +270,7 @@
         "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
         "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
       },
-      "source_ids": [],
+      "source_ids": ["nasa_hrp_hazards", "nasa_hrp_risks"],
       "status": "PLACEHOLDER"
     }
   ]

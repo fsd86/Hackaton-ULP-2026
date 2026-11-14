@@ -25,6 +25,8 @@
 
 - 2026-11-13 — 4 arreglos post-rediseño, un commit cada uno: `CLAUDE.md` con deploy manual en Netlify (`97c0e2b`); Emergency es el primer foco del teclado en todos los tamaños, en móvil coincide con el orden visual y en lg+ se dibuja al final con `lg:order-last` (`8000b3e`); banner DEMO DATA en móvil como franja fija de una línea (~44 px en vez de ~120 px) con texto corto y botón "Remove" (nombre accesible "Remove demo data") (`a0beced`); la demora del header enlaza sus fuentes en todas las vistas con `SourceLinks compact` ("Sources 1 2", ≥24 px, nombre accesible "Source 1: NASA Science") (`2ceddc2`). Textos nuevos en `strings.en.json`. Lint OK, unit 99/99, e2e 39/39 (+3 skip), QA 62/63 (único fallo: 403 anti-bot de CDC), detector de hardcode 0.
 
+- 2026-11-13 — Resources oficiales (5 PDF en `doc resources/`: NASA HRP hazards / risks / ongoing research, CSA radiación / ciencia en la ISS): análisis en `docs/06-resources-analisis.md`. Ninguno trae umbrales ni frecuencias: rangos y acciones siguen igual. 4 fuentes nuevas VERIFIED y `nasa_hrp_hazards` corregida (URL, fecha, notas). Con respaldo explícito: `hazards` de frecuencia cardíaca y presión (`gravity`) y de ánimo (`isolation`, `radiation`, `distance`), `why_it_matters` del ánimo y descripción de la estación espacial dejan de ser PLACEHOLDER. Las 12 sugerencias de contenido y concepto quedan sin implementar en el doc 06.
+
 ## En curso
 - Rediseño visual: etapa 1 commiteada (WIP); próximas etapas a definir.
 
@@ -38,5 +40,6 @@
 
 ## Próximo
 - Deploy manual en Netlify arrastrando `dist` (después de `npm run build`).
-- T12 pendiente: `hazards` con fuente y actualizar 5 URLs de fuentes que redirigen.
+- T12 pendiente: `hazards` de glucosa, temperatura y sueño (sin respaldo explícito en los resources) y actualizar las URLs de fuentes que redirigen.
+- Decidir cuáles de las sugerencias del doc 06 entran (vista Hazards, mapa del cuerpo por riesgos, nuevos indicadores).
 - S11: README en inglés con link al deploy, capturas y tabla requisito → feature.

@@ -13,7 +13,7 @@
     {
       "id": "space_station",
       "name": "Space station",
-      "description": "PLACEHOLDER: description of the environment.",
+      "description": "A crewed orbiting station, like the International Space Station (an orbiting laboratory). Its communication delay is not verified yet.",
       "comm_delay_one_way_s": { "min": null, "max": null, "source_ids": [] },
       "available_equipment": [],
       "indicator_overrides": {},
