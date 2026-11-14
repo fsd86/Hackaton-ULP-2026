@@ -19,17 +19,22 @@
 
 - 2026-11-12 — Arreglos de QA en 4 grupos: G1 datos/umbrales (`be858dc`), G4 seguridad (`17d889d`), G2 robustez (`4a55936`), G3 accesibilidad/config (`4ffe37d`) + ajuste de la suite QA (`13d5cfc`). 9/9 mayores arreglados, 11/12 menores (T12 parcial). Unit 98/98, e2e 39/39, QA 62/63 (el único fallo es el 403 anti-bot de CDC), axe 0 violaciones.
 
+- 2026-11-12 — Headers para Netlify (`3483e92`): `public/_headers` con los mismos headers de seguridad que `vercel.json` + test unitario que los mantiene sincronizados.
+
+- 2026-11-13 — Rediseño visual etapa 1 (WIP, `af129bf`): tablero estilo HUD con mapa del cuerpo por zonas (`bodyZones`), VitalCard + Sparkline, paneles FramePanel / CalloutLines, íconos por indicador; header compacto con pestañas, selector de entorno y demora (las fuentes de la demora pasan al panel "Ground answer" del tablero); lecturas demo sintéticas en `data/demo-readings.json` validadas con zod + DemoBanner; fuentes Space Grotesk / JetBrains Mono (@fontsource, OFL). Arreglo: Vite incrustaba subsets chicos de fuentes como `data:` y la CSP (`font-src 'self'`) los bloqueaba → `assetsInlineLimit` excluye `.woff2`. Tests: fixture con `demoReadings`, selectores QA al header nuevo. Unit 99/99, e2e 39/39 (+3 skip), QA 62/63 (único fallo: 403 anti-bot de CDC). Las imágenes de `docs referencias/` quedan fuera del repo (inspiración de terceros, sin licencia).
+
 ## En curso
-- Nada. S0–S6 completos y QA arreglado.
+- Rediseño visual: etapa 1 commiteada (WIP); próximas etapas a definir.
 
 ## Bloqueado
-- Deploy en Vercel: requiere que el usuario inicie sesión en la CLI de Vercel (GitHub no es accesible desde esta red, así que el deploy es por CLI, no por repo).
+- Nada.
 
 ## Notas de entorno
-- Node y Git son portables (Escritorio), no están en PATH: anteponer al PATH en cada comando.
+- Node (v26) y Git están instalados en esta máquina y en el PATH; no hace falta anteponer nada.
 - Los subagentes no tienen shell en este Windows: escriben código; instalación, lint, tests, build y commits los corre la sesión principal.
+- npm 11 no corre scripts de instalación sin aprobación (`esbuild`, `@tailwindcss/oxide`); hoy build y tests andan igual.
 
 ## Próximo
-- Deploy en Vercel (después del login del usuario).
+- Deploy manual en Netlify arrastrando `dist` (después de `npm run build`).
 - T12 pendiente: `hazards` con fuente y actualizar 5 URLs de fuentes que redirigen.
 - S11: README en inglés con link al deploy, capturas y tabla requisito → feature.
