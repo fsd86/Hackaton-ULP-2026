@@ -280,6 +280,10 @@
   "board.chart_no_bands": "No sourced reference range: nothing is shaded",
   "board.chart_window": "Last {days} days",
   "board.chart_window_hours": "Last {hours} hours",
+  "board.chart_projection_demo": "Trend extrapolation (demo) — not a medical prediction",
+  "board.chart_projection": "Trend extrapolation — not a medical prediction",
+  "board.chart_projection_summary": "Dotted line: {note}, {hours} hours past the latest reading",
+  "board.chart_now": "Now",
   "emergency.more": "More",
   "emergency.less": "Less",
 

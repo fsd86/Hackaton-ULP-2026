@@ -74,6 +74,12 @@
   },
   "hud": {
     "_comment": "DISENO de UI (no medico). pulse_trace: traza de pulso DECORATIVA (no es un ECG) en la fila del indicador indicator_id; solo la velocidad del dibujo sigue su ultima lectura, acotada a [min_bpm, max_bpm] para que la animacion sea legible; sin lectura usa idle_bpm. Estos limites no son umbrales medicos.",
-    "pulse_trace": { "indicator_id": "heart_rate", "idle_bpm": 60, "min_bpm": 40, "max_bpm": 160 }
+    "pulse_trace": { "indicator_id": "heart_rate", "idle_bpm": 60, "min_bpm": 40, "max_bpm": 160 },
+    "projection": {
+      "_comment": "DISENO de UI (no medico). Linea punteada de extrapolacion lineal (minimos cuadrados sobre las lecturas graficadas) en los graficos de tendencia. horizon_hours: cuanto se prolonga despues de la ultima lectura; min_points: con menos lecturas no se dibuja. No son umbrales ni intervalos medicos; la linea no predice estados ni cruces de rango.",
+      "enabled": true,
+      "horizon_hours": 24,
+      "min_points": 4
+    }
   }
 }

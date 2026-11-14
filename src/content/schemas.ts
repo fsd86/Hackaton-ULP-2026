@@ -258,8 +258,20 @@ export const HudConfig = z
         max_bpm: Bpm,
       })
       .refine((p) => p.min_bpm <= p.max_bpm, { message: "min_bpm must be <= max_bpm", path: ["min_bpm"] }),
+    // Extrapolacion lineal punteada en los graficos de tendencia (DISENO, no medico; sin umbrales ni cruces).
+    projection: z
+      .object({
+        _comment: Comment,
+        enabled: z.boolean(),
+        horizon_hours: z.number().positive().max(24 * 30),
+        min_points: z.number().int().min(2),
+      })
+      .default({ enabled: false, horizon_hours: 24, min_points: 4 }),
   })
-  .default({ pulse_trace: { indicator_id: null, idle_bpm: 60, min_bpm: 40, max_bpm: 160 } });
+  .default({
+    pulse_trace: { indicator_id: null, idle_bpm: 60, min_bpm: 40, max_bpm: 160 },
+    projection: { enabled: false, horizon_hours: 24, min_points: 4 },
+  });
 
 // ---- config/app.json
 export const AppConfig = z.object({

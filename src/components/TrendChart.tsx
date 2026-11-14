@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { useContent } from "../content/ContentContext";
 import type { Indicator } from "../content/schemas";
 import type { EvalStatus } from "../logic/evaluate";
@@ -7,6 +7,7 @@ import { DemoChip } from "./DemoChip";
 import { ReferenceNote } from "./EarthReferenceNote";
 import { StatusIcon } from "./StatusIcon";
 import type { Trend, TrendPoint } from "../logic/trend";
+import { projectSeries } from "../logic/projection";
 
 // Geometría interna del viewBox (el SVG escala al 100% del ancho del contenedor).
 const W = 360;
@@ -98,6 +99,7 @@ export function TrendChart({
   demo?: boolean;
 }) {
   const { t, content } = useContent();
+  const clipId = useId();
   const windowLabel =
     windowMs === null
       ? null
@@ -124,7 +126,12 @@ export function TrendChart({
   const { domain, series, bands } = trend;
   const isPair = indicator.input.kind === "pair";
   const pairLabels = indicator.input.kind === "pair" ? indicator.input.labels : null;
-  const tSpan = domain.tMax - domain.tMin || 1;
+  // Extrapolacion lineal (DISENO, no medico): color neutro, sin marcadores ni estado. El eje X se extiende hasta el horizonte.
+  const projCfg = content.app.hud.projection;
+  const projections = projectSeries(series, projCfg);
+  const tEnd = Math.max(domain.tMax, ...projections.map((pr) => pr.to.t));
+  const projNote = demo ? t("board.chart_projection_demo") : t("board.chart_projection");
+  const tSpan = tEnd - domain.tMin || 1;
   const vSpan = domain.vMax - domain.vMin || 1;
   const x = (tt: number) => ML + ((tt - domain.tMin) / tSpan) * (W - ML - MR);
   const y = (v: number) => MT + (1 - (v - domain.vMin) / vSpan) * (H - MT - MB);
@@ -141,7 +148,7 @@ export function TrendChart({
     value: lastValue,
     unit: indicator.unit,
     status: t(`status.${lastStatus}`),
-  });
+  }) + (projections.length > 0 ? `. ${t("board.chart_projection_summary", { note: projNote, hours: projCfg.horizon_hours })}` : "");
 
   const bandOpacity = isPair ? 0.07 : 0.14;
   // Solo bandas de rangos con fuente (buildTrend descarta los no citados); los huecos quedan sin sombrear.
@@ -150,7 +157,8 @@ export function TrendChart({
   const present = STATUS_ORDER.filter((s) => series.some((ser) => ser.points.some((p) => p.status === s)));
   const iconOf = (s: EvalStatus) => (s === "unknown" ? "help-circle" : content.app.theme.status_icons[s]);
 
-  const ticks = timeTicks(domain.tMin, domain.tMax, locale);
+  const ticks = timeTicks(domain.tMin, tEnd, locale);
+  const nowX = x(domain.tMax);
   // Etiqueta de estado junto al ultimo punto (texto, ademas del color y la forma del marcador).
   const lx = x(last.t);
   const ly = y(last.v);
@@ -195,6 +203,37 @@ export function TrendChart({
           <line key={tk.t} x1={x(tk.t)} x2={x(tk.t)} y1={MT} y2={H - MB + 4} stroke="var(--color-line)" strokeWidth="1" opacity="0.6" />
         ))}
         <rect x={ML} y={MT} width={W - ML - MR} height={H - MT - MB} fill="none" stroke="var(--color-line)" />
+        {projections.length > 0 && (
+          <g>
+            <clipPath id={clipId}>
+              <rect x={ML} y={MT} width={W - ML - MR} height={H - MT - MB} />
+            </clipPath>
+            {/* Divisor sutil entre lo medido y lo extrapolado. */}
+            <line x1={nowX} x2={nowX} y1={MT} y2={H - MB} stroke="var(--color-muted)" strokeWidth="1" strokeDasharray="1 3" opacity="0.8" />
+            {windowMs !== null && (
+              <text x={nowX + 3} y={MT + 9} fontSize="9" fill="var(--color-muted)" fontFamily="inherit">
+                {t("board.chart_now")}
+              </text>
+            )}
+            <g clipPath={`url(#${clipId})`}>
+              {projections.map((pr) => (
+                <line
+                  key={pr.index}
+                  data-testid="trend-projection"
+                  x1={x(pr.from.t)}
+                  y1={y(pr.from.v)}
+                  x2={x(pr.to.t)}
+                  y2={y(pr.to.v)}
+                  stroke="var(--color-accent)"
+                  strokeWidth="2"
+                  strokeDasharray="0.5 4"
+                  strokeLinecap="round"
+                  opacity="0.85"
+                />
+              ))}
+            </g>
+          </g>
+        )}
 
         <g fill="var(--color-muted)" fontSize="11" fontFamily="inherit">
           <text x={ML - 4} y={MT + 8} textAnchor="end">
@@ -271,6 +310,14 @@ export function TrendChart({
             : t("board.chart_bands")
           : t("board.chart_no_bands")}
       </p>
+      {projections.length > 0 && (
+        <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--color-muted)]" data-testid="trend-projection-note">
+          <svg aria-hidden="true" viewBox="0 0 22 6" className="h-1.5 w-5 shrink-0">
+            <line x1="2" y1="3" x2="20" y2="3" stroke="var(--color-accent)" strokeWidth="2" strokeDasharray="0.5 4" strokeLinecap="round" />
+          </svg>
+          {projNote}
+        </p>
+      )}
       {indicator.earth_reference === true && <ReferenceNote earth compact className="mt-1" />}
 
       <details className="mt-2">
