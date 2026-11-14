@@ -65,6 +65,16 @@ html {
   }
 }
 
+/* Emergencia en movil: "Mark as done" nunca queda bajo el aviso fijo ni la barra de pestanas (pasos largos). */
+@media (max-width: 1023.98px) {
+  .em-mark-done {
+    position: sticky;
+    bottom: calc(4.25rem + var(--notice-h) + 0.5rem);
+    z-index: 20;
+    box-shadow: 0 -6px 18px var(--color-ink);
+  }
+}
+
 .prototype-notice {
   position: fixed;
   z-index: 35;
