@@ -274,6 +274,21 @@ main:focus {
     grid-row: 1 / span 2;
     align-self: stretch;
   }
+  /* Sin lecturas: el estado general (con "Go to daily check") sube al tope de la columna derecha para verse
+     sin scroll; el cuerpo ocupa sola la columna central. */
+  .hud-grid-empty .hud-center {
+    grid-row: 1 / span 2;
+  }
+  .hud-grid-empty .hud-overall {
+    grid-column: 3;
+    grid-row: 1;
+    width: 100%;
+    transform: perspective(1800px) rotateY(-7deg);
+    transform-origin: right center;
+  }
+  .hud-grid-empty .hud-col-right {
+    grid-row: 2;
+  }
   .hud-col-right {
     order: 3;
     transform: perspective(1800px) rotateY(-7deg);
@@ -281,7 +296,8 @@ main:focus {
   }
 }
 /* Paneles del HUD: borde fino luminoso, como pantallas de vidrio encendidas. */
-.hud-col > .glass {
+.hud-col > .glass,
+.hud-grid-empty .hud-overall > .glass {
   border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
   background: linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 7%, var(--glass-bg)), var(--glass-bg) 45%);
   box-shadow:
@@ -289,7 +305,8 @@ main:focus {
     inset 0 0 24px color-mix(in srgb, var(--color-accent) 6%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
-.hud-col .panel-title {
+.hud-col .panel-title,
+.hud-grid-empty .hud-overall .panel-title {
   color: var(--color-text);
   font-size: 0.78rem;
 }

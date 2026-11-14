@@ -151,7 +151,7 @@ export function StatusBoard() {
     <div className="space-y-6">
       <h1 className="font-mono text-lg font-bold uppercase tracking-[0.16em]">{t("board.title")}</h1>
 
-      <div className="hud-grid">
+      <div className={`hud-grid ${hasReadings ? "" : "hud-grid-empty"}`}>
         {/* Izquierda: signos vitales, estado por zona, tendencia destacada y demora / respuesta de Tierra. */}
         <div className="hud-col hud-col-left">
           <FramePanel title={t("hud.vitals")} corners delayMs={80} bodyClassName="!p-2">
