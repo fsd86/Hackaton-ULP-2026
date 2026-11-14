@@ -249,9 +249,15 @@ main:focus {
     margin-top: -3.4rem;
   }
   /* Columna central: cuerpo (fila 1) y estado general (fila 2); las laterales ocupan las dos filas. */
+  /* Las columnas laterales se estiran a la misma altura y su ultimo panel crece hasta el borde:
+     terminan parejas sea cual sea la zona elegida. */
   .hud-col-left {
     grid-column: 1;
     grid-row: 1 / span 2;
+    align-self: stretch;
+  }
+  .hud-col > :last-child {
+    flex-grow: 1;
   }
   .hud-center {
     grid-column: 2;
@@ -266,6 +272,7 @@ main:focus {
   .hud-col-right {
     grid-column: 3;
     grid-row: 1 / span 2;
+    align-self: stretch;
   }
   .hud-col-right {
     order: 3;

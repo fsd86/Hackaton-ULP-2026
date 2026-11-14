@@ -152,7 +152,7 @@ export function StatusBoard() {
       <h1 className="font-mono text-lg font-bold uppercase tracking-[0.16em]">{t("board.title")}</h1>
 
       <div className="hud-grid">
-        {/* Izquierda: signos vitales, estado por zona y tendencia destacada (en movil, debajo del cuerpo). */}
+        {/* Izquierda: signos vitales, estado por zona, tendencia destacada y demora / respuesta de Tierra. */}
         <div className="hud-col hud-col-left">
           <FramePanel title={t("hud.vitals")} corners delayMs={80} bodyClassName="!p-2">
             <ul className="divide-y divide-[var(--glass-border)]">
@@ -194,6 +194,38 @@ export function StatusBoard() {
               <FocusTrend indicator={focusInd} trend={buildTrend({ indicator: focusInd, readings, environment, sinceMs: WEEK_MS, now })} />
             </FramePanel>
           )}
+
+          <FramePanel title={t("hud.ground_answer")} corners delayMs={280}>
+            <p className="eyebrow !text-[0.62rem]">{t("hud.ground_answer.delay")}</p>
+            <p className="flex flex-wrap items-center gap-2 font-mono text-xl font-semibold leading-tight text-[var(--color-accent)]">
+              {formatDelay(delay, t)}
+              {delayPlaceholder && <PlaceholderBadge short />}
+            </p>
+            <p className="mt-3 text-sm text-[var(--color-muted)]">{t("hud.ground_answer.help")}</p>
+            <p className="mt-1">{t(escalation.messageKey, escalationVars(escalation))}</p>
+            {escalation.eta && (
+              <dl className="mt-3 grid grid-cols-2 gap-2">
+                <div className="rounded-sm border border-[var(--glass-border)] p-2">
+                  <dt className="eyebrow !text-[0.62rem]">{t("escalation.eta.earliest")}</dt>
+                  <dd className="font-mono text-xl font-semibold">
+                    <time dateTime={escalation.eta.earliest.toISOString()}>{formatTime(escalation.eta.earliest)}</time>
+                  </dd>
+                </div>
+                <div className="rounded-sm border border-[var(--glass-border)] p-2">
+                  <dt className="eyebrow !text-[0.62rem]">{t("escalation.eta.latest")}</dt>
+                  <dd className="font-mono text-xl font-semibold">
+                    <time dateTime={escalation.eta.latest.toISOString()}>{formatTime(escalation.eta.latest)}</time>
+                  </dd>
+                </div>
+              </dl>
+            )}
+            <SourceLinks ids={delay.source_ids} label={t("sources.delay_sources")} className="mt-3 block" />
+            <div className="mt-2 border-t border-[var(--glass-border)] pt-2">
+              <p className="text-sm font-semibold">{environment.name}</p>
+              <EnvironmentDetails />
+            </div>
+          </FramePanel>
+
         </div>
 
         {/* Centro: el cuerpo (en movil va arriba de todo). */}
@@ -288,42 +320,11 @@ export function StatusBoard() {
 
         </div>
 
-        {/* Derecha: detalle de zona, demora y respuesta de Tierra, hazards de NASA. */}
+        {/* Derecha: detalle de la zona elegida y hazards de NASA. */}
         <div className="hud-col hud-col-right">
           <FramePanel title={t("hud.zone_detail")} corners delayMs={200} id={detailId}>
             <div aria-live="polite">
               <ZoneDetail zone={zoneOf} indicators={byId} environment={environment} />
-            </div>
-          </FramePanel>
-
-          <FramePanel title={t("hud.ground_answer")} corners delayMs={280}>
-            <p className="eyebrow !text-[0.62rem]">{t("hud.ground_answer.delay")}</p>
-            <p className="flex flex-wrap items-center gap-2 font-mono text-xl font-semibold leading-tight text-[var(--color-accent)]">
-              {formatDelay(delay, t)}
-              {delayPlaceholder && <PlaceholderBadge short />}
-            </p>
-            <p className="mt-3 text-sm text-[var(--color-muted)]">{t("hud.ground_answer.help")}</p>
-            <p className="mt-1">{t(escalation.messageKey, escalationVars(escalation))}</p>
-            {escalation.eta && (
-              <dl className="mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded-sm border border-[var(--glass-border)] p-2">
-                  <dt className="eyebrow !text-[0.62rem]">{t("escalation.eta.earliest")}</dt>
-                  <dd className="font-mono text-xl font-semibold">
-                    <time dateTime={escalation.eta.earliest.toISOString()}>{formatTime(escalation.eta.earliest)}</time>
-                  </dd>
-                </div>
-                <div className="rounded-sm border border-[var(--glass-border)] p-2">
-                  <dt className="eyebrow !text-[0.62rem]">{t("escalation.eta.latest")}</dt>
-                  <dd className="font-mono text-xl font-semibold">
-                    <time dateTime={escalation.eta.latest.toISOString()}>{formatTime(escalation.eta.latest)}</time>
-                  </dd>
-                </div>
-              </dl>
-            )}
-            <SourceLinks ids={delay.source_ids} label={t("sources.delay_sources")} className="mt-3 block" />
-            <div className="mt-2 border-t border-[var(--glass-border)] pt-2">
-              <p className="text-sm font-semibold">{environment.name}</p>
-              <EnvironmentDetails />
             </div>
           </FramePanel>
 
