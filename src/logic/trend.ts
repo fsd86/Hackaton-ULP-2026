@@ -43,6 +43,8 @@ export interface BuildTrendInput {
   sinceMs?: number;
   now: number;
   maxPoints?: number;
+  /** true = el eje X cubre la ventana completa [now - sinceMs, now] (p. ej. 7 dias), no solo el tramo con datos. */
+  fixedWindow?: boolean;
 }
 
 export const DEFAULT_SINCE_MS = 7 * 24 * 3_600_000;
@@ -54,10 +56,13 @@ interface RawBand {
   to: number | null;
 }
 
-/** Ordena e ignora rangos nulos/nulos. Los bordes son los reales de la fuente (sin normalizar). */
+/**
+ * Ordena e ignora rangos nulos/nulos y rangos SIN fuente (source_ids vacio): nunca se sombrea un rango no citado.
+ * Los bordes son los reales de la fuente (sin normalizar). Los huecos entre rangos quedan sin sombrear.
+ */
 function normalizeRanges(ranges: Range[]): RawBand[] {
   return ranges
-    .filter((r) => r.min !== null || r.max !== null)
+    .filter((r) => (r.min !== null || r.max !== null) && r.source_ids.length > 0)
     .map((r) => ({ status: r.status, from: r.min, to: r.max }))
     .sort((a, b) => (a.from ?? -Infinity) - (b.from ?? -Infinity));
 }
@@ -69,6 +74,7 @@ export function buildTrend({
   sinceMs = DEFAULT_SINCE_MS,
   now,
   maxPoints = DEFAULT_MAX_POINTS,
+  fixedWindow = false,
 }: BuildTrendInput): Trend {
   const isPair = indicator.input.kind === "pair";
   const primary = environment?.indicator_overrides[indicator.id]?.ranges ?? indicator.ranges;
@@ -128,7 +134,10 @@ export function buildTrend({
   const ts = allPoints.map((p) => p.t);
   let tMin = Math.min(...ts);
   let tMax = Math.max(...ts);
-  if (tMin === tMax) {
+  if (fixedWindow) {
+    tMin = now - sinceMs;
+    tMax = now;
+  } else if (tMin === tMax) {
     tMin -= sinceMs / 2;
     tMax += sinceMs / 2;
   }

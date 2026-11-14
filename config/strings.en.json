@@ -274,6 +274,12 @@
   "board.chart_series": "Series",
   "board.chart_solid": "solid line",
   "board.chart_dashed": "dashed line",
+  "board.chart_legend": "Statuses in this chart",
+  "board.chart_bands_earth": "Shaded = sourced reference range (Earth)",
+  "board.chart_bands": "Shaded = sourced reference range",
+  "board.chart_no_bands": "No sourced reference range: nothing is shaded",
+  "board.chart_window": "Last {days} days",
+  "board.chart_window_hours": "Last {hours} hours",
   "emergency.more": "More",
   "emergency.less": "Less",
 

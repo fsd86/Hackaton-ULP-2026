@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { useContent } from "../content/ContentContext";
 import type { Indicator } from "../content/schemas";
 import type { EvalStatus } from "../logic/evaluate";
-import { formatDateTime, formatValue } from "../logic/daily";
+import { formatDateTime, formatTime, formatValue } from "../logic/daily";
+import { DemoChip } from "./DemoChip";
+import { ReferenceNote } from "./EarthReferenceNote";
+import { StatusIcon } from "./StatusIcon";
 import type { Trend, TrendPoint } from "../logic/trend";
 
 // Geometría interna del viewBox (el SVG escala al 100% del ancho del contenedor).
@@ -30,10 +33,92 @@ function Marker({ status, x, y, dashed }: { status: EvalStatus; x: number; y: nu
   return <circle cx={x} cy={y} r={r} {...common} />;
 }
 
-export function TrendChart({ indicator, trend, locale }: { indicator: Indicator; trend: Trend; locale: string }) {
-  const { t } = useContent();
+const DAY_MS = 24 * 3_600_000;
+const HOUR_MS = 3_600_000;
+const STATUS_ORDER: EvalStatus[] = ["critical", "attention", "normal", "unknown"];
+
+interface Tick {
+  t: number;
+  label: string;
+}
+
+/**
+ * Marcas del eje X: medianoches locales (etiqueta "Nov 14") si la ventana supera 2 dias, cada 6/12 h si es mas corta.
+ * Con ventanas largas ("All") se espacian para no superar ~8 marcas.
+ */
+function timeTicks(tMin: number, tMax: number, locale: string): Tick[] {
+  const span = tMax - tMin;
+  if (span <= 0) return [];
+  const out: Tick[] = [];
+  if (span > 2 * DAY_MS) {
+    const stepDays = Math.max(1, Math.ceil(span / DAY_MS / 8));
+    const d = new Date(tMin);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 1);
+    for (let i = 0; d.getTime() <= tMax && i < 400; i++) {
+      if (i % stepDays === 0) out.push({ t: d.getTime(), label: d.toLocaleDateString(locale, { month: "short", day: "numeric" }) });
+      d.setDate(d.getDate() + 1);
+    }
+  } else {
+    const stepH = span > DAY_MS ? 12 : 6;
+    const d = new Date(tMin);
+    d.setMinutes(0, 0, 0);
+    if (d.getTime() < tMin) d.setHours(d.getHours() + 1);
+    d.setHours(Math.ceil(d.getHours() / stepH) * stepH);
+    for (let i = 0; d.getTime() <= tMax && i < 50; i++) {
+      out.push({ t: d.getTime(), label: formatTime(d, locale) });
+      d.setTime(d.getTime() + stepH * HOUR_MS);
+    }
+  }
+  return out;
+}
+
+/** Muestra de forma de marcador para la leyenda (misma forma que en el grafico). */
+function MarkerSwatch({ status }: { status: EvalStatus }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 18 18" className="h-4 w-4 shrink-0">
+      <Marker status={status} x={9} y={9} dashed={false} />
+    </svg>
+  );
+}
+
+export function TrendChart({
+  indicator,
+  trend,
+  locale,
+  windowMs = null,
+  demo = false,
+}: {
+  indicator: Indicator;
+  trend: Trend;
+  locale: string;
+  /** Ventana fija del eje X en ms (24 h, 7 dias); null = el tramo con datos ("All"). */
+  windowMs?: number | null;
+  /** true = las lecturas graficadas son DEMO (sinteticas). */
+  demo?: boolean;
+}) {
+  const { t, content } = useContent();
+  const windowLabel =
+    windowMs === null
+      ? null
+      : windowMs >= 2 * DAY_MS
+        ? t("board.chart_window", { days: Math.round(windowMs / DAY_MS) })
+        : t("board.chart_window_hours", { hours: Math.round(windowMs / HOUR_MS) });
+  const header =
+    windowLabel || demo ? (
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+        {windowLabel ? <p className="eyebrow !text-[0.62rem]">{windowLabel}</p> : <span />}
+        {demo && <DemoChip />}
+      </div>
+    ) : null;
+
   if (trend.empty) {
-    return <p className="text-[var(--color-muted)]">{t("board.no_data")}</p>;
+    return (
+      <div>
+        {header}
+        <p className="text-[var(--color-muted)]">{t("board.no_data")}</p>
+      </div>
+    );
   }
 
   const { domain, series, bands } = trend;
@@ -58,11 +143,23 @@ export function TrendChart({ indicator, trend, locale }: { indicator: Indicator;
     status: t(`status.${lastStatus}`),
   });
 
-  const first = primary[0]!;
   const bandOpacity = isPair ? 0.07 : 0.14;
+  // Solo bandas de rangos con fuente (buildTrend descarta los no citados); los huecos quedan sin sombrear.
+  const drawnBands = isPair ? bands : [bands[0] ?? []];
+  const hasBands = drawnBands.some((set) => set.length > 0);
+  const present = STATUS_ORDER.filter((s) => series.some((ser) => ser.points.some((p) => p.status === s)));
+  const iconOf = (s: EvalStatus) => (s === "unknown" ? "help-circle" : content.app.theme.status_icons[s]);
+
+  const ticks = timeTicks(domain.tMin, domain.tMax, locale);
+  // Etiqueta de estado junto al ultimo punto (texto, ademas del color y la forma del marcador).
+  const lx = x(last.t);
+  const ly = y(last.v);
+  const labelBelow = ly - 12 < MT + 10;
+  const labelRight = lx < (W + ML) / 2;
 
   return (
     <div>
+      {header}
       {isPair && pairLabels && (
         <ul className="mb-1 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label={t("board.chart_series")}>
           {pairLabels.map((label, i) => (
@@ -77,7 +174,7 @@ export function TrendChart({ indicator, trend, locale }: { indicator: Indicator;
       )}
 
       <svg role="img" aria-label={summary} viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full max-w-full">
-        {(isPair ? bands : [bands[0]!]).flatMap((set, si) =>
+        {drawnBands.flatMap((set, si) =>
           set.map((b, bi) => {
             const top = clampY(b.to);
             const bottom = clampY(b.from);
@@ -94,6 +191,9 @@ export function TrendChart({ indicator, trend, locale }: { indicator: Indicator;
             );
           }),
         )}
+        {ticks.map((tk) => (
+          <line key={tk.t} x1={x(tk.t)} x2={x(tk.t)} y1={MT} y2={H - MB + 4} stroke="var(--color-line)" strokeWidth="1" opacity="0.6" />
+        ))}
         <rect x={ML} y={MT} width={W - ML - MR} height={H - MT - MB} fill="none" stroke="var(--color-line)" />
 
         <g fill="var(--color-muted)" fontSize="11" fontFamily="inherit">
@@ -105,12 +205,13 @@ export function TrendChart({ indicator, trend, locale }: { indicator: Indicator;
             <title>{t("board.axis_min")}</title>
             {axisNum(domain.vMin)}
           </text>
-          <text x={ML} y={H - 7} textAnchor="start">
-            {formatDateTime(first.t, locale)}
-          </text>
-          <text x={W - MR} y={H - 7} textAnchor="end">
-            {formatDateTime(last.t, locale)}
-          </text>
+          {ticks
+            .filter((tk) => x(tk.t) <= W - MR - 14)
+            .map((tk) => (
+              <text key={tk.t} x={x(tk.t)} y={H - 7} textAnchor="middle">
+                {tk.label}
+              </text>
+            ))}
         </g>
 
         {series.map((s) => (
@@ -126,11 +227,51 @@ export function TrendChart({ indicator, trend, locale }: { indicator: Indicator;
               />
             )}
             {s.points.map((p, i) => (
-              <Marker key={i}status={p.status} x={x(p.t)} y={y(p.v)} dashed={s.index === 1} />
+              <Marker key={i} status={p.status} x={x(p.t)} y={y(p.v)} dashed={s.index === 1} />
             ))}
           </g>
         ))}
+
+        <text
+          x={labelRight ? lx + 9 : lx - 9}
+          y={labelBelow ? ly + 20 : ly - 11}
+          textAnchor={labelRight ? "start" : "end"}
+          fontSize="11"
+          fontWeight="600"
+          fontFamily="inherit"
+          fill="var(--color-text)"
+          stroke="var(--color-panel)"
+          strokeWidth="3"
+          paintOrder="stroke"
+        >
+          {t(`status.${lastStatus}`)}
+        </text>
       </svg>
+
+      <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs" aria-label={t("board.chart_legend")}>
+        {present.map((s) => (
+          <li key={s} className="flex items-center gap-1">
+            <MarkerSwatch status={s} />
+            <span style={{ color: `var(--status-${s})` }}>
+              <StatusIcon name={iconOf(s)} className="h-4 w-4" />
+            </span>
+            <span>{t(`status.${s}`)}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
+        {hasBands && (
+          <svg aria-hidden="true" viewBox="0 0 14 10" className="h-2.5 w-3.5 shrink-0">
+            <rect x="0" y="0" width="14" height="10" fill="var(--color-text)" opacity="0.25" stroke="var(--color-line)" />
+          </svg>
+        )}
+        {hasBands
+          ? indicator.earth_reference === true
+            ? t("board.chart_bands_earth")
+            : t("board.chart_bands")
+          : t("board.chart_no_bands")}
+      </p>
+      {indicator.earth_reference === true && <ReferenceNote earth compact className="mt-1" />}
 
       <details className="mt-2">
         <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-[var(--color-accent)]">
@@ -148,7 +289,7 @@ export function TrendChart({ indicator, trend, locale }: { indicator: Indicator;
             </thead>
             <tbody>
               {primary.map((p, i) => (
-                <Row key={i}indicator={indicator} point={p} second={isPair ? series[1]!.points[i] : undefined} locale={locale} />
+                <Row key={i} indicator={indicator} point={p} second={isPair ? series[1]!.points[i] : undefined} locale={locale} />
               ))}
             </tbody>
           </table>

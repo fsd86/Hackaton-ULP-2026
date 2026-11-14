@@ -134,10 +134,10 @@ export function StatusBoard() {
   }
 
   const hasReadings = board.overall !== "noData";
-  const sinceMs = (() => {
-    const hours = PERIODS.find((p) => p.id === period)?.hours ?? null;
-    return hours === null ? now : hours * 3_600_000;
-  })();
+  const periodHours = PERIODS.find((p) => p.id === period)?.hours ?? null;
+  // Ventana fija del eje X (24 h / 7 dias); "All" usa el tramo con datos.
+  const windowMs = periodHours === null ? null : periodHours * 3_600_000;
+  const sinceMs = windowMs ?? now;
 
   const escalation = escalate("attention", ESCALATE_TO_GROUND, environment, content.app, new Date(now));
 
@@ -369,7 +369,6 @@ export function StatusBoard() {
           delayMs={200}
           aside={
             <div className="flex flex-wrap items-center justify-end gap-2">
-            {demoChip}
             <div role="group" aria-label={t("board.period_label")} className="flex gap-1.5">
               {PERIODS.map((p) => (
                 <button
@@ -396,6 +395,8 @@ export function StatusBoard() {
               const ind = byId.get(entry.indicatorId);
               if (!ind) return null;
               const last = entry.lastReading;
+              // Marca DEMO por grafico si alguna lectura graficada (de este indicador, en el periodo) es sintetica.
+              const plotsDemo = readings.some((r) => r.indicatorId === ind.id && r.demo === true && r.timestamp >= now - sinceMs);
               return (
                 <li key={ind.id} data-testid="board-card" className="min-w-0 rounded-sm border border-[var(--glass-border)] p-3">
                   <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
@@ -413,7 +414,9 @@ export function StatusBoard() {
                   <TrendChart
                     indicator={ind}
                     locale={locale}
-                    trend={buildTrend({ indicator: ind, readings, environment, sinceMs, now })}
+                    windowMs={windowMs}
+                    demo={plotsDemo}
+                    trend={buildTrend({ indicator: ind, readings, environment, sinceMs, now, fixedWindow: windowMs !== null })}
                   />
                 </li>
               );
