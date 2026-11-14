@@ -29,7 +29,7 @@
 
   "badge.placeholder": "Unverified data — placeholder",
   "badge.placeholder.short": "Placeholder",
-  "indicator.earth_reference": "Earth reference — no spaceflight-specific value.",
+  "reference.earth": "Earth reference — no spaceflight-specific value.",
   "badge.verified": "Verified",
 
   "status.label": "Status",
@@ -149,6 +149,8 @@
   "emergency.exit_confirm.stay": "Stay in emergency mode",
   "emergency.exit_confirm.leave": "Exit anyway",
   "emergency.steps_nav": "Move between steps",
+  "emergency.open_linked": "Switch to protocol: {title}",
+  "emergency.notes_title": "Background notes",
 
   "report.title": "Downlink report",
   "report.intro": "A complete message for the flight surgeons, so no back-and-forth is needed.",

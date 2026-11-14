@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Protocol } from "../../content/schemas";
+import { ReferenceNote } from "../../components/EarthReferenceNote";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
 import { SourceLinks } from "../../components/SourceLinks";
 import { StatusIcon } from "../../components/StatusIcon";
@@ -89,6 +90,8 @@ export function ProtocolRun({
   const completed = doneAt.size >= total;
   const step = protocol.steps[Math.min(index, total - 1)];
   const stepDoneAt = doneAt.get(index);
+  // Paso que deriva a otro protocolo (link_protocol_id validado por el loader).
+  const linked = step.link_protocol_id ? content.protocols.find((x) => x.id === step.link_protocol_id) : undefined;
 
   function markDone() {
     if (!doneAt.has(index)) {
@@ -217,6 +220,12 @@ export function ProtocolRun({
               <PlaceholderBadge />
             )}
           </div>
+          {step.earth_reference && <ReferenceNote earth compact className="mt-2" />}
+          {linked && (
+            <a href={`#/emergency/${encodeURIComponent(linked.id)}`} className={`${secondary} mt-3 w-full`}>
+              {t("emergency.open_linked", { title: linked.title })}
+            </a>
+          )}
 
           {step.timer_s !== undefined && <StepTimer key={index} seconds={step.timer_s} />}
 
@@ -237,6 +246,27 @@ export function ProtocolRun({
             </button>
           </div>
         </article>
+      )}
+
+      {protocol.notes && protocol.notes.length > 0 && (
+        <section aria-labelledby="em-notes-title" className="mt-8">
+          <h2 id="em-notes-title" className="mb-2 text-xl font-bold">
+            {t("emergency.notes_title")}
+          </h2>
+          <ul className="space-y-2">
+            {protocol.notes.map((n, i) => (
+              <li key={i} className="rounded-md border border-[var(--color-line)] bg-[var(--color-panel)] p-3">
+                <p>{n.text}</p>
+                {n.earth_reference && <ReferenceNote earth compact className="mt-2" />}
+                {n.source_ids.length > 0 ? (
+                  <SourceLinks ids={n.source_ids} label={t("emergency.step_sources")} className="mt-2" />
+                ) : (
+                  <PlaceholderBadge className="mt-2" />
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {log}

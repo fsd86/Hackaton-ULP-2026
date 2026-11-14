@@ -122,7 +122,7 @@ export const Indicator = z
     // true: el indicador declara a propósito huecos entre rangos (la fuente no define ese tramo → "unknown").
     allow_gaps: z.boolean().optional(),
     // true: los rangos/acciones son una referencia de la Tierra sin valor especifico de vuelo; la UI muestra
-    // el aviso "indicator.earth_reference" junto a rangos y acciones.
+    // el aviso "reference.earth" junto a rangos y acciones.
     earth_reference: z.boolean().optional(),
     // Aclaracion propia del indicador que acompana al aviso (p. ej. "solo en ayunas"); texto con fuente.
     reference_note: z.string().optional(),
@@ -174,17 +174,34 @@ export const Step = z.object({
   detail: z.string().optional(),
   timer_s: z.number().optional(),
   check: z.boolean().default(true),
+  // true: el paso sigue una guia de la Tierra (sin valor especifico de vuelo); la UI muestra el aviso.
+  earth_reference: z.boolean().optional(),
+  // Paso que deriva a otro protocolo (p. ej. "pasar a Crewmate collapsed"); el loader valida que exista.
+  link_protocol_id: z.string().optional(),
   source_ids: SourceIds,
 });
+
+// Nota informativa del protocolo (contexto, sin temporizador ni paso que marcar), con su fuente.
+export const ProtocolNote = z
+  .object({
+    text: z.string(),
+    earth_reference: z.boolean().optional(),
+    source_ids: SourceIds,
+    status: Status.default("VERIFIED"),
+  })
+  .superRefine(requireSourcesIfVerified);
 
 export const Protocol = z
   .object({
     id: z.string(),
     title: z.string(),
     trigger: z.array(z.string()),
+    // true: los disparadores son señales descritas por guias de la Tierra; la UI muestra el aviso.
+    trigger_earth_reference: z.boolean().optional(),
     escalation: Escalation,
     steps: z.array(Step).min(1),
     report_fields: z.array(z.string()).default([]),
+    notes: z.array(ProtocolNote).optional(),
     source_ids: SourceIds,
     status: Status,
   })
@@ -333,6 +350,7 @@ export type DemoReading = z.infer<typeof DemoReading>;
 export type Environment = z.infer<typeof Environment>;
 export type Step = z.infer<typeof Step>;
 export type Protocol = z.infer<typeof Protocol>;
+export type ProtocolNote = z.infer<typeof ProtocolNote>;
 export type AppConfig = z.infer<typeof AppConfig>;
 export type HeroConfig = z.infer<typeof HeroConfig>;
 export type HudConfig = z.infer<typeof HudConfig>;

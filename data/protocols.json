@@ -1,51 +1,83 @@
 {
-  "_comment": "Emergency protocols. Steps with source_ids come from the DGLRM/ESAM-SMG CPR-in-microgravity guideline. Steps without source_ids are PLACEHOLDER: the guideline does not detail them. The guideline gives no microgravity compression rate/depth, so no timers are set.",
+  "_comment": "Emergency protocols. Every step and note lists its source_ids; a step without source_ids is PLACEHOLDER (shown with the placeholder badge). earth_reference / trigger_earth_reference mark Earth guidance with no spaceflight-specific value (the UI shows the caveat). The DGLRM/ESAM-SMG microgravity CPR guideline does not describe recognition (response, breathing) or a compression rate/depth, so recognition and call-for-help follow Earth guidance (Resuscitation Council UK, MedlinePlus) and no timers are set. link_protocol_id points a step to another protocol (validated by the loader). Titles, escalation levels and report_fields are DESIGN decisions, not medical. Source of the stage 3A texts: docs/research/3a-verificacion.md, section 'Listo para cargar'.",
   "protocols": [
     {
       "id": "crew_collapse_chest_pain",
-      "title": "Crewmate collapsed / chest pain",
-      "trigger": ["PLACEHOLDER: symptom that triggers this protocol."],
+      "_comment": "id kept for saved sessions. Recognition (step 1) and call for help (step 2) are Earth guidance; 'inform Mission Control' and the telemedicine detail come from the microgravity guideline. The AED step combines DGLRM Rec. 11/14 and RCUK. Every step is sourced, so the protocol is VERIFIED; it is still an educational prototype that needs flight-surgeon validation.",
+      "title": "Crewmate collapsed / not responding",
+      "trigger": [
+        "Crewmate collapses or does not respond.",
+        "Crewmate is not breathing, or only gasping."
+      ],
+      "trigger_earth_reference": true,
       "escalation": "ground",
       "steps": [
         {
-          "text": "PLACEHOLDER: check whether the crewmate responds and is breathing.",
-          "detail": "PLACEHOLDER: recognition steps are not detailed in the cited guideline.",
+          "text": "Check if your crewmate responds: tap or gently shake them and shout, \"Are you OK?\"",
+          "detail": "If there is no response and breathing is absent or not normal (for example, only gasping), treat it as cardiac arrest and start CPR.",
           "check": true,
-          "source_ids": []
+          "earth_reference": true,
+          "source_ids": [
+            "medlineplus_cpr_adult",
+            "rcuk_bls_2025"
+          ]
         },
         {
-          "text": "PLACEHOLDER: alert the crew and ground control.",
-          "detail": "PLACEHOLDER: call-for-help steps are not detailed in the cited guideline.",
+          "text": "Call for help: alert the rest of the crew and inform Mission Control of the medical emergency.",
+          "detail": "In low Earth orbit, telemedicine support should be consulted during a cardiac arrest. On a Mars mission, a live consult during CPR is impractical because of the communication delay; try it only if crewmates not involved in the CPR are available.",
           "check": true,
-          "source_ids": []
+          "earth_reference": true,
+          "source_ids": [
+            "rcuk_bls_2025",
+            "medlineplus_cpr_adult",
+            "dglrm_cpr_microgravity"
+          ]
+        },
+        {
+          "text": "Have a crewmate bring the AED from the emergency equipment. Start CPR without waiting for it, and use the AED as soon as it is available.",
+          "check": true,
+          "source_ids": [
+            "dglrm_cpr_microgravity",
+            "rcuk_bls_2025"
+          ]
         },
         {
           "text": "Start chest compressions with the Evetts-Russomano method. No restraint is needed for initial basic life support.",
           "detail": "The rescuer hooks one leg over the patient's shoulder and the other around the patient's torso, interlocks the ankles at the patient's back, and compresses the chest.",
           "check": true,
-          "source_ids": ["dglrm_cpr_microgravity"]
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
         },
         {
           "text": "If the Evetts-Russomano method is inadequate, switch to the reverse bear hug method.",
           "check": true,
-          "source_ids": ["dglrm_cpr_microgravity"]
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
         },
         {
           "text": "When possible, restrain the patient on the Crew Medical Restraint System.",
           "detail": "Use the handstand method if the dimensions allow it; otherwise use a restrained standard or straddling position.",
           "check": true,
-          "source_ids": ["dglrm_cpr_microgravity"]
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
         },
         {
           "text": "Use a defibrillator only when the patient is restrained to an electrically isolated, safe surface.",
           "detail": "Use an AED with voice prompts. Start CPR even if no defibrillator is available.",
           "check": true,
-          "source_ids": ["dglrm_cpr_microgravity"]
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
         },
         {
           "text": "Manage the airway only with at least 2 rescuers and the patient restrained.",
           "check": true,
-          "source_ids": ["dglrm_cpr_microgravity"]
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
         }
       ],
       "report_fields": [
@@ -56,7 +88,125 @@
         "Whether a defibrillator was used",
         "Number of rescuers"
       ],
-      "source_ids": ["dglrm_cpr_microgravity"],
+      "notes": [
+        {
+          "text": "The 2020 microgravity CPR guideline does not describe how to recognise a cardiac arrest; the recognition and call-for-help steps follow Earth guidance.",
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
+        },
+        {
+          "text": "On Earth, guidelines ask for 100–120 compressions per minute, at least 5 cm and no more than 6 cm deep, with as few pauses as possible.",
+          "earth_reference": true,
+          "source_ids": [
+            "rcuk_bls_2025",
+            "medlineplus_cpr_adult"
+          ]
+        },
+        {
+          "text": "The 2020 microgravity CPR guideline gives no target compression rate or depth for microgravity.",
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
+        },
+        {
+          "text": "Airway management should only be attempted with at least two rescuers and the patient restrained; the decision to stop CPR rests with the crewmember with the highest medical qualification.",
+          "source_ids": [
+            "dglrm_cpr_microgravity"
+          ]
+        }
+      ],
+      "source_ids": [
+        "dglrm_cpr_microgravity",
+        "rcuk_bls_2025",
+        "medlineplus_cpr_adult"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "crew_chest_pain_conscious",
+      "_comment": "New in stage 3A, only verified parts. Warning signs and the first steps are Earth guidance (NHLBI). The in-flight alert channel, medication and positioning have no verified source: PLACEHOLDER steps, so the protocol stays PLACEHOLDER. Aspirin is deliberately NOT included (sources give no conditions for lay use).",
+      "title": "Crewmate with chest pain (conscious)",
+      "trigger": [
+        "Chest pain, pressure, heaviness or discomfort",
+        "Pain or discomfort in one or both arms, the back, shoulders, neck, jaw or upper belly",
+        "Shortness of breath at rest or with light activity",
+        "Heavy sweating, nausea or vomiting, or light-headedness, with any of the above"
+      ],
+      "trigger_earth_reference": true,
+      "escalation": "ground",
+      "steps": [
+        {
+          "text": "Treat this as a possible heart attack, even if you are not sure. If you can't tell angina from a heart attack, treat it as an emergency.",
+          "check": true,
+          "earth_reference": true,
+          "source_ids": [
+            "nhlbi_heart_attack_symptoms"
+          ]
+        },
+        {
+          "text": "Act fast: every minute matters.",
+          "check": true,
+          "earth_reference": true,
+          "source_ids": [
+            "nhlbi_heart_attack_symptoms"
+          ]
+        },
+        {
+          "text": "PLACEHOLDER: alert the crew and ground medical support.",
+          "detail": "PLACEHOLDER: the in-flight alert channel (crew, Mission Control) has no verified source yet.",
+          "check": true,
+          "source_ids": []
+        },
+        {
+          "text": "PLACEHOLDER: medication step.",
+          "detail": "PLACEHOLDER: no verified guidance on medication for this situation yet.",
+          "check": true,
+          "source_ids": []
+        },
+        {
+          "text": "PLACEHOLDER: positioning and rest of the crewmate.",
+          "detail": "PLACEHOLDER: no verified guidance yet.",
+          "check": true,
+          "source_ids": []
+        },
+        {
+          "text": "If the crewmate stops responding and is not breathing normally, switch to 'Crewmate collapsed' and start CPR.",
+          "check": true,
+          "earth_reference": true,
+          "link_protocol_id": "crew_collapse_chest_pain",
+          "source_ids": [
+            "rcuk_bls_2025"
+          ]
+        }
+      ],
+      "report_fields": [
+        "Time the symptoms started",
+        "Symptoms observed",
+        "Whether the crewmate stayed responsive"
+      ],
+      "notes": [
+        {
+          "text": "Unusual tiredness without reason, sometimes for days, is more common in women. Symptoms can be mild or absent, especially in older adults and people with diabetes. Rest may not fully relieve heart-attack pain.",
+          "earth_reference": true,
+          "source_ids": [
+            "nhlbi_heart_attack_symptoms",
+            "medlineplus_heart_attack"
+          ]
+        },
+        {
+          "text": "Acute coronary syndrome is first among 10 conditions prioritized for long-duration missions, where an emergency return to Earth may be impossible.",
+          "source_ids": [
+            "tran_2021_lds_protocol"
+          ]
+        }
+      ],
+      "source_ids": [
+        "nhlbi_heart_attack_symptoms",
+        "medlineplus_heart_attack",
+        "rcuk_bls_2025",
+        "tran_2021_lds_protocol"
+      ],
       "status": "PLACEHOLDER"
     }
   ]

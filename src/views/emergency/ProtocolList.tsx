@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Protocol } from "../../content/schemas";
 import { EmptyState } from "../../components/EmptyState";
+import { ReferenceNote } from "../../components/EarthReferenceNote";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
 import { filterProtocols } from "../../logic/emergency";
 import { inputClass } from "../daily/ui";
@@ -65,6 +66,7 @@ export function ProtocolList({
                         {line}
                       </span>
                     ))}
+                    {p.trigger_earth_reference && <ReferenceNote inline compact earth className="mt-2" />}
                     <span className="mt-3 flex flex-wrap items-center gap-3">
                       <span className="rounded border border-[var(--color-line)] px-2 py-0.5 text-sm font-semibold">
                         {t("emergency.escalation_label")}: {t(`escalation.level.${p.escalation}`)}

@@ -304,7 +304,17 @@ export function validateContent(raw: RawContent): LoadResult {
   protocols.forEach((p, i) => {
     const base: Array<string | number> = ["protocols", i];
     checkSources(p.source_ids, FILES.protocols, base);
-    p.steps.forEach((s, k) => checkSources(s.source_ids, FILES.protocols, [...base, "steps", k]));
+    p.steps.forEach((s, k) => {
+      checkSources(s.source_ids, FILES.protocols, [...base, "steps", k]);
+      if (s.link_protocol_id !== undefined && !protocolIds.has(s.link_protocol_id)) {
+        errors.push({
+          file: FILES.protocols,
+          path: formatPath([...base, "steps", k, "link_protocol_id"]),
+          message: `link_protocol_id "${s.link_protocol_id}" does not exist in ${FILES.protocols}`,
+        });
+      }
+    });
+    (p.notes ?? []).forEach((n, k) => checkSources(n.source_ids, FILES.protocols, [...base, "notes", k]));
   });
 
   hazardsFile.hazards.forEach((h, i) => checkSources(h.source_ids, FILES.hazards, ["hazards", i]));

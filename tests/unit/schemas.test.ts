@@ -207,6 +207,15 @@ describe("broken content", () => {
     expect(paths).toContain("data/environments.json:environments[0].indicator_overrides.ghost_indicator");
   });
 
+  it("unknown link_protocol_id and unknown source in a protocol note", () => {
+    const raw = realRaw();
+    (raw.protocols as Loose).protocols[1].steps[0].link_protocol_id = "ghost";
+    (raw.protocols as Loose).protocols[0].notes[0].source_ids = ["ghost_source"];
+    const paths = errorsOf(raw).map((e) => `${e.file}:${e.path}`);
+    expect(paths).toContain("data/protocols.json:protocols[1].steps[0].link_protocol_id");
+    expect(paths).toContain("data/protocols.json:protocols[0].notes[0].source_ids[0]");
+  });
+
   it("missing escalation string key", () => {
     const raw = realRaw();
     delete (raw.strings as Loose)["escalation.ground.act_now"];
