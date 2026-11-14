@@ -200,7 +200,7 @@
       "unit": "hours",
       "category": "behavioral",
       "hazards": [],
-      "body_zone": "body",
+      "body_zone": "head",
       "icon": "moon",
       "input": {
         "_comment": "input plausibility limits, design parameter, not a medical threshold",
@@ -243,7 +243,7 @@
       "unit": "scale",
       "category": "behavioral",
       "hazards": ["isolation", "radiation", "distance"],
-      "body_zone": "body",
+      "body_zone": "head",
       "icon": "smile",
       "input": {
         "kind": "scale",

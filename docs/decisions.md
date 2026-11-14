@@ -8,6 +8,7 @@
 | 2026-11-12 | `realtime_threshold_s` en config como parámetro de diseño, no médico | Inferir de la demora | Separar decisiones de diseño de datos médicos que requieren fuente |
 | 2026-11-13 | Deploy manual en Netlify arrastrando `dist`; no se usa Vercel | Vercel CLI (requiere login); deploy por repo (GitHub no accesible desde esta red) | Decisión del usuario; `public/_headers` ya replica los headers de seguridad |
 | 2026-11-13 | **No** correr `npm audit fix --force`; vulnerabilidades anotadas para revisar después (ver abajo) | Forzar el fix (instala versiones fuera del rango fijado y cambios mayores: zod 4, typescript-eslint) | Riesgo de romper build/tests a mitad del rediseño; casi todo es tooling de desarrollo |
+| 2026-11-14 | Ánimo y sueño se anclan a la zona **cabeza** del cuerpo (`body_zone: "head"`), que así tiene punto clickeable | Dejarlos en "Whole body"; crear una zona "mente" aparte | Decisión de DISEÑO de UI, no médica: ubica en la figura los indicadores conductuales (NASA HRP agrupa sueño y salud conductual en "Behavioral Performance"). No implica que se midan en la cabeza |
 
 ## Pendiente de revisar: `npm audit` (2026-11-13)
 
