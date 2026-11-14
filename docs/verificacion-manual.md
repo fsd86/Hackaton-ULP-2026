@@ -1,0 +1,21 @@
+# Verificación manual (páginas que bloquean a bots)
+
+- Fecha: **2026-11-14**. Origen: `docs/research/3a-verificacion.md`.
+- Estas páginas no se pudieron leer con WebFetch (403, cookies o PDF ilegible). Mientras nadie las revise en un navegador, **todo dato que dependa de ellas queda PLACEHOLDER en la app**.
+- Cómo usar esta lista: abrí la URL en un navegador normal, buscá el dato en la sección indicada, y anotá en la columna "Resultado" si está (con fecha), si no está o si es distinto. Si se confirma, pasá el dato a `data/` con su fuente en `data/sources.json` (`accessed` = fecha de tu revisión).
+- Recordá: se parafrasea, no se copia. AHA, AsMA y Elsevier tienen copyright.
+
+| # | Fuente (id) | URL | Qué buscar | Dónde | Bloqueo | Resultado |
+|---|---|---|---|---|---|---|
+| 1 | `cdc_bp` (existente en `data/sources.json`) | https://www.cdc.gov/high-blood-pressure/about/index.html | Tabla de categorías: Normal <120 **y** <80; Elevated 120–129 **y** <80; Stage 1 130–139 **o** 80–89; Stage 2 ≥140 **o** ≥90; Severe >180 **y/o** >120 (sin síntomas → llamar al profesional); Hypertensive Emergency (con síntomas → 911). Lista de síntomas. | Sección de diagnóstico, tabla "Blood Pressure Categories" | 403 en sesiones anteriores (hoy cargó con WebFetch; confirmar igual a mano) | |
+| 2 | `aha_bp_home` | https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings/monitoring-your-blood-pressure-at-home | Con qué frecuencia medir la presión en casa (veces por día, días); preparación (minutos de reposo, postura, manguito) | Cuerpo del artículo, consejos de medición | 403 | |
+| 3 | `nasa_std3001_medical_care_tb` | https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-033-spaceflight-experience-medical-care.pdf | Si pide evaluar, registrar y seguir la tendencia de signos vitales en misión; si describe intolerancia ortostática como PA baja + FC alta; cualquier frecuencia de medición en vuelo | Todo el PDF (technical brief, pocas páginas) | PDF sin texto extraíble para el bot | |
+| 4 | `kroenke_2003_phq2` | https://pubmed.ncbi.nlm.nih.gov/14583691/ | Que el abstract dé el corte PHQ-2 ≥3 con sensibilidad ~83 % y especificidad ~90 % para depresión mayor | Abstract (Results/Conclusions) | PubMed pide cookies | |
+| 5 | SAMHSA 988 | https://www.samhsa.gov/mental-health/988 | Formas de contacto con 988 (llamada, texto, chat) | Cuerpo de la página | 403 | (No imprescindible: NIMH ya lo respalda) |
+| 6 | `aha_bls_2025` | https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/adult-basic-life-support | (a) Límite de tiempo para valorar respiración/pulso (¿"no more than 10 seconds"?); (b) frecuencia 100–120/min y profundidad ≥5 cm (¿y ≤6 cm?) para adultos | Recomendaciones de reconocimiento del paro y de calidad de compresiones; algoritmo BLS adulto | 403 (también Executive Summary y PDF del algoritmo) | |
+| 7 | `erc_bls_2025` | https://www.erc.edu/science-research/guidelines/guidelines-2025/guidelines-2025-english → seguir el enlace "Adult basic life support" a resuscitationjournal.com (doi 10.1016/j.resuscitation.2025.110771) | Reconocimiento del paro (no responde + respiración anormal), frecuencia 100–120/min, profundidad 5–6 cm | Artículo completo en la revista, sección de recomendaciones | La página ERC solo tiene enlaces; el artículo no se leyó | |
+| 8 | `aha_heart_attack_signs` | https://www.heart.org/en/health-topics/heart-attack/warning-signs-of-a-heart-attack | Lista de señales de infarto (para contrastar con NHLBI) y qué dice sobre aspirina para personas legas | Cuerpo del artículo | 403 | |
+| 9 | `amhp_2025_emergencies` | https://asma.kglmeridian.com/view/journals/amhp/96/2/article-p143.xml | Manejo del síndrome coronario agudo / dolor torácico en misiones largas: pasos, medicación del kit, telemedicina | Resultados y discusión, sección de SCA | 403 (posible muro de pago) | |
+| 10 | Formulario NIDA PHQ-2 (PDF) | cde.nida.nih.gov (URL exacta no registrada por el investigador; buscar "NIDA CTN PHQ-2 form") | Aviso de licencia libre del PHQ-2 | Pie del formulario | DNS ENOTFOUND | (No imprescindible: la CTN Library ya lo confirma) |
+
+**Total: 10 páginas** (8 imprescindibles para desbloquear datos; 2 opcionales, la 5 y la 10).
