@@ -24,6 +24,7 @@ import { groupByZone, worstZoneStatus, type BodyZoneId } from "../logic/bodyZone
 import { classifyDelay, formatDelay } from "../logic/delay";
 import { formatDateTime, formatTime, formatValue } from "../logic/daily";
 import { escalate } from "../logic/escalation";
+import { rangeNotes } from "../logic/evaluate";
 import { buildTrend } from "../logic/trend";
 import { addDemoReadings, getReadings } from "../storage/local";
 import { escalationVars } from "./daily/ResultPanel";
@@ -92,10 +93,14 @@ export function StatusBoard() {
           const ind = byId.get(id);
           const e = entryById.get(id);
           if (!ind || !e) return [];
-          return [{ id, name: ind.name, unit: ind.unit, valueText: e.lastReading ? formatValue(e.lastReading.value) : null, status: e.status }];
+          const last = e.lastReading;
+          // Mismo entorno con el que buildBoard evaluo la lectura (el de la lectura; si no existe, el actual).
+          const env = last ? (content.environments.find((x) => x.id === last.environmentId) ?? environment) : environment;
+          const notes = last ? rangeNotes(ind, last.value, e.status, env) : [];
+          return [{ id, name: ind.name, unit: ind.unit, valueText: last ? formatValue(last.value) : null, status: e.status, notes }];
         }),
       })),
-    [content.indicators, entryById, byId],
+    [content.indicators, content.environments, environment, entryById, byId],
   );
 
   const detailId = useId();

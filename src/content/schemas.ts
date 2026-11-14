@@ -55,6 +55,9 @@ export const Range = z.object({
   // Cortes exclusivos (ej. "<70" = max 70 + max_exclusive). Ausente = inclusivo.
   min_exclusive: z.boolean().optional(),
   max_exclusive: z.boolean().optional(),
+  // Notas (texto de UI, con fuente en source_ids) que se muestran solo cuando la lectura cae en ESTE rango
+  // (p. ej. "bajo" vs "alto" dentro del mismo estado attention).
+  notes: z.array(z.string()).optional(),
   source_ids: SourceIds,
 });
 
@@ -118,6 +121,11 @@ export const Indicator = z
     ranges_secondary: z.array(Range).optional(),
     // true: el indicador declara a propósito huecos entre rangos (la fuente no define ese tramo → "unknown").
     allow_gaps: z.boolean().optional(),
+    // true: los rangos/acciones son una referencia de la Tierra sin valor especifico de vuelo; la UI muestra
+    // el aviso "indicator.earth_reference" junto a rangos y acciones.
+    earth_reference: z.boolean().optional(),
+    // Aclaracion propia del indicador que acompana al aviso (p. ej. "solo en ayunas"); texto con fuente.
+    reference_note: z.string().optional(),
     actions: z.record(HealthStatus, Action),
     source_ids: SourceIds,
     status: Status,

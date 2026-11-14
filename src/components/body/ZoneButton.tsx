@@ -11,6 +11,8 @@ export interface FigureZoneItem {
   /** Ultima lectura formateada, o null si todavia no hay ninguna. */
   valueText: string | null;
   status: EvalStatus;
+  /** Notas del rango donde cayo la ultima lectura (data/indicators.json ranges[].notes). */
+  notes?: string[];
 }
 
 export interface FigureZone {

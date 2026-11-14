@@ -155,6 +155,11 @@ function collectTexts(ind: Indicator): Array<{ text: string; path: Array<string 
   const out: Array<{ text: string; path: Array<string | number> }> = [];
   out.push({ text: ind.why_it_matters, path: ["why_it_matters"] });
   ind.how_to_measure.forEach((text, k) => out.push({ text, path: ["how_to_measure", k] }));
+  if (ind.reference_note !== undefined) out.push({ text: ind.reference_note, path: ["reference_note"] });
+  ind.ranges.forEach((r, j) => (r.notes ?? []).forEach((text, k) => out.push({ text, path: ["ranges", j, "notes", k] })));
+  (ind.ranges_secondary ?? []).forEach((r, j) =>
+    (r.notes ?? []).forEach((text, k) => out.push({ text, path: ["ranges_secondary", j, "notes", k] })),
+  );
   for (const [status, action] of Object.entries(ind.actions)) {
     action.text.forEach((text, k) => out.push({ text, path: ["actions", status, "text", k] }));
   }

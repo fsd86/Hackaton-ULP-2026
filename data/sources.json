@@ -14,10 +14,10 @@
     {
       "id": "medlineplus_pulse",
       "title": "Pulse",
-      "publisher": "MedlinePlus (U.S. National Library of Medicine)",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
       "url": "https://medlineplus.gov/ency/article/003399.htm",
       "accessed": "2026-11-12",
-      "license": "Public domain (U.S. Government work)",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
       "notes": "How to take a pulse (wrist, neck) and the adult resting range of 60 to 100 beats per minute.",
       "status": "VERIFIED"
     },
@@ -160,6 +160,306 @@
       "license": "PLACEHOLDER",
       "notes": "Real space biology datasets, to inspire and test the app. URL not yet verified.",
       "status": "PLACEHOLDER"
+    },
+    {
+      "id": "medlineplus_palpitations",
+      "title": "Heart palpitations",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/003081.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "A heart rate over 100 bpm is called tachycardia; lists when to seek emergency or prompt care.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_bradycardia",
+      "title": "Slow heart rate - bradycardia",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/007856.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "Bradycardia is a heart rate below 60 bpm; it can be normal in athletes and during sleep.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_bp_measure",
+      "title": "Measuring Your Blood Pressure",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/high-blood-pressure/measure/index.html",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "How to take an accurate home blood pressure reading.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nhs_bp_test",
+      "title": "Blood pressure test",
+      "publisher": "NHS (UK)",
+      "url": "https://www.nhs.uk/conditions/blood-pressure-test/",
+      "accessed": "2026-11-14",
+      "license": "Crown copyright; see NHS website terms",
+      "notes": "Home monitoring is usually done morning and evening; home readings of 135/85 or higher are usually considered high.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_body_temp_norms",
+      "title": "Body temperature norms",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/001982.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "Normal body temperature ranges from about 36.1 to 37.2 °C; the accepted average is 37 °C.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_temperature_measurement",
+      "title": "Temperature measurement",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/003400.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "How to take an oral or armpit temperature and how readings differ by site.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_fever",
+      "title": "Fever",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/003090.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "Home care for fever and when to contact a professional or get emergency help.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_hypothermia",
+      "title": "Hypothermia",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/000038.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "Hypothermia is a body temperature below 35 °C and needs emergency help.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_cardiovascular_vision",
+      "title": "Cardiovascular and Vision Laboratory",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/directorates/esdmd/hhp/cardiovascular-and-vision",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "In weightlessness about 2 L of fluid shifts toward the head; orthostatic intolerance after flight.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_standard_measures",
+      "title": "Spaceflight Standard Measures: Characterizing How Humans Adapt in Space",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/humans-in-space/spaceflight-standard-measures-characterizing-how-humans-adapt-in-space",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Crews do sensorimotor tests with heart rate and blood pressure before and after missions, plus sleep and mood questionnaires and actigraphy.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_diabetes_testing",
+      "title": "Diabetes Testing",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/diabetes/diabetes-testing/index.html",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Fasting blood sugar of 99 mg/dL or below is normal; 100–125 prediabetes; 126 or above diabetes.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_blood_sugar_test",
+      "title": "Blood sugar test",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/003482.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "A fasting level of 70–99 mg/dL is normal; a lab test from a vein is more accurate than a fingerstick.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_monitor_glucose",
+      "title": "Monitoring Your Blood Sugar",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/diabetes/diabetes-testing/monitoring-blood-sugar.html",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Step-by-step use of a blood sugar meter, written for people with diabetes.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_dka",
+      "title": "Diabetic Ketoacidosis",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/diabetes/about/diabetic-ketoacidosis.html",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "For people with diabetes: emergency signs including blood sugar that stays at 300 mg/dL or above.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "niddk_diabetes_symptoms",
+      "title": "Symptoms & Causes of Diabetes",
+      "publisher": "NIDDK (NIH)",
+      "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/symptoms-causes",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Common symptoms of diabetes; many people with type 2 diabetes have none.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "uspstf_prediabetes",
+      "title": "Screening for Prediabetes and Type 2 Diabetes",
+      "publisher": "U.S. Preventive Services Task Force",
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/screening-for-prediabetes-and-type-2-diabetes",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work, AHRQ)",
+      "notes": "Clinical screening for adults 35–70 with overweight or obesity; every 3 years may be reasonable.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "cdc_about_sleep",
+      "title": "About Sleep",
+      "publisher": "CDC",
+      "url": "https://www.cdc.gov/sleep/about/index.html",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Sleep needs by age, healthy sleep habits and keeping a sleep diary.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "aasm_srs_sleep_consensus",
+      "title": "Recommended Amount of Sleep for a Healthy Adult (AASM/SRS joint consensus, Watson et al., SLEEP 2015)",
+      "publisher": "SLEEP / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4434546/",
+      "accessed": "2026-11-14",
+      "license": "© 2015 Associated Professional Sleep Societies; cite and paraphrase only",
+      "notes": "Adults should regularly sleep 7 or more hours; less is linked to adverse health outcomes.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "csa_sleeping_in_space",
+      "title": "Sleeping in space",
+      "publisher": "Canadian Space Agency",
+      "url": "https://www.asc-csa.gc.ca/eng/astronauts/living-in-space/sleeping-in-space.asp",
+      "accessed": "2026-11-14",
+      "license": "Crown copyright (Government of Canada); see the site's terms and conditions",
+      "notes": "Astronauts are allotted about 8.5 hours for sleep each day.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "barger_2014_astronaut_sleep",
+      "title": "Prevalence of sleep deficiency and hypnotic use among astronauts (Barger et al., Lancet Neurology 2014)",
+      "publisher": "Lancet Neurology / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4188436/",
+      "accessed": "2026-11-14",
+      "license": "© 2014 Elsevier; cite and paraphrase only",
+      "notes": "ISS crew averaged about 6.1 hours of sleep per night by actigraphy; 75% of responding ISS crew used sleep medication.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nasa_hrp_sleep_risk",
+      "title": "Risk from Inadequate Sleep and Irregular Schedules",
+      "publisher": "NASA Human Research Program",
+      "url": "https://www.nasa.gov/reference/risk-from-inadequate-sleep-and-irregular-schedules/",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "ISS crews see 16 sunrises a day; LED lighting and scheduled rest are countermeasures.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "uw_phq2",
+      "title": "Patient Health Questionnaire-2 (PHQ-2)",
+      "publisher": "National HIV Curriculum (University of Washington)",
+      "url": "https://www.hiv.uw.edu/page/mental-health-screening/phq-2",
+      "accessed": "2026-11-14",
+      "license": "© 2026 National HIV Curriculum (page); instrument free to reproduce (see ctn_phq2)",
+      "notes": "PHQ-2 items and scoring; a score of 3 or more is the usual screening cut-off.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "ctn_phq2",
+      "title": "NIDA CTN – Patient Health Questionnaire-2 (PHQ-2)",
+      "publisher": "NIDA Clinical Trials Network Dissemination Library",
+      "url": "https://ctnlibrary.org/instrument/nida-clinical-trials-network-patient-health-questionnaire-2-phq-2",
+      "accessed": "2026-11-14",
+      "license": "Instrument: no permission required to reproduce, translate, display or distribute",
+      "notes": "PHQ-2 developed by Spitzer, Williams, Kroenke and colleagues; positive screens are followed up with the PHQ-9.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "uspstf_depression",
+      "title": "Screening for Depression and Suicide Risk in Adults",
+      "publisher": "U.S. Preventive Services Task Force",
+      "url": "https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/screening-depression-suicide-risk-adults",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work, AHRQ)",
+      "notes": "No evidence on the optimal frequency of depression screening.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nimh_depression",
+      "title": "Depression",
+      "publisher": "NIMH (NIH)",
+      "url": "https://www.nimh.nih.gov/health/topics/depression",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "In the U.S., call or text 988 (Suicide & Crisis Lifeline); in life-threatening situations call 911.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "rcuk_bls_2025",
+      "title": "Adult basic life support guidelines (2025)",
+      "publisher": "Resuscitation Council UK",
+      "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines",
+      "accessed": "2026-11-14",
+      "license": "© Resuscitation Council UK; reproduction requires permission — paraphrase and link only",
+      "notes": "Unresponsive with abnormal breathing means cardiac arrest; on Earth, compress 100–120/min, 5–6 cm deep.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_cpr_adult",
+      "title": "CPR - adult and child after onset of puberty",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/000013.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "Check responsiveness, shout for help, 100–120 compressions per minute.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "nhlbi_heart_attack_symptoms",
+      "title": "Heart Attack - Symptoms",
+      "publisher": "NHLBI (NIH)",
+      "url": "https://www.nhlbi.nih.gov/health/heart-attack/symptoms",
+      "accessed": "2026-11-14",
+      "license": "Public domain (U.S. Government work)",
+      "notes": "Heart attack warning signs; get emergency care even if you are not sure.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "medlineplus_heart_attack",
+      "title": "Heart attack",
+      "publisher": "MedlinePlus (U.S. National Library of Medicine) / A.D.A.M. Medical Encyclopedia",
+      "url": "https://medlineplus.gov/ency/article/000195.htm",
+      "accessed": "2026-11-14",
+      "license": "Copyrighted (A.D.A.M. Medical Encyclopedia via MedlinePlus); linking allowed, own paraphrase only",
+      "notes": "Rest may not relieve heart-attack pain; some people have little or no chest pain.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "tran_2021_lds_protocol",
+      "title": "Evidence Supporting the Management of Medical Conditions During Long-Duration Spaceflight: Protocol for a Scoping Review (Tran et al., 2021)",
+      "publisher": "JMIR Research Protocols / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8088865/",
+      "accessed": "2026-11-14",
+      "license": "CC BY 4.0",
+      "notes": "Acute coronary syndrome is first among 10 conditions prioritized for long-duration missions.",
+      "status": "VERIFIED"
     }
   ]
 }

@@ -145,9 +145,10 @@ describe("broken content", () => {
 
   it("unresolvable template fails the load", () => {
     const raw = realRaw();
-    (raw.indicators as Loose).indicators[3].actions.normal.text = ["Limit {range.normal.max}"]; // temperature has no normal range
+    // Etapa 3A: la temperatura ya tiene rango normal con fuente; mood (indice 5) sigue sin rangos numericos.
+    (raw.indicators as Loose).indicators[5].actions.normal.text = ["Limit {range.normal.max}"]; // mood has no numeric normal range
     expect(errorsOf(raw)).toContainEqual(
-      expect.objectContaining({ file: "data/indicators.json", path: "indicators[3].actions.normal.text[0]" }),
+      expect.objectContaining({ file: "data/indicators.json", path: "indicators[5].actions.normal.text[0]" }),
     );
     const typo = realRaw();
     (typo.indicators as Loose).indicators[0].why_it_matters = "x {bogus}";

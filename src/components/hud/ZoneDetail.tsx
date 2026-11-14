@@ -1,6 +1,7 @@
 import { useContent } from "../../content/ContentContext";
 import type { Environment, Indicator } from "../../content/schemas";
 import { renderIndicatorText } from "../../logic/indicatorText";
+import { EarthReferenceNote } from "../EarthReferenceNote";
 import { SourceLinks } from "../SourceLinks";
 import { StatusBadge } from "../StatusBadge";
 import type { FigureZone } from "../body/ZoneButton";
@@ -36,6 +37,8 @@ export function ZoneDetail({
           const ind = indicators.get(item.id);
           if (!ind) return null;
           const action = item.valueText !== null && item.status !== "unknown" ? ind.actions[item.status] : undefined;
+          // Notas del rango donde cayo la ultima lectura + acciones del estado.
+          const lines = [...(item.notes ?? []), ...(action?.text ?? [])];
           const sourceIds = [...ind.hazards.flatMap((h) => hazardSources.get(h) ?? []), ...ind.source_ids];
           return (
             <li key={item.id} className="rounded-sm border border-[var(--glass-border)] bg-[color-mix(in_srgb,var(--color-ink)_45%,transparent)] p-3">
@@ -64,16 +67,17 @@ export function ZoneDetail({
                 </ul>
               )}
 
-              {action && action.text.length > 0 && (
+              {lines.length > 0 && (
                 <>
                   <p className="eyebrow mt-3 !text-[0.62rem]">{t("hud.zone_detail.what_to_do")}</p>
                   <ul className="mt-1 list-disc space-y-1 pl-5 text-[0.82rem] leading-snug">
-                    {action.text.map((line, i) => (
+                    {lines.map((line, i) => (
                       <li key={i}>{renderIndicatorText(line, ind, environment)}</li>
                     ))}
                   </ul>
                 </>
               )}
+              {item.valueText !== null && item.status !== "unknown" && <EarthReferenceNote indicator={ind} compact className="mt-2" />}
 
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                 <SourceLinks compact ids={sourceIds} />

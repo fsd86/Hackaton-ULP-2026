@@ -1,10 +1,11 @@
 import type { CSSProperties, Ref } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Indicator } from "../../content/schemas";
+import { EarthReferenceNote } from "../../components/EarthReferenceNote";
 import { SourceLinks } from "../../components/SourceLinks";
 import { StatusBadge } from "../../components/StatusBadge";
 import { useEnvironment } from "../../hooks/useEnvironment";
-import type { EvalStatus } from "../../logic/evaluate";
+import { rangeNotes, type EvalStatus } from "../../logic/evaluate";
 import type { EscalationResult } from "../../logic/escalation";
 import { formatTime } from "../../logic/daily";
 import { renderIndicatorText } from "../../logic/indicatorText";
@@ -43,6 +44,9 @@ export function ResultPanel({
   const { environment } = useEnvironment();
   const { status, escalation, reading } = result;
   const actions = status === "unknown" ? undefined : indicator.actions[status];
+  // Notas del rango concreto donde cayo la lectura (p. ej. "bajo" vs "alto" dentro de attention).
+  const notes = rangeNotes(indicator, reading.value, status, environment);
+  const lines = [...notes, ...(actions?.text ?? [])];
   const style = { "--lc": LEVEL_COLOR[escalation.level] } as CSSProperties;
   // Fuentes de los rangos que definen este estado (base, secundarios y override del entorno actual).
   const overrideRanges = environment.indicator_overrides[indicator.id]?.ranges ?? [];
@@ -62,15 +66,16 @@ export function ResultPanel({
         <StatusBadge status={status} />
         <p className="mt-2 text-sm text-[var(--color-muted)]">{t("daily.saved_at", { time: formatTime(reading.timestamp) })}</p>
         <SourceLinks ids={rangeSourceIds} className="mt-2" />
+        {status !== "unknown" && <EarthReferenceNote indicator={indicator} className="mt-3" />}
       </section>
 
       <section aria-labelledby={`todo-${indicator.id}`} className={panel}>
         <h3 id={`todo-${indicator.id}`} className="mb-2 text-xl font-bold">
           {t("daily.what_to_do")}
         </h3>
-        {actions && actions.text.length > 0 ? (
+        {lines.length > 0 ? (
           <ul className="list-disc space-y-1 pl-6">
-            {actions.text.map((line, i) => (
+            {lines.map((line, i) => (
               <li key={i}>{renderIndicatorText(line, indicator, environment)}</li>
             ))}
           </ul>

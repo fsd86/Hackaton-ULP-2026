@@ -29,6 +29,7 @@
 
   "badge.placeholder": "Unverified data — placeholder",
   "badge.placeholder.short": "Placeholder",
+  "indicator.earth_reference": "Earth reference — no spaceflight-specific value.",
   "badge.verified": "Verified",
 
   "status.label": "Status",

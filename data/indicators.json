@@ -1,12 +1,15 @@
 {
-  "_comment": "body_zone (head | chest | abdomen | arm | body) is a UI DESIGN decision, not medical: it only chooses where the indicator is anchored on the status board body figure ('body' = whole body / general); an indicator without body_zone is not shown on the figure. icon (heart | gauge | drop | thermometer | moon | smile | pulse) is the status board card icon, also a UI design choice. Ranges contain only cut-offs explicit in the cited sources. Edges are inclusive unless a range sets min_exclusive / max_exclusive (e.g. '<70' is max 70 with max_exclusive true). Consecutive numeric ranges must touch exactly with exactly one exclusive edge (the loader checks it); a gap is an error unless the indicator sets \"allow_gaps\": true, an explicit decision that the stretch evaluates to 'unknown' because the source does not define it. An empty range (min and max null) means the sources do not define it. Action texts may use {unit}, {range.<status>.min|max} and {range2.<status>.min|max} (ranges_secondary); they resolve from the effective ranges, so a threshold lives in one place. Numbers that are not range edges (e.g. the 15 g of the 15-15 rule) stay literal and keep their source. input.min / input.max / input.step are input plausibility limits, a design parameter of the form and not a medical threshold. Escalation levels (self/crew/ground) and protocol_id are DESIGN decisions, not medical. Every indicator stays PLACEHOLDER while any of frequency, how_to_measure or the actions has an unsourced part.",
+  "_comment": "body_zone (head | chest | abdomen | arm | body) is a UI DESIGN decision, not medical: it only chooses where the indicator is anchored on the status board body figure ('body' = whole body / general); an indicator without body_zone is not shown on the figure. icon (heart | gauge | drop | thermometer | moon | smile | pulse) is the status board card icon, also a UI design choice. Ranges contain only cut-offs explicit in the cited sources. Edges are inclusive unless a range sets min_exclusive / max_exclusive (e.g. '<70' is max 70 with max_exclusive true). Consecutive numeric ranges must touch exactly with exactly one exclusive edge (the loader checks it); a gap is an error unless the indicator sets \"allow_gaps\": true, an explicit decision that the stretch evaluates to 'unknown' because the source does not define it. An empty range (min and max null) means the sources do not define it. Action texts may use {unit}, {range.<status>.min|max} and {range2.<status>.min|max} (ranges_secondary); they resolve from the effective ranges, so a threshold lives in one place. Numbers that are not range edges (e.g. the 15 g of the 15-15 rule) stay literal and keep their source. input.min / input.max / input.step are input plausibility limits, a design parameter of the form and not a medical threshold. Escalation levels (self/crew/ground) and protocol_id are DESIGN decisions, not medical. Every indicator stays PLACEHOLDER while any of frequency, how_to_measure or the actions has an unsourced part. ranges[].notes are UI texts shown only when a reading falls in that specific range (e.g. low vs high within 'attention'); they share the range's source_ids. earth_reference: true means the ranges and actions are Earth references with no spaceflight-specific value; the UI shows the 'indicator.earth_reference' caveat next to them, plus the indicator's own reference_note when present. Texts marked as design choices in an indicator's _comment (e.g. 'crew medical officer', 'ground medical support', every_hours values) are app design wording, not from the cited source. Source of every text added in stage 3A: docs/research/3a-verificacion.md, section 'Listo para cargar'.",
   "indicators": [
     {
+      "_comment": "Stage 3A. Ranges and actions are Earth references (MedlinePlus). Mapping 'emergency help' to escalation 'ground' is a design decision. No numeric critical pulse threshold and no measuring frequency in the sources: both stay PLACEHOLDER, so the indicator stays PLACEHOLDER. The symptom-based critical texts are kept in actions.critical for completeness although no numeric range reaches 'critical'.",
       "id": "heart_rate",
       "name": "Heart rate",
       "unit": "bpm",
       "category": "cardiovascular",
-      "hazards": ["gravity"],
+      "hazards": [
+        "gravity"
+      ],
       "body_zone": "chest",
       "icon": "heart",
       "input": {
@@ -17,71 +20,192 @@
         "step": 1
       },
       "how_to_measure": [
-        "To take a pulse at the wrist, place the index and middle fingers on the underside of the opposite wrist, below the base of the thumb.",
-        "To take a pulse at the neck, place the fingers beside the Adam's apple. Do not press on both sides of the neck at the same time.",
-        "Count the beats for 60 seconds, or count for 30 seconds and multiply by 2, for 15 seconds and multiply by 4, or for 10 seconds and multiply by 6."
+        "At the wrist: place your index and middle fingers flat on the inside of the opposite wrist, below the base of the thumb, and press until you feel the pulse.",
+        "At the neck: sit or lie down first, then press gently with two fingers in the soft hollow beside the Adam's apple. Never press both sides of the neck at once — it can slow blood flow to the head and cause fainting.",
+        "Count the beats for a full minute, or count for 30 seconds and multiply by 2 (15 s × 4 or 10 s × 6 also work)."
       ],
-      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your resting pulse over time helps you notice changes.",
-      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
+      "why_it_matters": "In weightlessness about 2 liters of fluid shift from the lower to the upper body, and the body responds by reducing total blood volume. NASA's Standard Measures test heart rate and blood pressure, together with movement and balance, before and after missions.",
+      "frequency": {
+        "every_hours": null,
+        "label": "PLACEHOLDER: how often to measure."
+      },
       "ranges": [
-        { "status": "attention", "min": null, "max": 60, "max_exclusive": true, "source_ids": ["medlineplus_pulse"] },
-        { "status": "normal", "min": 60, "max": 100, "source_ids": ["medlineplus_pulse"] },
-        { "status": "attention", "min": 100, "min_exclusive": true, "max": null, "source_ids": ["medlineplus_pulse"] },
-        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+        {
+          "status": "attention",
+          "min": null,
+          "max": 60,
+          "max_exclusive": true,
+          "notes": [
+            "A pulse under {range.normal.min} {unit} is called bradycardia; it is not always a problem."
+          ],
+          "source_ids": [
+            "medlineplus_pulse",
+            "medlineplus_bradycardia"
+          ]
+        },
+        {
+          "status": "normal",
+          "min": 60,
+          "max": 100,
+          "source_ids": [
+            "medlineplus_pulse"
+          ]
+        },
+        {
+          "status": "attention",
+          "min": 100,
+          "min_exclusive": true,
+          "max": null,
+          "notes": [
+            "A heart rate over {range.normal.max} {unit} is called tachycardia."
+          ],
+          "source_ids": [
+            "medlineplus_pulse",
+            "medlineplus_palpitations"
+          ]
+        },
+        {
+          "status": "critical",
+          "min": null,
+          "max": null,
+          "source_ids": []
+        }
       ],
       "actions": {
         "normal": {
-          "text": ["Resting pulse is within the {range.normal.min} to {range.normal.max} {unit} reported for adults."],
+          "text": [
+            "Resting pulse is within the {range.normal.min} to {range.normal.max} {unit} reported for adults."
+          ],
           "escalation": "self"
         },
         "attention": {
           "text": [
-            "Resting pulse is outside the {range.normal.min} to {range.normal.max} {unit} reported for adults. Well-trained athletes can have a resting pulse of 40 to 60.",
-            "Contact a health care professional if it is consistently high or low at rest, the pulse is bounding for more than a few minutes, it is irregular, or it is hard to find."
+            "Well-trained athletes can have a resting pulse of 40–60 bpm, and heart rate can fall below 60 bpm during sleep.",
+            "Contact a health care professional right away if your pulse is over {range.normal.max} {unit} and you have not been exercising and are not anxious or feverish.",
+            "Contact a health care professional if a slow pulse comes with symptoms such as tiredness, weakness, lightheadedness or confusion."
           ],
           "escalation": "ground"
         },
         "critical": {
-          "text": ["PLACEHOLDER: the sources define no critical pulse threshold."],
+          "text": [
+            "If palpitations come with loss of alertness (consciousness), chest pain, shortness of breath, unusual sweating, or dizziness or lightheadedness, get emergency help immediately.",
+            "If a slow pulse comes with chest pain, trouble breathing or fainting, get emergency help right away."
+          ],
           "escalation": "ground"
         }
       },
-      "source_ids": ["medlineplus_pulse", "nasa_hrp_hazards", "nasa_hrp_risks"],
-      "status": "PLACEHOLDER"
+      "source_ids": [
+        "medlineplus_pulse",
+        "medlineplus_palpitations",
+        "medlineplus_bradycardia",
+        "nasa_cardiovascular_vision",
+        "nasa_standard_measures",
+        "nasa_hrp_hazards",
+        "nasa_hrp_risks"
+      ],
+      "status": "PLACEHOLDER",
+      "earth_reference": true
     },
     {
+      "_comment": "Stage 3A. Measuring steps, frequency and categories are Earth references (CDC, NHS). frequency.every_hours = 12 is a DESIGN decision derived from the NHS 'morning and evening' home monitoring pattern; it is not a number given by the source. '(in flight: ground medical support)' is design wording. actions.attention 'what to do' and a low blood pressure threshold have no verified source: PLACEHOLDER, so the indicator stays PLACEHOLDER.",
       "id": "blood_pressure",
       "name": "Blood pressure",
       "unit": "mmHg",
       "category": "cardiovascular",
-      "hazards": ["gravity"],
+      "hazards": [
+        "gravity"
+      ],
       "body_zone": "chest",
       "icon": "gauge",
       "input": {
         "_comment": "input plausibility limits, design parameter, not a medical threshold. second_lower_than_first: diastolic must be lower than systolic.",
         "kind": "pair",
-        "labels": ["Systolic", "Diastolic"],
+        "labels": [
+          "Systolic",
+          "Diastolic"
+        ],
         "min": 40,
         "max": 300,
         "step": 1,
         "second_lower_than_first": true
       },
-      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your blood pressure over time helps you notice changes.",
-      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
+      "how_to_measure": [
+        "Do not eat or drink for 30 minutes before measuring. Smoking, alcohol, caffeine or exercise in the 30 minutes before can raise the reading.",
+        "Empty your bladder first.",
+        "Sit in a chair with your back supported for at least 5 minutes before measuring, feet flat on the floor and legs uncrossed.",
+        "Rest your arm on a table so the cuff is at chest height.",
+        "Put the cuff on your bare upper arm, snug but not tight.",
+        "Do not talk while the reading is taken.",
+        "Take at least two readings 1–2 minutes apart and record every result.",
+        "Monitors differ slightly, so also follow your device's instructions."
+      ],
+      "why_it_matters": "After returning to gravity, more than 60% of astronauts can be affected by orthostatic intolerance (feeling faint when standing up) if no countermeasures are used.",
+      "frequency": {
+        "_comment": "every_hours 12 = design decision (NHS: once in the morning and once in the evening); not a number from the source.",
+        "every_hours": 12,
+        "label": "Measure your blood pressure at the same time each day. When home monitoring is requested, readings are usually taken twice a day, morning and evening, for the number of days your clinician sets."
+      },
       "ranges": [
-        { "status": "normal", "min": null, "max": 120, "max_exclusive": true, "source_ids": ["cdc_bp"] },
-        { "status": "attention", "min": 120, "max": 180, "source_ids": ["cdc_bp"] },
-        { "status": "critical", "min": 180, "min_exclusive": true, "max": null, "source_ids": ["cdc_bp"] }
+        {
+          "status": "normal",
+          "min": null,
+          "max": 120,
+          "max_exclusive": true,
+          "source_ids": [
+            "cdc_bp"
+          ]
+        },
+        {
+          "status": "attention",
+          "min": 120,
+          "max": 180,
+          "source_ids": [
+            "cdc_bp"
+          ]
+        },
+        {
+          "status": "critical",
+          "min": 180,
+          "min_exclusive": true,
+          "max": null,
+          "source_ids": [
+            "cdc_bp"
+          ]
+        }
       ],
       "ranges_secondary": [
-        { "status": "normal", "min": null, "max": 80, "max_exclusive": true, "source_ids": ["cdc_bp"] },
-        { "status": "attention", "min": 80, "max": 120, "source_ids": ["cdc_bp"] },
-        { "status": "critical", "min": 120, "min_exclusive": true, "max": null, "source_ids": ["cdc_bp"] }
+        {
+          "status": "normal",
+          "min": null,
+          "max": 80,
+          "max_exclusive": true,
+          "source_ids": [
+            "cdc_bp"
+          ]
+        },
+        {
+          "status": "attention",
+          "min": 80,
+          "max": 120,
+          "source_ids": [
+            "cdc_bp"
+          ]
+        },
+        {
+          "status": "critical",
+          "min": 120,
+          "min_exclusive": true,
+          "max": null,
+          "source_ids": [
+            "cdc_bp"
+          ]
+        }
       ],
       "actions": {
         "normal": {
-          "text": ["Reading is in the normal category: below {range.normal.max} systolic and below {range2.normal.max} diastolic."],
+          "text": [
+            "Reading is in the normal category: below {range.normal.max} systolic and below {range2.normal.max} diastolic."
+          ],
           "escalation": "self"
         },
         "attention": {
@@ -93,16 +217,26 @@
         },
         "critical": {
           "text": [
-            "Severe hypertension: systolic above {range.critical.min} and/or diastolic above {range2.critical.min}. Contact a health care professional (here: ground control).",
-            "If there are symptoms such as chest pain, shortness of breath, back pain, numbness, weakness, change in vision or difficulty speaking, treat it as a hypertensive emergency and seek emergency help immediately."
+            "Severe hypertension without symptoms: contact a health care professional (in flight: ground medical support).",
+            "With chest pain, shortness of breath, back pain, numbness, weakness, a change in vision or difficulty speaking, it is a hypertensive emergency: get emergency help now."
           ],
           "escalation": "ground"
         }
       },
-      "source_ids": ["cdc_bp", "nasa_hrp_hazards", "nasa_hrp_risks"],
-      "status": "PLACEHOLDER"
+      "source_ids": [
+        "cdc_bp",
+        "cdc_bp_measure",
+        "nhs_bp_test",
+        "nasa_cardiovascular_vision",
+        "nasa_hrp_hazards",
+        "nasa_hrp_risks"
+      ],
+      "status": "PLACEHOLDER",
+      "earth_reference": true,
+      "reference_note": "On Earth, home readings of 135/85 or higher are usually considered high (UK NHS); this app uses the CDC categories."
     },
     {
+      "_comment": "Stage 3A. The normal (70–99) and high (100–125, 126+) ranges are FASTING Earth references for adults (CDC, MedlinePlus); the app has no fasting / not-fasting toggle yet (team decision pending). 'recheck and tell your crew medical officer' and 'Report it to your crew medical officer' are design wording. The CDC 300 mg/dL emergency sign is written for people with diabetes and is NOT used as a range (decision pending). No home-check frequency for people without diabetes in the sources: frequency stays PLACEHOLDER, so the indicator stays PLACEHOLDER. The meter steps (CDC) are written for people with diabetes.",
       "id": "blood_glucose",
       "name": "Blood glucose",
       "unit": "mg/dL",
@@ -117,24 +251,95 @@
         "max": 1000,
         "step": 1
       },
-      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
+      "how_to_measure": [
+        "Check that the meter is charged and ready.",
+        "Wash your hands with soap and warm water and dry them well.",
+        "Massage or shake your hand to bring blood into your finger.",
+        "Prick your finger with the lancet. Gently squeeze from the base of the finger and put a small drop of blood on the test strip.",
+        "Put the strip in the meter and wait for the reading.",
+        "Record the result.",
+        "Throw away the used lancet and strip.",
+        "Never share lancets or other monitoring supplies.",
+        "A home meter reading is an estimate; a lab blood test from a vein is more accurate."
+      ],
       "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your blood glucose over time helps you notice changes.",
-      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
+      "frequency": {
+        "every_hours": null,
+        "label": "PLACEHOLDER: how often to measure."
+      },
       "ranges": [
-        { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "critical", "min": null, "max": 54, "max_exclusive": true, "source_ids": ["cdc_low_glucose"] },
-        { "status": "attention", "min": 54, "max": 70, "max_exclusive": true, "source_ids": ["cdc_low_glucose"] }
+        {
+          "status": "critical",
+          "min": null,
+          "max": 54,
+          "max_exclusive": true,
+          "source_ids": [
+            "cdc_low_glucose"
+          ]
+        },
+        {
+          "status": "attention",
+          "min": 54,
+          "max": 70,
+          "max_exclusive": true,
+          "notes": [
+            "Low blood sugar (below {range.normal.min} {unit}). Follow the 15-15 rule: eat or drink 15 g of carbohydrate, wait 15 minutes, then recheck.",
+            "If it is still below {range.normal.min} {unit}, repeat. Once it is back in range, eat a balanced snack."
+          ],
+          "source_ids": [
+            "cdc_low_glucose",
+            "cdc_treat_low_glucose"
+          ]
+        },
+        {
+          "status": "normal",
+          "min": 70,
+          "max": 99,
+          "source_ids": [
+            "cdc_diabetes_testing",
+            "medlineplus_blood_sugar_test"
+          ]
+        },
+        {
+          "status": "attention",
+          "min": 99,
+          "min_exclusive": true,
+          "max": 125,
+          "notes": [
+            "Fasting reading above the usual adult range. One meter reading is not a diagnosis; recheck and tell your crew medical officer if it stays high.",
+            "Common symptoms of diabetes include urinating more, feeling very thirsty or very hungry, blurred vision and tiredness. Many people with type 2 diabetes have no symptoms."
+          ],
+          "source_ids": [
+            "cdc_diabetes_testing",
+            "medlineplus_blood_sugar_test",
+            "niddk_diabetes_symptoms"
+          ]
+        },
+        {
+          "status": "attention",
+          "min": 125,
+          "min_exclusive": true,
+          "max": null,
+          "notes": [
+            "High reading. On Earth, values like this are used, together with lab tests, to diagnose diabetes. Report it to your crew medical officer.",
+            "Common symptoms of diabetes include urinating more, feeling very thirsty or very hungry, blurred vision and tiredness. Many people with type 2 diabetes have no symptoms."
+          ],
+          "source_ids": [
+            "cdc_diabetes_testing",
+            "medlineplus_blood_sugar_test",
+            "niddk_diabetes_symptoms"
+          ]
+        }
       ],
       "actions": {
         "normal": {
-          "text": ["PLACEHOLDER: the sources define only low blood sugar, not a normal or high range."],
+          "text": [
+            "Fasting reading in the usual range for adults ({range.normal.min}–{range.normal.max} {unit})."
+          ],
           "escalation": "self"
         },
         "attention": {
-          "text": [
-            "Low blood sugar (below {range.attention.max} {unit}). Follow the 15-15 rule: eat or drink 15 g of carbohydrate, wait 15 minutes, then recheck.",
-            "If it is still below {range.attention.max} {unit}, repeat. Once it is back in range, eat a balanced snack."
-          ],
+          "text": [],
           "escalation": "crew"
         },
         "critical": {
@@ -145,10 +350,21 @@
           "escalation": "ground"
         }
       },
-      "source_ids": ["cdc_low_glucose", "cdc_treat_low_glucose", "nasa_hrp_hazards"],
-      "status": "PLACEHOLDER"
+      "source_ids": [
+        "cdc_low_glucose",
+        "cdc_treat_low_glucose",
+        "cdc_diabetes_testing",
+        "medlineplus_blood_sugar_test",
+        "cdc_monitor_glucose",
+        "niddk_diabetes_symptoms",
+        "nasa_hrp_hazards"
+      ],
+      "status": "PLACEHOLDER",
+      "earth_reference": true,
+      "reference_note": "The normal and high ranges apply to a FASTING reading. A home meter reading is an estimate; a lab blood test from a vein is more accurate."
     },
     {
+      "_comment": "Stage 3A. All ranges are Earth references. Normal 36.1–37.2 °C (MedlinePlus, inclusive 'from 97°F to 99°F'). Fever is 38 °C 'or greater' (CDC, inclusive; MedlinePlus says 'over 100.4°F', the app follows CDC). Critical high 40.6 °C: the source says 'contact a provider right away' (not an emergency); using it as 'critical' is a DESIGN decision. Critical low: below 35 °C is hypothermia (exclusive). The stretches 35–36.1 °C and 37.2–38 °C are not defined by the sources: allow_gaps keeps them 'unknown' on purpose. Frequency has no source: PLACEHOLDER, so the indicator stays PLACEHOLDER.",
       "id": "body_temperature",
       "name": "Body temperature",
       "unit": "°C",
@@ -164,37 +380,104 @@
         "step": 0.1
       },
       "how_to_measure": [
-        "Use a measured temperature (thermometer reading) rather than an estimate; it is the preferred method.",
-        "PLACEHOLDER: remaining steps of the measurement instructions for a non-expert."
+        "Use a thermometer reading rather than guessing — a measured temperature is preferred.",
+        "Wait at least 1 hour after hard exercise or a hot bath, and 20–30 minutes after eating, smoking or drinking something hot or cold.",
+        "Clean the thermometer before and after use with cool soapy water or rubbing alcohol.",
+        "Oral: place the probe under your tongue, close your mouth and breathe through your nose. Leave it for 3 minutes or until it beeps.",
+        "Armpit: put the thermometer in the armpit and hold your arm against your body for 5 minutes or until it beeps.",
+        "Readings depend on the site: ear and rectal readings are about 0.5–1 °F (about 0.3–0.6 °C) higher than oral; armpit and forehead readings are about 0.5–1 °F (about 0.3–0.6 °C) lower. Always note which method you used.",
+        "Plastic strip thermometers measure skin temperature and are not recommended for general home use."
       ],
       "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your temperature over time helps you notice changes.",
-      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
+      "frequency": {
+        "every_hours": null,
+        "label": "PLACEHOLDER: how often to measure."
+      },
       "ranges": [
-        { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": 38, "max": null, "source_ids": ["cdc_fever"] },
-        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+        {
+          "status": "critical",
+          "min": null,
+          "max": 35,
+          "max_exclusive": true,
+          "notes": [
+            "Below {range.critical.max} {unit} is hypothermia, a dangerously low body temperature: get emergency help."
+          ],
+          "source_ids": [
+            "medlineplus_hypothermia"
+          ]
+        },
+        {
+          "status": "normal",
+          "min": 36.1,
+          "max": 37.2,
+          "notes": [
+            "Normal body temperature varies; studies report a range of about {range.normal.min}–{range.normal.max} {unit}, with 37 {unit} as the commonly accepted average. It is lowest in the early morning."
+          ],
+          "source_ids": [
+            "medlineplus_body_temp_norms"
+          ]
+        },
+        {
+          "status": "attention",
+          "min": 38,
+          "max": 40.6,
+          "max_exclusive": true,
+          "notes": [
+            "Fever: {range.attention.min} {unit} or higher."
+          ],
+          "source_ids": [
+            "cdc_fever",
+            "medlineplus_fever"
+          ]
+        },
+        {
+          "status": "critical",
+          "min": 40.6,
+          "max": null,
+          "notes": [
+            "A temperature of {range.critical.min} {unit} or higher that does not come down readily with treatment: contact a health care professional right away."
+          ],
+          "source_ids": [
+            "medlineplus_fever"
+          ]
+        }
       ],
       "actions": {
         "normal": {
-          "text": ["PLACEHOLDER: the sources define only fever ({range.attention.min} {unit} or higher), not a normal range."],
+          "text": [
+            "Your temperature is within the {range.normal.min}–{range.normal.max} {unit} range reported as normal."
+          ],
           "escalation": "self"
         },
         "attention": {
           "text": [
-            "Fever: a measured temperature of {range.attention.min} {unit} (100.4 °F) or higher.",
-            "PLACEHOLDER: what to do when you have a fever."
+            "A mild fever with no other problems often needs no treatment: drink fluids and rest. Remove extra layers; a lukewarm sponge bath can help. Avoid cold baths, ice or alcohol rubs, which can cause shivering.",
+            "Contact a health care professional if a fever stays at or above 39.4 °C, lasts more than 48–72 hours, or keeps coming back for a week or more."
           ],
           "escalation": "crew"
         },
         "critical": {
-          "text": ["PLACEHOLDER: the sources define no critical temperature threshold."],
+          "text": [
+            "With a fever plus any of these — confusion or being hard to wake, inability to walk, difficulty breathing, blue lips, tongue or nails, a very bad headache or a stiff neck, or a seizure — get emergency help now.",
+            "Suspected hypothermia (below {range.critical.max} {unit}, uncontrollable shivering, confusion, drowsiness, slow breathing or heart rate): get emergency help immediately."
+          ],
           "escalation": "ground"
         }
       },
-      "source_ids": ["cdc_fever", "nasa_hrp_hazards"],
-      "status": "PLACEHOLDER"
+      "source_ids": [
+        "cdc_fever",
+        "medlineplus_body_temp_norms",
+        "medlineplus_temperature_measurement",
+        "medlineplus_fever",
+        "medlineplus_hypothermia",
+        "nasa_hrp_hazards"
+      ],
+      "status": "PLACEHOLDER",
+      "earth_reference": true,
+      "allow_gaps": true
     },
     {
+      "_comment": "Stage 3A. Ranges and actions are Earth references (CDC, AASM/SRS). frequency (once a day, after waking; every_hours 24) is a DESIGN decision with no source; the label says so. 'tell your crew medical officer' is design wording for 'healthcare provider'. No critical sleep threshold in the sources: PLACEHOLDER, so the indicator stays PLACEHOLDER.",
       "id": "sleep_hours",
       "name": "Daily sleep",
       "unit": "hours",
@@ -209,40 +492,91 @@
         "max": 24,
         "step": 0.25
       },
-      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "NASA's Human Research Program studies how spaceflight hazards affect the human body; tracking your sleep over time helps you notice changes.",
-      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
+      "how_to_measure": [
+        "Each morning, note when you went to bed and when you woke up.",
+        "Also note times you woke during the night, naps, caffeine or alcohol, exercise and any medicine — they help explain changes."
+      ],
+      "why_it_matters": "On the ISS, about 8.5 hours a day are set aside for sleep, yet studies measured closer to 6 hours. NASA counts inadequate sleep and irregular schedules among the risks of spaceflight. NASA crews fill in a sleep questionnaire after waking and wear a wrist activity monitor.",
+      "frequency": {
+        "_comment": "Design decision, not from a source (verifier S4).",
+        "every_hours": 24,
+        "label": "Once a day, after waking (app design choice, not from a medical source)."
+      },
       "ranges": [
-        { "status": "attention", "min": null, "max": 7, "max_exclusive": true, "source_ids": ["cdc_sleep"] },
-        { "status": "normal", "min": 7, "max": null, "source_ids": ["cdc_sleep"] },
-        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+        {
+          "status": "attention",
+          "min": null,
+          "max": 7,
+          "max_exclusive": true,
+          "source_ids": [
+            "cdc_sleep",
+            "aasm_srs_sleep_consensus"
+          ]
+        },
+        {
+          "status": "normal",
+          "min": 7,
+          "max": null,
+          "source_ids": [
+            "cdc_sleep",
+            "aasm_srs_sleep_consensus"
+          ]
+        },
+        {
+          "status": "critical",
+          "min": null,
+          "max": null,
+          "source_ids": []
+        }
       ],
       "actions": {
         "normal": {
-          "text": ["You reached the at least {range.normal.min} {unit} of sleep per day recommended for adults."],
+          "text": [
+            "You reached the at least {range.normal.min} {unit} of sleep per day recommended for adults."
+          ],
           "escalation": "self"
         },
         "attention": {
           "text": [
             "Below the at least {range.normal.min} {unit} of sleep per day recommended for adults.",
-            "PLACEHOLDER: what to do after a short night."
+            "Regularly sleeping less than 7 hours is linked to health problems, including depression, and to worse performance, more errors and more accidents. If it keeps happening, tell your crew medical officer.",
+            "Tonight, keep a regular bedtime, turn off screens 30 minutes before sleep, and avoid caffeine late in the day.",
+            "If you regularly have problems sleeping, or feel sleepy or tired even after enough sleep, tell your crew medical officer."
           ],
           "escalation": "crew"
         },
         "critical": {
-          "text": ["PLACEHOLDER: the sources define no critical sleep threshold."],
+          "text": [
+            "PLACEHOLDER: the sources define no critical sleep threshold."
+          ],
           "escalation": "ground"
         }
       },
-      "source_ids": ["cdc_sleep", "nasa_hrp_hazards"],
-      "status": "PLACEHOLDER"
+      "source_ids": [
+        "cdc_sleep",
+        "cdc_about_sleep",
+        "aasm_srs_sleep_consensus",
+        "csa_sleeping_in_space",
+        "barger_2014_astronaut_sleep",
+        "nasa_hrp_sleep_risk",
+        "nasa_standard_measures",
+        "nasa_hrp_hazards"
+      ],
+      "status": "PLACEHOLDER",
+      "earth_reference": true,
+      "reference_note": "Recommended sleep: 7 or more hours (ages 18–60), 7–9 hours (61–64), 7–8 hours (65 and older)."
     },
     {
+      "_comment": "Stage 3A. The daily 1–5 scale stays a personal log WITHOUT medical ranges (no source defines thresholds for it): labels, ranges and actions stay PLACEHOLDER. A validated two-week screen (PHQ-2, verified in docs/research/3a-verificacion.md) is pending a team decision and is not implemented.",
       "id": "mood",
       "name": "Mood",
       "unit": "scale",
       "category": "behavioral",
-      "hazards": ["isolation", "radiation", "distance"],
+      "hazards": [
+        "isolation",
+        "radiation",
+        "distance"
+      ],
       "body_zone": "head",
       "icon": "smile",
       "input": {
@@ -257,20 +591,59 @@
           "5": "PLACEHOLDER: label for 5"
         }
       },
-      "how_to_measure": ["PLACEHOLDER: step 1 of the measurement instructions for a non-expert."],
-      "why_it_matters": "NASA's Human Research Program notes that isolation, radiation, distance from Earth and other intense space stressors may all take a toll on crew mental health; tracking your mood over time helps you notice changes.",
-      "frequency": { "every_hours": null, "label": "PLACEHOLDER: how often to measure." },
+      "how_to_measure": [
+        "PLACEHOLDER: step 1 of the measurement instructions for a non-expert."
+      ],
+      "why_it_matters": "NASA's Human Research Program notes that isolation, radiation, distance from Earth and other intense space stressors may all take a toll on crew mental health; tracking your mood over time helps you notice changes. NASA crews answer a short questionnaire before sleep about mood, team cohesion, performance and habitability.",
+      "frequency": {
+        "every_hours": null,
+        "label": "PLACEHOLDER: how often to measure."
+      },
       "ranges": [
-        { "status": "normal", "min": null, "max": null, "source_ids": [] },
-        { "status": "attention", "min": null, "max": null, "source_ids": [] },
-        { "status": "critical", "min": null, "max": null, "source_ids": [] }
+        {
+          "status": "normal",
+          "min": null,
+          "max": null,
+          "source_ids": []
+        },
+        {
+          "status": "attention",
+          "min": null,
+          "max": null,
+          "source_ids": []
+        },
+        {
+          "status": "critical",
+          "min": null,
+          "max": null,
+          "source_ids": []
+        }
       ],
       "actions": {
-        "normal": { "text": ["PLACEHOLDER: what to do when normal."], "escalation": "self" },
-        "attention": { "text": ["PLACEHOLDER: what to do when attention is needed."], "escalation": "crew" },
-        "critical": { "text": ["PLACEHOLDER: what to do when critical."], "escalation": "ground" }
+        "normal": {
+          "text": [
+            "PLACEHOLDER: what to do when normal."
+          ],
+          "escalation": "self"
+        },
+        "attention": {
+          "text": [
+            "PLACEHOLDER: what to do when attention is needed."
+          ],
+          "escalation": "crew"
+        },
+        "critical": {
+          "text": [
+            "PLACEHOLDER: what to do when critical."
+          ],
+          "escalation": "ground"
+        }
       },
-      "source_ids": ["nasa_hrp_hazards", "nasa_hrp_risks"],
+      "source_ids": [
+        "nasa_hrp_hazards",
+        "nasa_hrp_risks",
+        "nasa_standard_measures"
+      ],
       "status": "PLACEHOLDER"
     }
   ]

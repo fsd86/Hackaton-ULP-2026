@@ -52,3 +52,31 @@ export function evaluate(
   if (Array.isArray(value)) return "unknown";
   return evaluateRanges(primary, value);
 }
+
+/**
+ * Notas de los rangos donde cae la lectura, solo de los rangos con el estado final (p. ej. la nota "bajo" o "alto"
+ * dentro de attention). Para "pair": rangos principales con el primer valor y secundarios con el segundo.
+ */
+export function rangeNotes(
+  indicator: Indicator,
+  value: ReadingValue,
+  status: EvalStatus,
+  env?: Pick<Environment, "indicator_overrides">,
+): string[] {
+  if (status === "unknown") return [];
+  const primary = env?.indicator_overrides[indicator.id]?.ranges ?? indicator.ranges;
+  const pairs: Array<[Range[], number]> = Array.isArray(value)
+    ? [
+        [primary, value[0]],
+        [indicator.ranges_secondary ?? [], value[1]],
+      ]
+    : [[primary, value]];
+  const out: string[] = [];
+  for (const [ranges, v] of pairs) {
+    for (const r of ranges) {
+      if (r.status !== status || (r.min === null && r.max === null) || !inRange(r, v)) continue;
+      for (const n of r.notes ?? []) if (!out.includes(n)) out.push(n);
+    }
+  }
+  return out;
+}
