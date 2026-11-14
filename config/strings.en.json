@@ -330,9 +330,11 @@
 
   "demo.title": "DEMO DATA",
   "demo.text": "Synthetic sample readings for demonstration, not real measurements.",
+  "demo.text_short": "Not real measurements",
   "demo.load": "Load demo data",
   "demo.load.help": "Or explore the board with synthetic sample readings.",
   "demo.remove": "Remove demo data",
+  "demo.remove_short": "Remove",
   "demo.tag": "Demo",
   "report.demo_warning": "This report includes demo readings (synthetic, not real measurements)."
 }
