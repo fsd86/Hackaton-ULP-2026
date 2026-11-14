@@ -620,6 +620,16 @@
       "license": "CC BY 4.0",
       "notes": "Ambulance records of abdominal pain often missed history items such as last oral intake (11%).",
       "status": "VERIFIED"
+    },
+    {
+      "id": "csa_cciss",
+      "title": "Cardiovascular and Cerebrovascular Control on Return from the International Space Station (CCISS)",
+      "publisher": "Canadian Space Agency",
+      "url": "https://www.asc-csa.gc.ca/eng/sciences/cciss.asp",
+      "accessed": "2026-11-14",
+      "license": "Crown copyright (Government of Canada); see the site's terms and conditions",
+      "notes": "Study of six astronauts. Devices recorded blood pressure, heart rate and physical activity over 24-hour periods before, during and after their missions, and the data from the ISS were compared with data collected before and after flight. It found significant differences between individuals, for example in how heart rate responded to changes in blood pressure.",
+      "status": "VERIFIED"
     }
   ]
 }
