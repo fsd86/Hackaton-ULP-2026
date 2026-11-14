@@ -16,6 +16,7 @@ import { useStorageState } from "./hooks/useStorageState";
 import { FeatureDisabled } from "./components/FeatureDisabled";
 import { isRouteEnabled } from "./logic/features";
 import { Header } from "./components/Header";
+import { PrototypeNotice } from "./components/PrototypeNotice";
 import { DailyCheck } from "./views/DailyCheck";
 import { EmergencyView } from "./views/EmergencyView";
 import { ReportView } from "./views/ReportView";
@@ -99,6 +100,8 @@ function Shell() {
       <Header current={route.id} onEmergency={() => navigate("emergency")} emergencyActive={route.id === "emergency"} />
       <DemoBanner />
       <StorageNotice />
+      {/* Aviso fijo en todas las vistas (va antes de <main> para que el lector de pantalla lo lea primero). */}
+      <PrototypeNotice />
       <main
         id="main"
         ref={mainRef}

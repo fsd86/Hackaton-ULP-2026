@@ -7,7 +7,7 @@ export function Footer() {
   const { t, content } = useContent();
   const [confirmOpen, setConfirmOpen] = useState(false);
   return (
-    <footer className="mt-8 border-t border-[var(--glass-border)] px-4 py-6 pb-28 lg:pb-6">
+    <footer className="mt-8 border-t border-[var(--glass-border)] px-4 py-6 pb-[calc(7rem+var(--notice-h))] lg:pb-[calc(1.5rem+var(--notice-h))]">
       <div className="mx-auto flex max-w-[1760px] flex-col gap-3 text-sm text-[var(--color-muted)] md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           {!isPersistent() && (

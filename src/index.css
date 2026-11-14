@@ -43,14 +43,58 @@
   }
 }
 
+/* Aviso fijo "prototipo educativo" (PrototypeNotice): alto reservado al pie de la ventana. */
+:root {
+  --notice-h: 2.75rem;
+}
+@media (min-width: 1024px) {
+  :root {
+    --notice-h: 2rem;
+  }
+}
+
 html {
   scroll-padding-top: var(--sticky-offset);
-  /* Movil: la barra de pestanas fija (MainNav) tapa el borde inferior; el foco y los anclajes quedan por encima. */
-  scroll-padding-bottom: 6rem;
+  /* Movil: la barra de pestanas fija (MainNav) y el aviso fijo tapan el borde inferior; el foco y los anclajes
+     quedan por encima. */
+  scroll-padding-bottom: calc(6rem + var(--notice-h));
 }
 @media (min-width: 1024px) {
   html {
-    scroll-padding-bottom: 0;
+    scroll-padding-bottom: var(--notice-h);
+  }
+}
+
+.prototype-notice {
+  position: fixed;
+  z-index: 35;
+  /* Movil: apoyado sobre la barra de pestanas (bottom-2 + alto de la barra). */
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 4.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: calc(var(--notice-h) - 0.25rem);
+  padding: 0.3rem 0.75rem;
+  border: 1px dashed var(--status-attention);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  color: var(--color-text);
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-align: center;
+}
+@media (min-width: 1024px) {
+  .prototype-notice {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: var(--notice-h);
+    border-width: 1px 0 0;
+    border-radius: 0;
+    font-size: 0.8rem;
   }
 }
 
@@ -426,10 +470,10 @@ main:focus {
 /* Espacio vertical ocupado por encima del cuerpo (header, titulo y margenes); el banner DEMO DATA suma su alto
    para que los anillos de la plataforma entren completos en la ventana. */
 :root {
-  --hero-top: 11.4rem;
+  --hero-top: calc(11.4rem + var(--notice-h));
 }
 :root:has([data-demo-banner]) {
-  --hero-top: 14.9rem;
+  --hero-top: calc(14.9rem + var(--notice-h));
 }
 .hero-glow {
   position: absolute;
