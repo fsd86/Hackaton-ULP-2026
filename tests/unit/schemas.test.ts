@@ -19,6 +19,42 @@ describe("real content files", () => {
     expect(r.content.indicators).toHaveLength(6);
     expect(r.content.environments.map((e) => e.id)).toContain("remote_clinic_earth");
     expect(r.content.protocols[0].steps.length).toBeGreaterThanOrEqual(3);
+    expect(r.content.hazards.map((h) => h.id)).toEqual(["radiation", "isolation", "distance", "gravity", "environment"]);
+    expect(r.content.app.hero?.image).toBeTruthy();
+  });
+});
+
+describe("hazards.json and app.hero", () => {
+  it("unknown source_id in a hazard", () => {
+    const raw = realRaw();
+    (raw.hazards as Loose).hazards[1].source_ids = ["nope"];
+    expect(errorsOf(raw)).toContainEqual(
+      expect.objectContaining({ file: "data/hazards.json", path: "hazards[1].source_ids[0]" }),
+    );
+  });
+
+  it("duplicate hazard id", () => {
+    const raw = realRaw();
+    (raw.hazards as Loose).hazards[1].id = "radiation";
+    expect(errorsOf(raw)).toContainEqual(expect.objectContaining({ file: "data/hazards.json", path: "hazards[1].id" }));
+  });
+
+  it("VERIFIED hazard without sources", () => {
+    const raw = realRaw();
+    (raw.hazards as Loose).hazards[2].source_ids = [];
+    expect(errorsOf(raw)).toContainEqual(expect.objectContaining({ file: "data/hazards.json", path: "hazards[2].source_ids" }));
+  });
+
+  it("hero anchor outside 0-100 %", () => {
+    const raw = realRaw();
+    (raw.app as Loose).hero.zone_anchors.head = [50, 140];
+    expect(errorsOf(raw)).toContainEqual(expect.objectContaining({ file: "config/app.json", path: "hero.zone_anchors.head[1]" }));
+  });
+
+  it("hero is optional", () => {
+    const raw = realRaw();
+    delete (raw.app as Loose).hero;
+    expect(validateContent(raw).ok).toBe(true);
   });
 });
 

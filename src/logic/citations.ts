@@ -1,4 +1,4 @@
-import type { Environment, Indicator, Protocol, Range, Source } from "../content/schemas";
+import type { Environment, HazardInfo, Indicator, Protocol, Range, Source } from "../content/schemas";
 
 // "Cited by": qué entidades de data/ citan cada fuente. Función pura.
 
@@ -9,7 +9,8 @@ export type CitationKind =
   | "override_range"
   | "protocol"
   | "step"
-  | "environment_delay";
+  | "environment_delay"
+  | "hazard";
 
 export interface Citation {
   kind: CitationKind;
@@ -29,6 +30,8 @@ export interface CitationInput {
   indicators: Indicator[];
   environments: Environment[];
   protocols: Protocol[];
+  /** Opcional: los 5 hazards de data/hazards.json. ownerName es el id; la vista lo traduce con hazard.<id>. */
+  hazards?: HazardInfo[];
 }
 
 /** Devuelve un mapa sourceId → citas (todas las fuentes aparecen, con [] si nadie las cita). */
@@ -77,6 +80,10 @@ export function buildCitations(input: CitationInput): Record<string, Citation[]>
     p.steps.forEach((step, i) => {
       for (const id of step.source_ids) add(id, { kind: "step", ownerId: p.id, ownerName: p.title, stepIndex: i });
     });
+  }
+
+  for (const h of input.hazards ?? []) {
+    for (const id of h.source_ids) add(id, { kind: "hazard", ownerId: h.id, ownerName: h.id });
   }
 
   return out;

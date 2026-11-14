@@ -4,6 +4,7 @@ import indicatorsRaw from "../../data/indicators.json";
 import environmentsRaw from "../../data/environments.json";
 import protocolsRaw from "../../data/protocols.json";
 import demoRaw from "../../data/demo-readings.json";
+import hazardsRaw from "../../data/hazards.json";
 import appRaw from "../../config/app.json";
 import stringsRaw from "../../config/strings.en.json";
 import { ESCALATION_MESSAGE_KEYS } from "../logic/escalation";
@@ -12,12 +13,14 @@ import {
   AppConfig,
   DemoReadingsFile,
   EnvironmentsFile,
+  HazardsFile,
   IndicatorsFile,
   ProtocolsFile,
   SourcesFile,
   Strings,
   type DemoReading,
   type Environment,
+  type HazardInfo,
   type Indicator,
   type Protocol,
   type Range,
@@ -39,6 +42,8 @@ export interface Content {
   strings: Strings;
   /** Lecturas sinteticas de data/demo-readings.json ([] si el archivo no se entrega). */
   demoReadings: DemoReading[];
+  /** Los 5 hazards de NASA HRP con resumen y fuente ([] si el archivo no se entrega). */
+  hazards: HazardInfo[];
 }
 
 export interface RawContent {
@@ -50,6 +55,8 @@ export interface RawContent {
   strings: unknown;
   /** Opcional: los tests antiguos no lo pasan. */
   demoReadings?: unknown;
+  /** Opcional: los tests antiguos no lo pasan. */
+  hazards?: unknown;
 }
 
 export type LoadResult = { ok: true; content: Content } | { ok: false; errors: ContentError[] };
@@ -62,6 +69,7 @@ export const FILES = {
   app: "config/app.json",
   strings: "config/strings.en.json",
   demoReadings: "data/demo-readings.json",
+  hazards: "data/hazards.json",
 } as const;
 
 /** ["indicators", 2, "ranges", 0, "min"] → "indicators[2].ranges[0].min" */
@@ -193,7 +201,10 @@ export function validateContent(raw: RawContent): LoadResult {
   const demoFile =
     raw.demoReadings === undefined ? { readings: [] as DemoReading[] } : parseFile(DemoReadingsFile, raw.demoReadings, FILES.demoReadings, errors);
 
-  if (!demoFile) return { ok: false, errors };
+  const hazardsFile =
+    raw.hazards === undefined ? { hazards: [] as HazardInfo[] } : parseFile(HazardsFile, raw.hazards, FILES.hazards, errors);
+
+  if (!demoFile || !hazardsFile) return { ok: false, errors };
   if (!sourcesFile || !indicatorsFile || !environmentsFile || !protocolsFile || !app || !strings) {
     return { ok: false, errors };
   }
@@ -216,6 +227,7 @@ export function validateContent(raw: RawContent): LoadResult {
   uniqueIds(indicators, FILES.indicators, "indicators");
   uniqueIds(environments, FILES.environments, "environments");
   uniqueIds(protocols, FILES.protocols, "protocols");
+  uniqueIds(hazardsFile.hazards, FILES.hazards, "hazards");
 
   const sourceIds = new Set(sources.map((s) => s.id));
   const protocolIds = new Set(protocols.map((p) => p.id));
@@ -290,6 +302,8 @@ export function validateContent(raw: RawContent): LoadResult {
     p.steps.forEach((s, k) => checkSources(s.source_ids, FILES.protocols, [...base, "steps", k]));
   });
 
+  hazardsFile.hazards.forEach((h, i) => checkSources(h.source_ids, FILES.hazards, ["hazards", i]));
+
   demoFile.readings.forEach((r, i) => {
     const ind = indicators.find((x) => x.id === r.indicator_id);
     if (!ind) {
@@ -322,7 +336,7 @@ export function validateContent(raw: RawContent): LoadResult {
   }
 
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, content: { sources, indicators, environments, protocols, app, strings, demoReadings: demoFile.readings } };
+  return { ok: true, content: { sources, indicators, environments, protocols, app, strings, demoReadings: demoFile.readings, hazards: hazardsFile.hazards } };
 }
 
 let cached: LoadResult | undefined;
@@ -337,6 +351,7 @@ export function loadContent(): LoadResult {
     app: appRaw,
     strings: stringsRaw,
     demoReadings: demoRaw,
+    hazards: hazardsRaw,
   });
   return cached;
 }

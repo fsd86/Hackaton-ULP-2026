@@ -183,6 +183,30 @@ export const Protocol = z
   .superRefine(requireSourcesIfVerified);
 export const ProtocolsFile = z.object({ _comment: Comment, protocols: z.array(Protocol) });
 
+// ---- hazards.json (los 5 hazards de NASA HRP: resumen con fuente; los nombres cortos viven en strings "hazard.<id>")
+export const HazardInfo = z
+  .object({
+    id: Hazard,
+    summary: z.string(),
+    source_ids: SourceIds,
+    status: Status,
+  })
+  .superRefine(requireSourcesIfVerified);
+export const HazardsFile = z.object({ _comment: Comment, hazards: z.array(HazardInfo) });
+
+// ---- config/app.json → hero (DISENO de UI, no medico): imagen del cuerpo del tablero y donde se anclan
+// los puntos de zona, el halo y la plataforma. Todo en % de la imagen (0-100).
+const Pct = z.number().min(0).max(100);
+export const HeroConfig = z.object({
+  _comment: Comment,
+  image: z.string(),
+  width: z.number().positive(),
+  height: z.number().positive(),
+  zone_anchors: z.record(BodyZone, z.tuple([Pct, Pct])),
+  halo: z.object({ x: Pct, y: Pct, w: Pct }),
+  platform: z.object({ x: Pct, y: Pct, w: Pct }),
+});
+
 // ---- config/app.json
 export const AppConfig = z.object({
   _comment: Comment,
@@ -223,6 +247,8 @@ export const AppConfig = z.object({
   // Parámetro de DISEÑO (no médico): edad máxima para reanudar sola una sesión de emergencia guardada.
   emergency_session_max_age_hours: z.number().positive(),
   disclaimer: z.string(),
+  // Opcional: sin hero, el tablero dibuja el cuerpo SVG.
+  hero: HeroConfig.optional(),
 });
 
 // ---- demo-readings.json (datos sinteticos de demostracion, no mediciones reales)
@@ -255,4 +281,7 @@ export type Environment = z.infer<typeof Environment>;
 export type Step = z.infer<typeof Step>;
 export type Protocol = z.infer<typeof Protocol>;
 export type AppConfig = z.infer<typeof AppConfig>;
+export type HeroConfig = z.infer<typeof HeroConfig>;
+export type HazardInfo = z.infer<typeof HazardInfo>;
+export type HazardId = z.infer<typeof Hazard>;
 export type Strings = z.infer<typeof Strings>;

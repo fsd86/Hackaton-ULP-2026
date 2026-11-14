@@ -1,0 +1,35 @@
+{
+  "_comment": "The five hazards of human spaceflight defined by NASA's Human Research Program. 'summary' is a short paraphrase of the official page (shown in the UI, English). Short names live in config/strings.en.json as hazard.<id>. Which indicators watch each hazard comes from indicators.json 'hazards'.",
+  "hazards": [
+    {
+      "id": "radiation",
+      "summary": "Space radiation is invisible to the human eye and is considered one of the most hazardous parts of spaceflight.",
+      "source_ids": ["nasa_hrp_hazards"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "isolation",
+      "summary": "People isolated and confined in a small space for a long time show behavioral responses; crews must work as a team for months or years.",
+      "source_ids": ["nasa_hrp_hazards"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "distance",
+      "summary": "The farther the crew travels, the harder it is to get instructions, supplies and medical care from Earth.",
+      "source_ids": ["nasa_hrp_hazards"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "gravity",
+      "summary": "Muscles, bones, inner ear and organs must adjust to each new gravity field: weightlessness, the Moon, Mars, and Earth again on return.",
+      "source_ids": ["nasa_hrp_hazards"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "environment",
+      "summary": "A closed spacecraft must keep temperature, pressure, lighting and noise right, and monitor microbes and immune responses.",
+      "source_ids": ["nasa_hrp_hazards"],
+      "status": "VERIFIED"
+    }
+  ]
+}

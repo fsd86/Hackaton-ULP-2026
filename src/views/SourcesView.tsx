@@ -9,10 +9,10 @@ import { panel } from "./daily/ui";
 /** Vista Sources. Ruta #/sources[/<sourceId>]: la fuente indicada recibe scroll y foco. */
 export function SourcesView({ param }: { param: string | undefined }) {
   const { t, content } = useContent();
-  const { sources, indicators, protocols, environments } = content;
+  const { sources, indicators, protocols, environments, hazards } = content;
   const citations = useMemo(
-    () => buildCitations({ sources, indicators, environments, protocols }),
-    [sources, indicators, environments, protocols],
+    () => buildCitations({ sources, indicators, environments, protocols, hazards }),
+    [sources, indicators, environments, protocols, hazards],
   );
   const summary = summarizeVerification({ sources, indicators, protocols, environments });
   const target = param !== undefined ? sources.find((s) => s.id === param) : undefined;
@@ -29,7 +29,7 @@ export function SourcesView({ param }: { param: string | undefined }) {
   }, [target]);
 
   const citeText = (c: Citation): string => {
-    const vars = { name: c.ownerName, status: c.rangeStatus ?? "", n: (c.stepIndex ?? 0) + 1, environment: c.environmentName ?? "" };
+    const vars = { name: c.kind === "hazard" ? t(`hazard.${c.ownerId}`) : c.ownerName, status: c.rangeStatus ?? "", n: (c.stepIndex ?? 0) + 1, environment: c.environmentName ?? "" };
     return t(`sources.cite.${c.kind}`, vars);
   };
 

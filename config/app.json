@@ -41,5 +41,20 @@
   },
   "realtime_threshold_s": 10,
   "emergency_session_max_age_hours": 12,
-  "disclaimer": "Earth Is Far is a decision-support tool. It does not replace a flight surgeon or a physician. If in doubt, contact medical professionals."
+  "disclaimer": "Earth Is Far is a decision-support tool. It does not replace a flight surgeon or a physician. If in doubt, contact medical professionals.",
+  "hero": {
+    "_comment": "DISENO de UI (no medico). Imagen del cuerpo del tablero (en public/) y su tamano en px. zone_anchors, halo y platform son posiciones en % de la imagen (x, y; w = ancho). Si la imagen no carga, el tablero dibuja el cuerpo SVG.",
+    "image": "hero/body.webp",
+    "width": 1024,
+    "height": 1536,
+    "zone_anchors": {
+      "head": [50, 13],
+      "chest": [52, 50],
+      "abdomen": [55, 68],
+      "arm": [12, 62],
+      "body": [50, 84]
+    },
+    "halo": { "x": 50, "y": 5.5, "w": 58 },
+    "platform": { "x": 50, "y": 92, "w": 94 }
+  }
 }
