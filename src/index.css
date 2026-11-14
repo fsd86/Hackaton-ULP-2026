@@ -205,7 +205,294 @@ main:focus {
   animation-delay: 1.2s;
 }
 
+/* ---- HUD del tablero ----
+   Movil: cuerpo arriba y paneles en una columna. lg+: 3 columnas; las laterales se inclinan apenas hacia el centro. */
+.hud-grid {
+  display: grid;
+  gap: 1rem;
+}
+.hud-overall {
+  order: -1;
+  min-width: 0;
+}
+.hud-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+.hud-center {
+  order: -1;
+  min-width: 0;
+  /* Sin container-type ni sticky: crearian un contexto de apilamiento y "screen" no se mezclaria con el fondo.
+     Los anillos de la plataforma pueden salir del escenario: nunca generan scroll horizontal. */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+@media (min-width: 1024px) {
+  .hud-grid {
+    grid-template-columns: minmax(16.5rem, 22rem) minmax(0, 1fr) minmax(17.5rem, 24rem);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    gap: 1.25rem;
+    /* Sin perspective en la grilla (crearia un contexto de apilamiento y romperia el "screen" del cuerpo):
+       cada columna lleva su propia perspective() dentro del transform. */
+  }
+  .hud-col-left {
+    order: 1;
+    transform: perspective(1800px) rotateY(7deg);
+    transform-origin: left center;
+  }
+  .hud-center {
+    order: 2;
+    /* El titulo solo ocupa la columna izquierda: el cuerpo sube a la altura del titulo. */
+    margin-top: -3.4rem;
+  }
+  /* Columna central: cuerpo (fila 1) y estado general (fila 2); las laterales ocupan las dos filas. */
+  .hud-col-left {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  .hud-center {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .hud-overall {
+    grid-column: 2;
+    grid-row: 2;
+    width: min(100%, 30rem);
+    margin-inline: auto;
+  }
+  .hud-col-right {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+  .hud-col-right {
+    order: 3;
+    transform: perspective(1800px) rotateY(-7deg);
+    transform-origin: right center;
+  }
+}
+/* Paneles del HUD: borde fino luminoso, como pantallas de vidrio encendidas. */
+.hud-col > .glass {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 7%, var(--glass-bg)), var(--glass-bg) 45%);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    inset 0 0 24px color-mix(in srgb, var(--color-accent) 6%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+.hud-col .panel-title {
+  color: var(--color-text);
+  font-size: 0.78rem;
+}
+.vital-row svg polyline {
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 3px var(--color-accent));
+}
+
+/* Escenario del cuerpo: la relacion de aspecto viene de config (inline); los puntos de zona van en %. */
+.hero-stage {
+  --hero-glow: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  position: relative;
+  width: min(78%, 22rem);
+  margin-inline: auto;
+}
+@media (min-width: 1024px) {
+  .hero-stage {
+    /* Ancho limitado por la columna y por el alto de la ventana (--hero-hw = alto/ancho de la imagen). */
+    width: min(100%, calc((100vh - 12.5rem) / var(--hero-hw)), calc(880px / var(--hero-hw)));
+  }
+}
+.hero-glow {
+  position: absolute;
+  inset: -4% -18%;
+  background: radial-gradient(ellipse 50% 46% at 50% 48%, var(--hero-glow), transparent 72%);
+  pointer-events: none;
+}
+.hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  opacity: 0.94;
+  user-select: none;
+  /* La imagen trae fondo negro: con "screen" el negro desaparece y el cuerpo queda translucido sobre el fondo. */
+}
+.hero-rings {
+  position: absolute;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.hero-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in srgb, var(--color-accent) 80%, transparent);
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--color-accent) 55%, transparent),
+    inset 0 0 14px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  transform: rotateX(76deg);
+  animation: ring-spin 28s linear infinite;
+}
+.hero-ring-2 {
+  inset: 9%;
+  border-style: dashed;
+  border-width: 2px;
+  box-shadow: none;
+  animation-duration: 40s;
+  animation-direction: reverse;
+}
+.hero-ring-3 {
+  inset: -9%;
+  border-style: dotted;
+  border-width: 2px;
+  opacity: 0.7;
+  box-shadow: none;
+  animation-duration: 60s;
+}
+.hero-halo .hero-ring {
+  transform: rotateX(78deg);
+}
+.hero-scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: var(--hero-mask);
+  mask-size: 100% 100%;
+  mask-mode: luminance;
+}
+.hero-scan-band {
+  position: absolute;
+  inset-inline: 0;
+  top: -20%;
+  height: 18%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--color-accent) 30%, transparent) 75%,
+    color-mix(in srgb, var(--color-accent) 95%, white)
+  );
+  animation: hero-scan 2.8s cubic-bezier(0.45, 0.05, 0.3, 1) 0.4s 1 both;
+}
+
+/* Puntos de zona sobre el cuerpo */
+.zone-halo {
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--zc) 55%, transparent), transparent 70%);
+  pointer-events: none;
+}
+.zone-label {
+  background: color-mix(in srgb, var(--color-ink) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--zc) 55%, transparent);
+}
+.zone-btn-selected .zone-dot {
+  box-shadow:
+    0 0 0 3px var(--color-ink),
+    0 0 0 5px var(--color-accent),
+    0 0 18px var(--color-accent);
+}
+
+/* Filas de los paneles */
+.vital-row {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.5rem 0.55rem 0.6rem;
+  border-left: 3px solid var(--sc);
+}
+.vital-icon {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 9999px;
+  color: var(--sc);
+  border: 1px solid color-mix(in srgb, var(--sc) 60%, transparent);
+  background: radial-gradient(circle, color-mix(in srgb, var(--sc) 22%, transparent), transparent 75%);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--sc) 35%, transparent);
+}
+.vital-demo {
+  border: 1px dashed var(--color-line);
+  border-radius: 2px;
+  padding: 0 0.3rem;
+  letter-spacing: 0.08em;
+}
+.zone-row {
+  display: grid;
+  gap: 0.3rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.zone-row:hover {
+  border-color: var(--glass-border);
+}
+.zone-row[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+.zone-bar {
+  display: flex;
+  gap: 2px;
+  height: 6px;
+}
+.zone-bar-seg {
+  border-radius: 1px;
+  background: var(--sc);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--sc) 60%, transparent);
+}
+.zone-bar-nodata {
+  background: repeating-linear-gradient(135deg, var(--color-line) 0 3px, transparent 3px 6px);
+  box-shadow: none;
+}
+.hazard-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+.hazard-row + .hazard-row {
+  border-top: 1px solid var(--glass-border);
+  padding-top: 0.6rem;
+}
+
 /* ---- Movimiento (todo se apaga con prefers-reduced-motion) ---- */
+@keyframes ring-spin {
+  from {
+    transform: rotateX(76deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(76deg) rotateZ(360deg);
+  }
+}
+@keyframes hero-scan {
+  from {
+    top: -20%;
+  }
+  to {
+    top: 104%;
+  }
+}
 @keyframes pulse-ring {
   0% {
     transform: scale(1);
@@ -294,8 +581,12 @@ main:focus {
   .appear.glow-alert {
     animation: none;
   }
-  .scan-band {
+  .scan-band,
+  .hero-scan {
     display: none;
+  }
+  .hero-ring {
+    animation: none;
   }
   .zone-dot {
     transition: none;

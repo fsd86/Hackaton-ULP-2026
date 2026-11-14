@@ -25,7 +25,7 @@ export function FramePanel({
   /** Retraso de la aparicion suave (escalonado entre paneles). */
   delayMs?: number;
   children: ReactNode;
-} & { "data-testid"?: string }) {
+} & { "data-testid"?: string; id?: string }) {
   const id = useId();
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const style = { animationDelay: `${delayMs}ms` } as CSSProperties;
@@ -40,7 +40,7 @@ export function FramePanel({
         </>
       )}
       <div className="flex items-center justify-between gap-3 border-b border-[var(--glass-border)] px-4 py-2.5">
-        <Heading id={id} className="eyebrow flex items-center gap-2">
+        <Heading id={id} className="eyebrow panel-title flex items-center gap-2">
           <span aria-hidden="true" className="h-2 w-2 shrink-0 bg-[var(--color-accent)]" />
           {title}
         </Heading>

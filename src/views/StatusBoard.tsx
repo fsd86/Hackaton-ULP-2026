@@ -1,7 +1,13 @@
-import { useMemo, useRef, useState, type CSSProperties } from "react";
+import { useId, useMemo, useState, type CSSProperties } from "react";
 import { useContent } from "../content/ContentContext";
-import { BodyFigure, type FigureZone } from "../components/body/BodyFigure";
-import { CalloutLines, type CalloutLink } from "../components/CalloutLines";
+import { HeroBody } from "../components/body/HeroBody";
+import type { FigureZone } from "../components/body/ZoneButton";
+import { FocusTrend } from "../components/hud/FocusTrend";
+import { HazardsPanelBody } from "../components/hud/HazardsPanelBody";
+import { VitalRow } from "../components/hud/VitalRow";
+import { ZoneDetail } from "../components/hud/ZoneDetail";
+import { ZoneStatusList } from "../components/hud/ZoneStatusList";
+import { PlaceholderBadge } from "../components/PlaceholderBadge";
 import { EmptyState } from "../components/EmptyState";
 import { EnvironmentDetails } from "../components/EnvironmentDetails";
 import { FramePanel } from "../components/FramePanel";
@@ -9,11 +15,11 @@ import { SourceLinks } from "../components/SourceLinks";
 import { StatusBadge, type BadgeStatus } from "../components/StatusBadge";
 import { StatusIcon } from "../components/StatusIcon";
 import { TrendChart } from "../components/TrendChart";
-import { VitalCard } from "../components/VitalCard";
 import { useEnvironment } from "../hooks/useEnvironment";
 import { useStorageState } from "../hooks/useStorageState";
 import { buildBoard } from "../logic/board";
-import { groupByZone } from "../logic/bodyZones";
+import { groupByZone, worstZoneStatus, type BodyZoneId } from "../logic/bodyZones";
+import { classifyDelay, formatDelay } from "../logic/delay";
 import { formatDateTime, formatTime, formatValue } from "../logic/daily";
 import { escalate } from "../logic/escalation";
 import { buildTrend } from "../logic/trend";
@@ -34,7 +40,14 @@ const COUNT_ORDER: BadgeStatus[] = ["critical", "attention", "normal", "unknown"
 /** Escalar "ahora" a tierra: solo se usa para estimar la ventana de respuesta segun la demora del entorno. */
 const ESCALATE_TO_GROUND = { attention: { text: [], escalation: "ground" as const } };
 
-/** Status board (#/): tablero HUD de 3 columnas (tarjetas · figura del cuerpo · estado) + tendencias completas. */
+const WEEK_MS = 7 * 24 * 3_600_000;
+
+/**
+ * Status board (#/): HUD de 3 columnas. Izquierda (inclinada hacia el centro): signos vitales, estado por zona y
+ * tendencia destacada. Centro: el cuerpo con puntos de zona. Derecha: estado general, detalle de la zona elegida,
+ * demora y respuesta de Tierra, y hazards de NASA. Debajo, las tendencias completas con tabla accesible.
+ * En movil: cuerpo arriba y paneles en una columna.
+ */
 export function StatusBoard() {
   const { t, content } = useContent();
   const { environment } = useEnvironment();
@@ -45,7 +58,6 @@ export function StatusBoard() {
   if (snap.rev !== readingsRev) setSnap({ rev: readingsRev, readings: getReadings(), now: Date.now() });
   const { readings, now } = snap;
   const [period, setPeriod] = useState<PeriodId>("7d");
-  const gridRef = useRef<HTMLDivElement>(null);
   const chartsOn = content.app.features.charts;
   const remindersOn = content.app.features.reminders;
 
@@ -82,14 +94,25 @@ export function StatusBoard() {
     [content.indicators, entryById, byId],
   );
 
-  const links = useMemo<CalloutLink[]>(
-    () =>
-      board.entries.flatMap((e) => {
-        const zone = byId.get(e.indicatorId)?.body_zone;
-        return zone && zones.some((z) => z.zone === zone) ? [{ cardId: e.indicatorId, zone, status: e.status }] : [];
-      }),
-    [board.entries, byId, zones],
-  );
+  const detailId = useId();
+  const worstZone = useMemo(() => {
+    const w = worstZoneStatus(zones.map((z) => z.worst));
+    return (zones.find((z) => z.worst === w) ?? zones[0])?.zone ?? null;
+  }, [zones]);
+  const [picked, setPicked] = useState<BodyZoneId | null>(null);
+  const selectedZone = picked ?? worstZone;
+  const zoneOf = zones.find((z) => z.zone === selectedZone);
+
+  const withData = board.entries.filter((e) => e.lastReading).map((e) => e.indicatorId);
+  const [focusPick, setFocusPick] = useState<string | null>(null);
+  const zoneFocus = zoneOf?.items.find((i) => i.valueText !== null)?.id;
+  const focusId = (focusPick && byId.has(focusPick) ? focusPick : null) ?? zoneFocus ?? withData[0] ?? content.indicators[0]?.id ?? null;
+  const focusInd = focusId ? byId.get(focusId) : undefined;
+
+  function selectZone(zone: BodyZoneId): void {
+    setPicked(zone);
+    setFocusPick(null);
+  }
 
   if (content.indicators.length === 0) {
     return (
@@ -121,49 +144,69 @@ export function StatusBoard() {
     document.getElementById("main")?.focus();
   }
 
+  const delay = environment.comm_delay_one_way_s;
+  const delayPlaceholder = environment.status === "PLACEHOLDER" || classifyDelay(delay) === "unknown";
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <h1 className="font-mono text-lg font-bold uppercase tracking-[0.16em]">{t("board.title")}</h1>
 
-      <div
-        ref={gridRef}
-        className="relative grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)_19rem] xl:grid-cols-[19rem_minmax(0,1fr)_22rem] 2xl:grid-cols-[21rem_minmax(0,1fr)_25rem]"
-      >
-        <CalloutLines containerRef={gridRef} links={links} />
+      <div className="hud-grid">
+        {/* Izquierda: signos vitales, estado por zona y tendencia destacada (en movil, debajo del cuerpo). */}
+        <div className="hud-col hud-col-left">
+          <FramePanel title={t("hud.vitals")} corners delayMs={80} bodyClassName="!p-2">
+            <ul className="divide-y divide-[var(--glass-border)]">
+              {board.entries.map((entry) => {
+                const ind = byId.get(entry.indicatorId);
+                if (!ind) return null;
+                const trend = buildTrend({ indicator: ind, readings, environment, now, maxPoints: 12 });
+                return <VitalRow key={ind.id} indicator={ind} entry={entry} sparkValues={trend.series[0]?.points.map((p) => p.v) ?? []} />;
+              })}
+            </ul>
+          </FramePanel>
 
-        {/* Izquierda: tarjetas de indicadores (en movil van despues del estado general). */}
-        <section aria-labelledby="board-vitals" className="order-3 min-w-0 lg:order-1">
-          <h2 id="board-vitals" className="eyebrow mb-2 flex items-center gap-2">
-            <span aria-hidden="true" className="h-2 w-2 shrink-0 bg-[var(--color-accent)]" />
-            {t("hud.vitals")}
+          <FramePanel title={t("hud.zone_status")} corners delayMs={160}>
+            <ZoneStatusList zones={zones} selected={selectedZone} onSelect={selectZone} controlsId={detailId} />
+          </FramePanel>
+
+          {focusInd && (
+            <FramePanel
+              title={t("hud.focus_trend")}
+              corners
+              delayMs={240}
+              aside={
+                <label className="flex items-center gap-2 text-xs">
+                  <span className="sr-only">{t("hud.focus_trend.pick")}</span>
+                  <select
+                    value={focusInd.id}
+                    onChange={(e) => setFocusPick(e.target.value)}
+                    className="min-h-9 max-w-[11rem] rounded-sm border border-[var(--color-line)] bg-[var(--color-panel-2)] px-2 text-xs font-semibold text-[var(--color-text)]"
+                  >
+                    {content.indicators.map((i) => (
+                      <option key={i.id} value={i.id}>
+                        {i.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              }
+            >
+              <FocusTrend indicator={focusInd} trend={buildTrend({ indicator: focusInd, readings, environment, sinceMs: WEEK_MS, now })} />
+            </FramePanel>
+          )}
+        </div>
+
+        {/* Centro: el cuerpo (en movil va arriba de todo). */}
+        <section aria-labelledby="board-body" className="hud-center">
+          <h2 id="board-body" className="sr-only">
+            {t("hud.body_map")}
           </h2>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            {board.entries.map((entry, i) => {
-              const ind = byId.get(entry.indicatorId);
-              if (!ind) return null;
-              const trend = buildTrend({ indicator: ind, readings, environment, now, maxPoints: 12 });
-              return (
-                <VitalCard
-                  key={ind.id}
-                  indicator={ind}
-                  entry={entry}
-                  sparkValues={trend.series[0]?.points.map((p) => p.v) ?? []}
-                  locale={locale}
-                  delayMs={80 + i * 60}
-                />
-              );
-            })}
-          </ul>
+          <HeroBody zones={zones} selected={selectedZone} onSelect={selectZone} controlsId={detailId} />
         </section>
 
-        {/* Centro: figura del cuerpo (en movil va arriba de todo). */}
-        <FramePanel title={t("hud.body_map")} corners className="order-1 min-w-0 lg:order-2" bodyClassName="py-5">
-          <BodyFigure zones={zones} />
-        </FramePanel>
-
-        {/* Derecha: en movil los hijos se reparten alrededor de las tarjetas (contents). */}
-        <div className="contents min-w-0 lg:order-3 lg:flex lg:flex-col lg:gap-4">
-          <FramePanel title={t("board.overall")} className="order-2 lg:order-none" delayMs={120}>
+        {/* Estado general: bajo el cuerpo (en movil, justo despues del cuerpo). */}
+        <div className="hud-overall">
+          <FramePanel title={t("board.overall")} corners delayMs={120}>
             {!hasReadings ? (
               <EmptyState title={t("board.no_reading")} help={t("board.empty.help")}>
                 <div className="mt-4 flex flex-col items-center gap-3">
@@ -177,33 +220,55 @@ export function StatusBoard() {
                 </div>
               </EmptyState>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <StatusBadge
                   live={false}
                   status={board.overall === "noData" ? "unknown" : board.overall}
-                  className="min-h-12 px-4 text-xl"
+                  className="min-h-11 px-4 text-lg"
                 />
                 <ul aria-label={t("board.counts_label")} className="grid grid-cols-2 gap-2">
                   {COUNT_ORDER.map((s) => (
                     <li
                       key={s}
                       style={{ "--sc": `var(--status-${s})` } as CSSProperties}
-                      className="flex items-center gap-2 rounded-sm border border-[var(--sc)] bg-[color-mix(in_srgb,var(--sc)_8%,var(--color-panel))] px-2 py-1.5"
+                      className="flex items-center gap-2 rounded-sm border border-[var(--sc)] bg-[color-mix(in_srgb,var(--sc)_8%,var(--color-panel))] px-2 py-1"
                     >
                       <span className="text-[var(--sc)]">
-                        <StatusIcon name={s === "unknown" ? "help-circle" : content.app.theme.status_icons[s]} className="h-5 w-5" />
+                        <StatusIcon name={s === "unknown" ? "help-circle" : content.app.theme.status_icons[s]} className="h-4 w-4" />
                       </span>
-                      <span className="font-mono text-xl font-semibold leading-none">{board.counts[s]}</span>
+                      <span className="font-mono text-lg font-semibold leading-none">{board.counts[s]}</span>
                       <span className="text-sm">{t(`status.${s}`)}</span>
                     </li>
                   ))}
                 </ul>
+                {board.needsAttention.length > 0 && (
+                  <div>
+                    <h3 className="eyebrow !text-[0.62rem]">{t("board.needs_attention")}</h3>
+                    <ul className="mt-1 space-y-1">
+                      {board.needsAttention.map((id) => (
+                        <li key={id} className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="flex min-w-0 flex-wrap items-center gap-2">
+                            <StatusBadge live={false} size="sm" status={entryById.get(id)?.status ?? "unknown"} />
+                            <span className="text-sm font-semibold">{nameOf(id)}</span>
+                          </span>
+                          <a
+                            href={`#/check/${encodeURIComponent(id)}`}
+                            aria-label={t("board.open_in_check", { name: nameOf(id) })}
+                            className={`${btnSecondary} !min-h-9 !px-3 !text-sm`}
+                          >
+                            {t("board.open_short")}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
             {remindersOn && (
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--glass-border)] pt-3">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--glass-border)] pt-3">
                 <div>
-                  <h3 className="eyebrow">{t("board.due_now")}</h3>
+                  <h3 className="eyebrow !text-[0.62rem]">{t("board.due_now")}</h3>
                   <p className="text-sm text-[var(--color-muted)]">
                     {board.dueNow.length > 0
                       ? board.dueNow.map(nameOf).join(", ")
@@ -221,34 +286,23 @@ export function StatusBoard() {
             )}
           </FramePanel>
 
-          {hasReadings && (
-            <FramePanel title={t("board.needs_attention")} className="order-4 lg:order-none" delayMs={200}>
-              {board.needsAttention.length === 0 ? (
-                <p className="text-[var(--color-muted)]">{t("board.needs_attention.none")}</p>
-              ) : (
-                <ul className="space-y-2">
-                  {board.needsAttention.map((id) => (
-                    <li key={id} className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="flex min-w-0 flex-wrap items-center gap-2">
-                        <StatusBadge live={false} size="sm" status={entryById.get(id)?.status ?? "unknown"} />
-                        <span className="font-semibold">{nameOf(id)}</span>
-                      </span>
-                      <a
-                        href={`#/check/${encodeURIComponent(id)}`}
-                        aria-label={t("board.open_in_check", { name: nameOf(id) })}
-                        className={`${btnSecondary} !min-h-9 !px-3 !text-sm`}
-                      >
-                        {t("board.open_short")}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </FramePanel>
-          )}
+        </div>
 
-          <FramePanel title={t("hud.ground_answer")} className="order-5 lg:order-none" delayMs={280}>
-            <p className="text-sm text-[var(--color-muted)]">{t("hud.ground_answer.help")}</p>
+        {/* Derecha: detalle de zona, demora y respuesta de Tierra, hazards de NASA. */}
+        <div className="hud-col hud-col-right">
+          <FramePanel title={t("hud.zone_detail")} corners delayMs={200} id={detailId}>
+            <div aria-live="polite">
+              <ZoneDetail zone={zoneOf} indicators={byId} environment={environment} />
+            </div>
+          </FramePanel>
+
+          <FramePanel title={t("hud.ground_answer")} corners delayMs={280}>
+            <p className="eyebrow !text-[0.62rem]">{t("hud.ground_answer.delay")}</p>
+            <p className="flex flex-wrap items-center gap-2 font-mono text-xl font-semibold leading-tight text-[var(--color-accent)]">
+              {formatDelay(delay, t)}
+              {delayPlaceholder && <PlaceholderBadge short />}
+            </p>
+            <p className="mt-3 text-sm text-[var(--color-muted)]">{t("hud.ground_answer.help")}</p>
             <p className="mt-1">{t(escalation.messageKey, escalationVars(escalation))}</p>
             {escalation.eta && (
               <dl className="mt-3 grid grid-cols-2 gap-2">
@@ -266,13 +320,18 @@ export function StatusBoard() {
                 </div>
               </dl>
             )}
-            <SourceLinks ids={environment.comm_delay_one_way_s.source_ids} label={t("sources.delay_sources")} className="mt-3 block" />
+            <SourceLinks ids={delay.source_ids} label={t("sources.delay_sources")} className="mt-3 block" />
+            <div className="mt-2 border-t border-[var(--glass-border)] pt-2">
+              <p className="text-sm font-semibold">{environment.name}</p>
+              <EnvironmentDetails />
+            </div>
           </FramePanel>
 
-          <FramePanel title={t("hud.environment")} className="order-6 lg:order-none" delayMs={360}>
-            <p className="font-semibold">{environment.name}</p>
-            <EnvironmentDetails />
-          </FramePanel>
+          {content.hazards.length > 0 && (
+            <FramePanel title={t("hud.hazards")} corners delayMs={360}>
+              <HazardsPanelBody />
+            </FramePanel>
+          )}
         </div>
       </div>
 

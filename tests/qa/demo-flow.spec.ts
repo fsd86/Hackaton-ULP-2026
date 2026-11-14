@@ -380,12 +380,14 @@ test("demo flow: g. status board with seeded readings has role=img charts", asyn
   await page.goto("/#/");
   await expect(page.getByRole("heading", { level: 1, name: strings["board.title"] })).toBeVisible();
 
-  // un grafico por indicador, con nombre accesible que incluye el indicador
+  // un grafico por indicador en la seccion Trends, con nombre accesible que incluye el indicador
+  // (el HUD suma una tendencia destacada del indicador elegido, fuera de esta seccion)
+  const trends = page.getByRole("region", { name: strings["hud.trends"], exact: true });
   for (const ind of indicators) {
-    const chart = page.getByRole("img", { name: new RegExp(ind.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) });
+    const chart = trends.getByRole("img", { name: new RegExp(ind.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) });
     await expect.soft(chart, `chart role=img for ${ind.name}`).toHaveCount(1);
   }
-  await expect.soft(page.getByRole("img", { name: / trend: / })).toHaveCount(indicators.length);
+  await expect.soft(trends.getByRole("img", { name: / trend: / })).toHaveCount(indicators.length);
 
   // contadores = estado de la ultima lectura sembrada, calculado con el oracle independiente
   const counts: Record<Health | "unknown", number> = { normal: 0, attention: 0, critical: 0, unknown: 0 };
