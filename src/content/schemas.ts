@@ -86,7 +86,8 @@ export const Input = z.discriminatedUnion("kind", [
   }),
 ]);
 
-export const Frequency = z.object({ every_hours: z.number().nullable(), label: z.string() });
+// design_choice: la frecuencia es una decisión de DISEÑO de la app, no de una fuente (no cuenta como dato con fuente).
+export const Frequency = z.object({ every_hours: z.number().nullable(), label: z.string(), design_choice: z.boolean().optional() });
 
 export const Action = z.object({
   text: z.array(z.string()),

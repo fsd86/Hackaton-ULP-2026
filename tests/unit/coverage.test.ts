@@ -31,6 +31,13 @@ describe("indicatorCoverage", () => {
     expect(c.actions).toMatchObject({ sourced: 1, total: 3 });
   });
 
+  it("a frequency marked as a design choice never counts as sourced", () => {
+    const c = indicatorCoverage(
+      makeIndicator({ source_ids: ["s1"], frequency: { every_hours: 24, label: "Once a day (design choice).", design_choice: true } }),
+    );
+    expect(c.frequency).toBe("unsourced");
+  });
+
   it("without indicator-level sources no text datum counts as sourced", () => {
     const c = indicatorCoverage(makeIndicator({ source_ids: [] }));
     expect([c.how_to_measure, c.why_it_matters, c.frequency]).toEqual(["unsourced", "unsourced", "unsourced"]);

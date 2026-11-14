@@ -499,6 +499,7 @@
       "why_it_matters": "On the ISS, about 8.5 hours a day are set aside for sleep, yet studies measured closer to 6 hours. NASA counts inadequate sleep and irregular schedules among the risks of spaceflight. NASA crews fill in a sleep questionnaire after waking and wear a wrist activity monitor.",
       "frequency": {
         "_comment": "Design decision, not from a source (verifier S4).",
+        "design_choice": true,
         "every_hours": 24,
         "label": "Once a day, after waking (app design choice, not from a medical source)."
       },

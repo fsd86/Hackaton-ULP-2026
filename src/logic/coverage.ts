@@ -90,7 +90,8 @@ export function indicatorCoverage(ind: Indicator): IndicatorCoverage {
   const hasSources = ind.source_ids.length > 0;
   const how = textBacked(hasSources, ind.how_to_measure);
   const why = textBacked(hasSources, [ind.why_it_matters]);
-  const freq = textBacked(hasSources, [ind.frequency.label]);
+  // Una frecuencia marcada como decisión de diseño nunca cuenta como dato con fuente.
+  const freq: DatumState = ind.frequency.design_choice === true ? "unsourced" : textBacked(hasSources, [ind.frequency.label]);
   const rangeItems: RangeDatum[] = [
     ...ind.ranges.map((r) => ({ set: "primary" as const, status: r.status, state: rangeState(r) })),
     ...(ind.ranges_secondary ?? []).map((r) => ({ set: "secondary" as const, status: r.status, state: rangeState(r) })),
