@@ -69,7 +69,8 @@ export function CoverageSection({ coverage }: { coverage: CoverageReport }) {
           </h3>
           <p className="font-semibold">{t("coverage.total", { ...coverage.totals.indicators })}</p>
         </div>
-        <div className="mt-2 overflow-x-auto">
+        {/* Tabla con scroll horizontal en movil: enfocable con teclado y con nombre (axe scrollable-region-focusable). */}
+        <div tabIndex={0} role="region" aria-labelledby="coverage-indicators" className="mt-2 overflow-x-auto focus-visible:outline-offset-2">
           <table className="w-full min-w-[46rem] border-collapse text-sm">
             <thead>
               <tr>
@@ -107,7 +108,7 @@ export function CoverageSection({ coverage }: { coverage: CoverageReport }) {
             </h3>
             <p className="font-semibold">{t("coverage.total", { ...coverage.totals.protocols })}</p>
           </div>
-          <div className="mt-2 overflow-x-auto">
+          <div tabIndex={0} role="region" aria-labelledby="coverage-protocols" className="mt-2 overflow-x-auto focus-visible:outline-offset-2">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
@@ -134,7 +135,7 @@ export function CoverageSection({ coverage }: { coverage: CoverageReport }) {
             </h3>
             <p className="font-semibold">{t("coverage.total", { ...coverage.totals.environments })}</p>
           </div>
-          <div className="mt-2 overflow-x-auto">
+          <div tabIndex={0} role="region" aria-labelledby="coverage-environments" className="mt-2 overflow-x-auto focus-visible:outline-offset-2">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
