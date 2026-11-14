@@ -29,6 +29,8 @@
 
 - 2026-11-14 — Rediseño etapa 2A (tablero HUD, referencia `doc referencia/ref0-objetivo.png`, sin copiar textos ni números): `public/hero/body.webp` (2,4 MB PNG → 285 KB, `4de8c80`); `data/hazards.json` con los 5 hazards de NASA y fuente + `config/app.json` → `hero` (imagen, anclajes en %) (`38b8bbd`); HUD (`422d834`): cuerpo translúcido con `screen`, halo y plataforma girando, barrido de escaneo, puntos de zona accesibles; izquierda inclinada (Vital signs, estado por zona, tendencia destacada); derecha (detalle de zona con hazards y qué hacer, demora y respuesta de Tierra, hazards de NASA); estado general bajo el cuerpo; móvil en una columna; reduced motion apaga todo; sin imagen, cuerpo SVG. 3 iteraciones contra la referencia (mezcla "screen" rota por contextos de apilamiento, bordes luminosos, equilibrio de columnas). Unit 104/104, e2e 39/39, QA 62/63 (403 de CDC), axe 0 violaciones.
 
+- 2026-11-14 — 3 ajustes del HUD, un commit cada uno: anillos de la plataforma completos con el banner demo (`--hero-top` suma el banner, `3be42ef`); columnas laterales parejas (Delay & ground answer pasa a la izquierda y el último panel de cada columna crece hasta el borde, `41f23c4`); sin lecturas, el estado general sube al tope de la columna derecha y "Go to daily check" queda a 479 px a 1440x900 (`f92f3d6`). Lint OK, unit 104/104, e2e 39/39, QA 62/63 (403 de CDC), axe 0. Build final en `dist` (843 KB) listo para arrastrar a Netlify.
+
 ## En curso
 - Rediseño visual: etapa 2A commiteada; próximas etapas a definir.
 
