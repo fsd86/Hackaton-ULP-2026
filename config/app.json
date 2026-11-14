@@ -55,7 +55,7 @@
   "emergency_session_max_age_hours": 12,
   "disclaimer": "Earth Is Far is a decision-support tool. It does not replace a flight surgeon or a physician. If in doubt, contact medical professionals.",
   "hero": {
-    "_comment": "DISENO de UI (no medico). Imagen del cuerpo del tablero (en public/) y su tamano en px. zone_anchors, halo y platform son posiciones en % de la imagen (x, y; w = ancho). Si la imagen no carga, el tablero dibuja el cuerpo SVG.",
+    "_comment": "DISENO de UI (no medico). Imagen del cuerpo del tablero (en public/) y su tamano en px. zone_anchors, halo y platform son posiciones en % de la imagen (x, y; w = ancho). Si la imagen no carga, el tablero dibuja el cuerpo SVG. heat_radius: radio del resplandor del mapa de calor (% del ancho). zoom: recorte ampliado de la misma imagen en Zone details (scale = aumento, aspect = ancho/alto del recuadro, zone_scale pisa el aumento por zona; <= 1 muestra la imagen entera).",
     "image": "hero/body.webp",
     "width": 1024,
     "height": 1536,
@@ -68,7 +68,8 @@
     },
     "halo": { "x": 50, "y": 5.5, "w": 58 },
     "platform": { "x": 50, "y": 92, "w": 94 },
-    "heat_radius": 16
+    "heat_radius": 16,
+    "zoom": { "scale": 2.4, "aspect": 1.9, "zone_scale": { "body": 1, "arm": 1.8 } }
   },
   "hud": {
     "_comment": "DISENO de UI (no medico). pulse_trace: traza de pulso DECORATIVA (no es un ECG) en la fila del indicador indicator_id; solo la velocidad del dibujo sigue su ultima lectura, acotada a [min_bpm, max_bpm] para que la animacion sea legible; sin lectura usa idle_bpm. Estos limites no son umbrales medicos.",

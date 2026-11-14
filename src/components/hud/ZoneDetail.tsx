@@ -4,6 +4,7 @@ import { renderIndicatorText } from "../../logic/indicatorText";
 import { SourceLinks } from "../SourceLinks";
 import { StatusBadge } from "../StatusBadge";
 import type { FigureZone } from "../body/ZoneButton";
+import { ZoneZoom } from "./ZoneZoom";
 
 /**
  * Detalle de la zona elegida: sus indicadores con valor y estado, los hazards de NASA ligados (con fuente) y
@@ -29,6 +30,7 @@ export function ZoneDetail({
         <h3 className="font-mono text-base font-semibold uppercase tracking-[0.14em]">{t(`zone.${zone.zone}`)}</h3>
         {zone.worst !== "nodata" && <StatusBadge status={zone.worst} live={false} size="sm" />}
       </div>
+      <ZoneZoom zone={zone.zone} />
       <ul className="space-y-3">
         {zone.items.map((item) => {
           const ind = indicators.get(item.id);

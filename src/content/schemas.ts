@@ -207,6 +207,15 @@ export const HeroConfig = z.object({
   platform: z.object({ x: Pct, y: Pct, w: Pct }),
   // Mapa de calor: radio (en % del ancho de la imagen) del resplandor de cada zona segun su peor estado.
   heat_radius: Pct.default(16),
+  // Zoom del panel "Zone details": recorte ampliado de la MISMA imagen centrado en el ancla de la zona.
+  // scale = aumento (<= 1: imagen entera); aspect = ancho/alto del recuadro; zone_scale pisa scale por zona.
+  zoom: z
+    .object({
+      scale: z.number().positive().max(8),
+      aspect: z.number().positive().max(4),
+      zone_scale: z.record(BodyZone, z.number().positive().max(8)).default({}),
+    })
+    .optional(),
 });
 
 // ---- config/app.json → hud (DISENO de UI, no medico): graficos decorativos del tablero.
