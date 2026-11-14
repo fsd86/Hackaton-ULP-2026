@@ -39,13 +39,8 @@ export function Header({
           </div>
         </div>
 
-        <MainNav current={current} />
-
-        <div className="col-span-2 row-start-2 grid grid-cols-2 items-end gap-2 lg:ml-auto lg:flex lg:items-end lg:gap-3">
-          <EnvironmentSelect className="lg:w-44" />
-          <DelayBanner className="self-end lg:min-h-10" />
-        </div>
-
+        {/* Emergency va segundo en el DOM: es el primer foco del teclado en todos los tamaños (después del skip link).
+            En móvil coincide con el orden visual (arriba a la derecha); en lg+ se dibuja al final con lg:order-last. */}
         {content.app.features.emergency_guide && (
           <a
             href="#/emergency"
@@ -54,12 +49,19 @@ export function Header({
               e.preventDefault();
               onEmergency();
             }}
-            className="col-start-2 row-start-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-[var(--emergency-bg)] px-4 font-bold text-[var(--emergency-text)] shadow-[0_0_20px_color-mix(in_srgb,var(--emergency-bg)_55%,transparent)] hover:brightness-110 lg:self-end"
+            className="col-start-2 row-start-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-[var(--emergency-bg)] px-4 font-bold text-[var(--emergency-text)] shadow-[0_0_20px_color-mix(in_srgb,var(--emergency-bg)_55%,transparent)] hover:brightness-110 lg:order-last lg:self-end"
           >
             <StatusIcon name={theme.status_icons.critical} className="h-5 w-5" />
             {t("emergency.button")}
           </a>
         )}
+
+        <MainNav current={current} />
+
+        <div className="col-span-2 row-start-2 grid grid-cols-2 items-end gap-2 lg:ml-auto lg:flex lg:items-end lg:gap-3">
+          <EnvironmentSelect className="lg:w-44" />
+          <DelayBanner className="self-end lg:min-h-10" />
+        </div>
       </div>
     </header>
   );

@@ -75,8 +75,8 @@ for (const route of ROUTES_TO_AUDIT) {
 }
 
 test.describe("keyboard", () => {
-  // Rediseño: el header sigue el orden marca → pestañas → entorno → Emergency.
-  test("tab order: skip link, nav, environment select, Emergency; visible focus on every stop", async ({ page }, testInfo) => {
+  // Emergency es siempre el primer foco después del skip link; luego pestañas y entorno.
+  test("tab order: skip link, Emergency, nav, environment select; visible focus on every stop", async ({ page }, testInfo) => {
     await page.goto("/#/");
     await page.getByRole("heading", { level: 1, name: strings["board.title"] }).waitFor();
     const trail: FocusInfo[] = [];
@@ -90,11 +90,11 @@ test.describe("keyboard", () => {
     const env = idx((f) => f.tag === "SELECT");
     const emergency = idx((f) => f.name.includes(strings["emergency.button"]));
     expect.soft(skip, "skip link is the first tab stop").toBe(0);
-    expect.soft(env, "environment select reachable").toBeGreaterThan(skip);
-    expect.soft(emergency, "Emergency button reachable after the select").toBeGreaterThan(env);
+    expect.soft(emergency, "Emergency is the first stop after the skip link").toBe(skip + 1);
+    expect.soft(env, "environment select reachable").toBeGreaterThan(emergency);
     for (const label of NAV_LABELS) {
       const i = idx((f) => f.name === label);
-      expect.soft(i, `nav link "${label}" reachable within 14 tabs, after the skip link`).toBeGreaterThan(skip);
+      expect.soft(i, `nav link "${label}" reachable within 14 tabs, after Emergency`).toBeGreaterThan(emergency);
       expect.soft(i, `nav link "${label}" before the environment select`).toBeLessThan(env);
     }
     const weak = trail.filter((f) => !hasVisibleFocus(f)).map((f) => f.name || f.tag);
