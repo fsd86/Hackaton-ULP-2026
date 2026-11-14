@@ -13,7 +13,7 @@ export function DemoBanner() {
   return (
     <div role="status" className="sticky top-0 z-20">
       {active && (
-        <div className="border-b border-dashed border-[var(--status-attention)] bg-[var(--color-panel)]">
+        <div data-demo-banner className="border-b border-dashed border-[var(--status-attention)] bg-[var(--color-panel)]">
           {/* Móvil: una sola franja (título + texto corto + "Remove") para no tapar contenido al ser sticky.
               sm+: texto completo y botón con la etiqueta larga. */}
           <div className="mx-auto flex max-w-[1760px] items-center justify-between gap-x-3 px-4 py-1 sm:flex-wrap sm:gap-x-4 sm:gap-y-1 sm:py-1.5">

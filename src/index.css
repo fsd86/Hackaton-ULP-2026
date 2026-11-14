@@ -301,8 +301,16 @@ main:focus {
 @media (min-width: 1024px) {
   .hero-stage {
     /* Ancho limitado por la columna y por el alto de la ventana (--hero-hw = alto/ancho de la imagen). */
-    width: min(100%, calc((100vh - 12.5rem) / var(--hero-hw)), calc(880px / var(--hero-hw)));
+    width: min(100%, calc((100vh - var(--hero-top)) / var(--hero-hw)), calc(880px / var(--hero-hw)));
   }
+}
+/* Espacio vertical ocupado por encima del cuerpo (header, titulo y margenes); el banner DEMO DATA suma su alto
+   para que los anillos de la plataforma entren completos en la ventana. */
+:root {
+  --hero-top: 12.75rem;
+}
+:root:has([data-demo-banner]) {
+  --hero-top: 16.75rem;
 }
 .hero-glow {
   position: absolute;
