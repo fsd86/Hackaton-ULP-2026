@@ -33,6 +33,8 @@
 
 - 2026-11-14 — Etapa 2B del HUD (5 bloques, un commit cada uno): demo sembrada en la primera visita con flag `features.demo_on_first_visit` y marca `eif.demo_seeded` (nunca resiembra; chip DEMO una vez por panel) (`d4dd15e`); gráficos en paneles: traza de pulso decorativa "not an ECG", anillo de conteos, barras de lecturas, mapa de calor por peor estado de zona con leyenda icono+texto, líneas suaves monótonas (`572cf92`); cuerpo más grande con título compacto, anillos a 888 px a 1440x900 con banner, y el foco ya no salta al cargar (`0d6b7d3`); acentos cálidos `theme.warm` y fondo espacial por código `theme.space` (estrellas + horizonte) (`949c13e`); zoom de la zona en Zone details con la misma imagen (`4560488`). Tests e2e parten de visita ya sembrada (fixture) + test nuevo de primera visita; QA usa storageState con la marca. Lint OK, unit 108/108, e2e 41/41 (3 skip).
 
+- 2026-11-14 — QA de la etapa 2B: lint, build, unit, e2e y QA (axe, teclado, detector de hardcode, perf, seguridad) en verde salvo el 403 conocido de CDC (`cdc_bp`); axe 0 violaciones en 20 vistas, UNMAPPED-COUNT 0. Bug: con reduced motion las estrellas del fondo seguían parpadeando (`.space-star-tw` está fuera de `@layer components` y la regla de apagado, dentro del layer, perdía); arreglado con su propio bloque reduced-motion sin layer, más test QA nuevo `tests/qa/motion.spec.ts` que exige 0 animaciones corriendo (`document.getAnimations()`). Revisión visual a 1440x900 y Pixel 7: sin solapes ni overflow horizontal, mezcla del cuerpo OK, la barra de pestañas no tapa el pie. Capturas en `capturas/final2b-*.png`.
+
 ## En curso
 - Rediseño visual: etapa 2A commiteada; próximas etapas a definir.
 

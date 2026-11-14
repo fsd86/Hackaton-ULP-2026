@@ -111,6 +111,13 @@ body {
 .space-star-tw {
   animation: star-twinkle 4s ease-in-out infinite;
 }
+/* Esta regla esta fuera de @layer components: el bloque reduced-motion del final (dentro del layer) no le gana,
+   asi que el apagado del parpadeo va aca mismo, tambien sin layer. */
+@media (prefers-reduced-motion: reduce) {
+  .space-star-tw {
+    animation: none;
+  }
+}
 @keyframes star-twinkle {
   0%,
   100% {
