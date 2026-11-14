@@ -5,7 +5,7 @@ import { useEnvironment } from "../../hooks/useEnvironment";
 import { useStorageState } from "../../hooks/useStorageState";
 import { buildBoard } from "../../logic/board";
 import { isRouteEnabled } from "../../logic/features";
-import { parseStepRoute, stepTarget } from "../../logic/guidedDemo";
+import { localDateTimeInputValue, parseStepRoute, stepTarget } from "../../logic/guidedDemo";
 import {
   addGuidedDemoReadings,
   beginGuidedDemoSandbox,
@@ -42,6 +42,15 @@ function waitFor(selector: string, cancelled: () => boolean, timeoutMs = 3000): 
     };
     tick();
   });
+}
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/** Escribe en un input/textarea controlado por React como si fuera la persona (setter nativo + evento input). */
+function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement, value: string): void {
+  const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+  Object.getOwnPropertyDescriptor(proto, "value")?.set?.call(el, value);
+  el.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
 interface Run {
@@ -224,12 +233,31 @@ function GuidedDemoOverlay({
         if (!(el instanceof HTMLInputElement)) return;
         if (!el.checked) el.click();
       } else if (action.type === "fill_consult_demo") {
-        // Respuestas DEMO (choice o escala 0-10): se eligen como lo haria la persona, una por una.
+        // Respuestas DEMO de un tripulante ficticio: se completan como lo haria la persona, una por una (con una pausa
+        // corta para que cada cambio se guarde antes del siguiente y se vea en el video).
+        const gap = reduced ? 0 : 120;
         for (const a of scenario.consult?.demo_answers ?? []) {
-          const sel = `[data-question="${CSS.escape(a.question_id)}"] input[type="radio"][value="${CSS.escape(String(a.value))}"]`;
-          const el = await waitFor(sel, isCancelled);
-          if (!(el instanceof HTMLInputElement)) return;
-          if (!el.checked) el.click();
+          const base = `[data-question="${CSS.escape(a.question_id)}"]`;
+          if (!(await waitFor(base, isCancelled))) return;
+          if (a.value !== undefined) {
+            const el = await waitFor(`${base} input[type="radio"][value="${CSS.escape(String(a.value))}"]`, isCancelled);
+            if (!(el instanceof HTMLInputElement)) return;
+            if (!el.checked) el.click();
+            await sleep(gap);
+          }
+          if (a.minutes_ago !== undefined) {
+            const el = await waitFor(`${base} input[type="datetime-local"]`, isCancelled);
+            if (!(el instanceof HTMLInputElement)) return;
+            setNativeValue(el, localDateTimeInputValue(Date.now() - a.minutes_ago * 60_000));
+            await sleep(gap);
+          }
+          if (a.text !== undefined) {
+            const el = await waitFor(`${base} textarea`, isCancelled);
+            if (!(el instanceof HTMLTextAreaElement)) return;
+            setNativeValue(el, a.text);
+            await sleep(gap);
+          }
+          if (isCancelled()) return;
         }
       } else if (action.type === "mark_step_done") {
         const el = await waitFor('[data-gd="mark-done"]', isCancelled);

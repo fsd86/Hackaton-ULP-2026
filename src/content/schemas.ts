@@ -386,14 +386,26 @@ export const GuidedDemoFile = z.object({
     environment_id: z.string().min(1),
     alert_indicator_id: z.string().min(1),
     protocol_id: z.string().min(1),
-    // Opcional: One-shot consult de la demo. demo_answers son respuestas DEMO (no medicas) a preguntas de tipo
-    // choice (una de sus options) o scale_0_10 (entero 0-10); el loader verifica ids y valores contra data/consult.json.
+    // Opcional: One-shot consult de la demo. demo_answers son respuestas DEMO (no medicas) de un tripulante ficticio:
+    // value = una option (choice) o un entero 0-10 (scale_0_10); text = texto libre (free_text, o el detalle de
+    // with_text); minutes_ago = hora relativa (time). El loader verifica ids, tipos y valores contra data/consult.json.
     consult: z
       .object({
         _comment: Comment,
         symptom_id: z.string().min(1),
         demo_answers: z
-          .array(z.object({ question_id: z.string().min(1), value: z.union([z.string().min(1), z.number().int()]) }))
+          .array(
+            z
+              .object({
+                question_id: z.string().min(1),
+                value: z.union([z.string().min(1), z.number().int()]).optional(),
+                text: z.string().trim().min(1).optional(),
+                minutes_ago: z.number().int().nonnegative().optional(),
+              })
+              .refine((a) => a.value !== undefined || a.text !== undefined || a.minutes_ago !== undefined, {
+                message: "a demo answer needs value, text or minutes_ago",
+              }),
+          )
           .min(1),
       })
       .optional(),

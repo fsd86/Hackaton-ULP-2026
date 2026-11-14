@@ -78,16 +78,43 @@ export function checkGuidedDemo(
         const q = questions.find((x) => x.id === a.question_id);
         if (!q) {
           issues.push({ path: `${at}.question_id`, message: `question "${a.question_id}" is not in a question set of symptom "${symptom.id}"` });
-        } else if (q.answer.type === "choice") {
-          if (!q.answer.options.includes(String(a.value))) {
+          return;
+        }
+        const type = q.answer.type;
+        const withText = "with_text" in q.answer && q.answer.with_text === true;
+        type Field = "value" | "text" | "minutes_ago";
+        const required = (field: Field, why: string) => {
+          if (a[field] === undefined) issues.push({ path: `${at}.${field}`, message: `question "${q.id}" is "${type}": ${why}` });
+        };
+        const notAllowed = (field: Field, why: string) => {
+          if (a[field] !== undefined) issues.push({ path: `${at}.${field}`, message: `question "${q.id}" is "${type}": ${why}` });
+        };
+        const noTime = () => notAllowed("minutes_ago", "minutes_ago is only for time questions");
+        const noText = () => notAllowed("text", "it has no free-text detail");
+        if (q.answer.type === "choice") {
+          required("value", "it needs value (one of its options)");
+          if (a.value !== undefined && !q.answer.options.includes(String(a.value))) {
             issues.push({ path: `${at}.value`, message: `"${a.value}" is not an option of question "${q.id}" (${q.answer.options.join(", ")})` });
           }
+          noTime();
+          if (!withText) noText();
         } else if (q.answer.type === "scale_0_10") {
-          if (typeof a.value !== "number" || a.value < 0 || a.value > 10) {
+          required("value", "it needs value (an integer from 0 to 10)");
+          if (a.value !== undefined && (typeof a.value !== "number" || a.value < 0 || a.value > 10)) {
             issues.push({ path: `${at}.value`, message: `question "${q.id}" takes an integer from 0 to 10` });
           }
+          noText();
+          noTime();
+        } else if (q.answer.type === "free_text") {
+          required("text", "it needs text");
+          notAllowed("value", "use text");
+          noTime();
+        } else if (q.answer.type === "time") {
+          required("minutes_ago", "it needs minutes_ago (the demo time is relative to when the demo runs)");
+          notAllowed("value", "use minutes_ago");
+          if (!withText) noText();
         } else {
-          issues.push({ path: `${at}.question_id`, message: `question "${q.id}" is "${q.answer.type}"; demo answers only support "choice" and "scale_0_10"` });
+          issues.push({ path: `${at}.question_id`, message: `question "${q.id}" is filled in by the app ("auto"); demo answers cannot set it` });
         }
       });
     }
@@ -168,6 +195,13 @@ export function fillTokens(text: string, vars: Record<string, string>): string {
 /** Selector del paso con {zone}/{indicator} resueltos; null si el paso no destaca nada. */
 export function stepTarget(step: GuidedDemoStep, vars: { zone: string; indicator: string }): string | null {
   return step.target === null ? null : fillTokens(step.target, vars);
+}
+
+/** Valor de un input datetime-local (hora LOCAL, "YYYY-MM-DDTHH:MM") para un instante en ms. */
+export function localDateTimeInputValue(ms: number): string {
+  const d = new Date(ms);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
 /** Suma de las duraciones (la validacion exige que coincida con design_total_duration_ms). */

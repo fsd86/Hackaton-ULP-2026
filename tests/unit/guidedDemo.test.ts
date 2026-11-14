@@ -4,7 +4,7 @@ import demoReadings from "../../data/demo-readings.json";
 import { validateContent, type ContentError } from "../../src/content/load";
 import { AppConfig } from "../../src/content/schemas";
 import { evaluate } from "../../src/logic/evaluate";
-import { fillTokens, parseStepRoute, totalDuration } from "../../src/logic/guidedDemo";
+import { fillTokens, localDateTimeInputValue, parseStepRoute, totalDuration } from "../../src/logic/guidedDemo";
 import {
   addEmergencyLogEntry,
   addGuidedDemoReadings,
@@ -104,13 +104,40 @@ describe("data/guided-demo.json", () => {
     expect(errorsOf(bad)).toContainEqual(expect.objectContaining({ path: "steps[0].action.type" }));
   });
 
-  it("walks into the One-shot consult: open → symptom → demo answers, then ends on the report", () => {
+  it("clinical order: the conscious crewmate answers the consult BEFORE the collapse protocol, then the report", () => {
     const types = guidedDemo.steps.map((s) => (s as { action?: { type: string } }).action?.type);
     const open = types.indexOf("open_consult");
-    expect(open).toBeGreaterThan(types.lastIndexOf("mark_step_done"));
+    const fill = types.indexOf("fill_consult_demo");
+    const counter = guidedDemo.steps.findIndex((s) => s.target === "[data-testid=\"consult-counter\"]");
+    const emergencyButton = guidedDemo.steps.findIndex((s) => s.id === "emergency_button");
+    const protocol = types.indexOf("open_protocol");
+    expect(open).toBeGreaterThan(0);
     expect(types.indexOf("select_consult_symptom")).toBeGreaterThan(open);
-    expect(types.indexOf("fill_consult_demo")).toBeGreaterThan(types.indexOf("select_consult_symptom"));
-    expect(guidedDemo.steps.some((s) => s.target === "[data-testid=\"consult-counter\"]")).toBe(true);
+    expect(fill).toBeGreaterThan(types.indexOf("select_consult_symptom"));
+    expect(counter).toBeGreaterThan(fill);
+    // Nadie le pregunta a un tripulante inconsciente: todo el consult ocurre antes de Emergency y del protocolo.
+    expect(emergencyButton).toBeGreaterThan(counter);
+    expect(protocol).toBeGreaterThan(emergencyButton);
+    expect(types.lastIndexOf("mark_step_done")).toBeGreaterThan(protocol);
+    expect(guidedDemo.steps[guidedDemo.steps.length - 1]!.route).toBe("#/report");
+  });
+
+  it("the consult symptom links the CONSCIOUS chest-pain protocol and the demo answers fill complete sets", () => {
+    const r = validateContent(raw());
+    if (!r.ok) throw new Error("invalid");
+    const consult = r.content.consult!;
+    const symptom = consult.symptoms.find((s) => s.id === guidedDemo.scenario.consult.symptom_id)!;
+    expect(symptom.open_protocol_id).toBe("crew_chest_pain_conscious");
+    const answered = new Set(guidedDemo.scenario.consult.demo_answers.map((a) => a.question_id));
+    for (const setId of ["opqrst", "pain_scale"]) {
+      const set = consult.question_sets.find((s) => s.id === setId)!;
+      for (const q of set.questions) expect(answered.has(q.id), `${setId}.${q.id}`).toBe(true);
+    }
+  });
+
+  it("localDateTimeInputValue formats local time for a datetime-local input", () => {
+    const ms = new Date(2026, 10, 14, 9, 5).getTime();
+    expect(localDateTimeInputValue(ms)).toBe("2026-11-14T09:05");
   });
 
   it("consult scenario: unknown symptom, unknown question, invalid option and unsupported type are reported", () => {
@@ -122,14 +149,21 @@ describe("data/guided-demo.json", () => {
       { question_id: "injury_loc", value: "No" }, // set "injury" no esta en chest_pain
       { question_id: "o_how", value: "Maybe" },
       { question_id: "pain_now", value: 11 },
-      { question_id: "p", value: "x" }, // free_text
+      { question_id: "p", value: "x" }, // free_text: va en text
+      { question_id: "o_when", text: "x" }, // time: necesita minutes_ago
+      { question_id: "pain_now", value: 3, text: "x" }, // escala sin detalle de texto
+      { question_id: "timestamp", text: "x" }, // auto: lo completa la app
     ];
     expect(errorsOf(q).map((e) => e.path)).toEqual(
       expect.arrayContaining([
         "scenario.consult.demo_answers[0].question_id",
         "scenario.consult.demo_answers[1].value",
         "scenario.consult.demo_answers[2].value",
-        "scenario.consult.demo_answers[3].question_id",
+        "scenario.consult.demo_answers[3].value",
+        "scenario.consult.demo_answers[3].text",
+        "scenario.consult.demo_answers[4].minutes_ago",
+        "scenario.consult.demo_answers[5].text",
+        "scenario.consult.demo_answers[6].question_id",
       ]),
     );
   });

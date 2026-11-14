@@ -1,14 +1,24 @@
 {
-  "_comment": "Guion del modo Guided demo (para grabar el video). No es contenido medico: solo recorre la app con los datos DEMO (data/demo-readings.json). design_total_duration_ms es un parametro de DISENO (no medico): duracion pensada del recorrido (~90 s) y debe ser la suma de steps[].duration_ms. scenario: entorno, indicador de la alerta y protocolo; las acciones usan esos ids. route = hash de la vista; target = selector CSS a destacar (admite {zone} e {indicator}); caption_key = clave de config/strings.en.json (admite {environment}, {indicator}, {status}, {zone}, {protocol}, {symptom}). Acciones: set_environment, select_alert_zone, open_protocol (abre una sesion de emergencia nueva y temporal), mark_step_done (marca el paso actual; el log se restaura al salir), open_consult (abre un borrador NUEVO del One-shot consult en #/report), select_consult_symptom (elige scenario.consult.symptom_id), fill_consult_demo (elige scenario.consult.demo_answers). El borrador del consult se restaura al salir (no quedan restos).",
+  "_comment": "Guion del modo Guided demo (para grabar el video). No es contenido medico: solo recorre la app con los datos DEMO (data/demo-readings.json). design_total_duration_ms es un parametro de DISENO (no medico): duracion pensada del recorrido (~90 s) y debe ser la suma de steps[].duration_ms. scenario: entorno, indicador de la alerta y protocolo; las acciones usan esos ids. route = hash de la vista; target = selector CSS a destacar (admite {zone} e {indicator}); caption_key = clave de config/strings.en.json (admite {environment}, {indicator}, {status}, {zone}, {protocol}, {symptom}). Acciones: set_environment, select_alert_zone, open_protocol (abre una sesion de emergencia nueva y temporal), mark_step_done (marca el paso actual; el log se restaura al salir), open_consult (abre un borrador NUEVO del One-shot consult en #/report), select_consult_symptom (elige scenario.consult.symptom_id), fill_consult_demo (completa scenario.consult.demo_answers). El borrador del consult se restaura al salir (no quedan restos). Orden de la historia (video del desafio, docs/00-desafio.md): alerta de pulso -> el tripulante esta CONSCIENTE con dolor de pecho y responde el consult -> contador -> despues COLAPSA -> Emergency y protocolo de colapso -> Downlink report con consult, log y ventana de respuesta. Nunca se le pregunta a alguien inconsciente.",
   "design_total_duration_ms": 90000,
   "scenario": {
     "environment_id": "spacecraft",
     "alert_indicator_id": "heart_rate",
     "protocol_id": "crew_collapse_chest_pain",
     "consult": {
-      "_comment": "Respuestas DEMO para mostrar el contador (no son contenido medico ni de un paciente real): solo preguntas choice o scale_0_10 de data/consult.json, una por set para que cuenten dos sets. Son cosas que el companero puede observar o saber del legajo de la tripulacion (inicio repentino, sin alergias conocidas).",
+      "_comment": "Respuestas DEMO de un tripulante FICTICIO, dadas mientras esta consciente (no son contenido medico, ni consejo medico, ni de un paciente real). value = option (choice) o entero 0-10; text = texto libre; minutes_ago = hora relativa (time). OPQRST y Pain scale quedan COMPLETOS (cuentan para el contador); de SAMPLE solo se responde alergias, asi que ese set no cuenta (muestra la regla de sets completos).",
       "symptom_id": "chest_pain",
-      "demo_answers": [{ "question_id": "o_how", "value": "Suddenly" }, { "question_id": "a_allergies", "value": "No" }]
+      "demo_answers": [
+        { "question_id": "o_when", "minutes_ago": 5, "text": "Demo answer: working at the console, seated." },
+        { "question_id": "o_how", "value": "Suddenly" },
+        { "question_id": "p", "text": "Demo answer: nothing makes it better so far; resting does not change it." },
+        { "question_id": "q", "text": "Demo answer: pressure." },
+        { "question_id": "r", "text": "Demo answer: centre of the chest. Not sure if it spreads." },
+        { "question_id": "t", "value": "Constant", "text": "Demo answer: the same since it started." },
+        { "question_id": "pain_now", "value": 6 },
+        { "question_id": "pain_words", "value": "Moderate" },
+        { "question_id": "a_allergies", "value": "No" }
+      ]
     }
   },
   "steps": [
@@ -16,15 +26,15 @@
     { "id": "board", "route": "#/", "target": "[data-gd=\"overall\"]", "caption_key": "guided_demo.step.board", "duration_ms": 5000 },
     { "id": "alert_zone", "route": "#/", "target": "[data-zone=\"{zone}\"]", "caption_key": "guided_demo.step.alert_zone", "duration_ms": 6000, "action": { "type": "select_alert_zone" } },
     { "id": "alert_vital", "route": "#/", "target": "[data-vital-id=\"{indicator}\"]", "caption_key": "guided_demo.step.alert_vital", "duration_ms": 5000 },
-    { "id": "ground_answer", "route": "#/", "target": "[data-gd=\"ground-answer\"]", "caption_key": "guided_demo.step.ground_answer", "duration_ms": 6000 },
-    { "id": "emergency_button", "route": "#/", "target": "[data-gd=\"emergency-button\"]", "caption_key": "guided_demo.step.emergency_button", "duration_ms": 4000 },
-    { "id": "protocol_open", "route": "#/emergency/crew_collapse_chest_pain", "target": "#em-step-title", "caption_key": "guided_demo.step.protocol_open", "duration_ms": 7000, "action": { "type": "open_protocol" } },
+    { "id": "ground_answer", "route": "#/", "target": "[data-gd=\"ground-answer\"]", "caption_key": "guided_demo.step.ground_answer", "duration_ms": 5000 },
+    { "id": "consult_open", "route": "#/report", "target": "[data-testid=\"consult\"]", "caption_key": "guided_demo.step.consult_open", "duration_ms": 6000, "action": { "type": "open_consult" } },
+    { "id": "consult_symptom", "route": "#/report", "target": "[data-testid=\"consult-protocol-first\"]", "caption_key": "guided_demo.step.consult_symptom", "duration_ms": 6000, "action": { "type": "select_consult_symptom" } },
+    { "id": "consult_answers", "route": "#/report", "target": "[data-module=\"opqrst\"]", "caption_key": "guided_demo.step.consult_answers", "duration_ms": 8000, "action": { "type": "fill_consult_demo" } },
+    { "id": "consult_counter", "route": "#/report", "target": "[data-testid=\"consult-counter\"]", "caption_key": "guided_demo.step.consult_counter", "duration_ms": 9000 },
+    { "id": "emergency_button", "route": "#/", "target": "[data-gd=\"emergency-button\"]", "caption_key": "guided_demo.step.emergency_button", "duration_ms": 5000 },
+    { "id": "protocol_open", "route": "#/emergency/crew_collapse_chest_pain", "target": "#em-step-title", "caption_key": "guided_demo.step.protocol_open", "duration_ms": 6000, "action": { "type": "open_protocol" } },
     { "id": "protocol_step_2", "route": "#/emergency/crew_collapse_chest_pain", "target": "#em-step-title", "caption_key": "guided_demo.step.protocol_step", "duration_ms": 5000, "action": { "type": "mark_step_done" } },
     { "id": "protocol_log", "route": "#/emergency/crew_collapse_chest_pain", "target": "[data-testid=\"emergency-log\"]", "caption_key": "guided_demo.step.protocol_log", "duration_ms": 5000, "action": { "type": "mark_step_done" } },
-    { "id": "consult_open", "route": "#/report", "target": "[data-testid=\"consult\"]", "caption_key": "guided_demo.step.consult_open", "duration_ms": 6000, "action": { "type": "open_consult" } },
-    { "id": "consult_symptom", "route": "#/report", "target": "[data-gd=\"consult-symptoms\"]", "caption_key": "guided_demo.step.consult_symptom", "duration_ms": 6000, "action": { "type": "select_consult_symptom" } },
-    { "id": "consult_answers", "route": "#/report", "target": "[data-question=\"o_how\"]", "caption_key": "guided_demo.step.consult_answers", "duration_ms": 7000, "action": { "type": "fill_consult_demo" } },
-    { "id": "consult_counter", "route": "#/report", "target": "[data-testid=\"consult-counter\"]", "caption_key": "guided_demo.step.consult_counter", "duration_ms": 10000 },
-    { "id": "report", "route": "#/report", "target": "[data-gd=\"report-eta\"]", "caption_key": "guided_demo.step.report", "duration_ms": 12000 }
+    { "id": "report", "route": "#/report", "target": "[data-gd=\"report-eta\"]", "caption_key": "guided_demo.step.report", "duration_ms": 13000 }
   ]
 }

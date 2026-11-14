@@ -11,7 +11,7 @@ const demo = read<{
     environment_id: string;
     alert_indicator_id: string;
     protocol_id: string;
-    consult?: { symptom_id: string; demo_answers: Array<{ question_id: string; value: string | number }> };
+    consult?: { symptom_id: string; demo_answers: Array<{ question_id: string; value?: string | number; text?: string; minutes_ago?: number }> };
   };
   steps: Array<{ id: string; route: string; target: string | null; caption_key: string; duration_ms: number }>;
 }>("data/guided-demo.json");
@@ -84,14 +84,21 @@ test("guided demo: Next through every step, then Esc restores focus and leaves n
       await expect(page.locator(`input[name="consult-symptom"][value="${symptom!.id}"]`)).toBeChecked();
     }
     if (step.id === "consult_counter") {
-      // Las respuestas DEMO quedaron elegidas y el contador ya cuenta round trips (no el texto "sin respuestas").
+      // Las respuestas DEMO (del tripulante consciente) quedaron completadas y el contador ya cuenta round trips.
       for (const a of demo.scenario.consult!.demo_answers) {
-        await expect(page.locator(`[data-question="${a.question_id}"] input[value="${a.value}"]`)).toBeChecked();
+        const q = page.locator(`[data-question="${a.question_id}"]`);
+        if (a.value !== undefined) await expect(q.locator(`input[value="${a.value}"]`), a.question_id).toBeChecked();
+        if (a.text !== undefined) await expect(q.locator("textarea"), a.question_id).toHaveValue(a.text);
+        if (a.minutes_ago !== undefined) await expect(q.locator('input[type="datetime-local"]'), a.question_id).not.toHaveValue("");
       }
       await expect(page.getByTestId("consult-counter-headline")).not.toHaveText(strings["consult.counter.none"]!);
-      await expect(page.getByTestId("consult-counter-headline")).toContainText(
-        strings["consult.counter.trips_other"]!.replace("{n}", String(demo.scenario.consult!.demo_answers.length)),
-      );
+      // Todavia no hubo colapso: no hay sesion de emergencia de la demo.
+      expect(await page.evaluate(() => localStorage.getItem("eif.emergency_session"))).toBeNull();
+    }
+    if (step.id === "report") {
+      // El informe final lleva el consult (respondido antes del colapso) y el log del protocolo.
+      await expect(page.getByTestId("consult")).toBeVisible();
+      await expect(page.locator(`input[name="consult-symptom"][value="${symptom!.id}"]`)).toBeChecked();
     }
     if (i < total - 1) await panel.getByRole("button", { name: strings["guided_demo.next"], exact: true }).click();
   }
