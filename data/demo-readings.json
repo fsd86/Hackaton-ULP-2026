@@ -1,0 +1,32 @@
+{
+  "_comment": "DEMO DATA — synthetic sample readings for demonstration, not real measurements. minutes_ago is relative to the moment the demo is loaded. The status of each reading is not stored here: the app evaluates it from the indicator ranges, like any real reading.",
+  "readings": [
+    { "indicator_id": "heart_rate", "value": 72, "minutes_ago": 2820 },
+    { "indicator_id": "heart_rate", "value": 76, "minutes_ago": 1680 },
+    { "indicator_id": "heart_rate", "value": 84, "minutes_ago": 900 },
+    { "indicator_id": "heart_rate", "value": 91, "minutes_ago": 360 },
+    { "indicator_id": "heart_rate", "value": 104, "minutes_ago": 45 },
+
+    { "indicator_id": "blood_pressure", "value": [114, 72], "minutes_ago": 2700 },
+    { "indicator_id": "blood_pressure", "value": [118, 76], "minutes_ago": 1500 },
+    { "indicator_id": "blood_pressure", "value": [116, 74], "minutes_ago": 600 },
+    { "indicator_id": "blood_pressure", "value": [118, 76], "minutes_ago": 120 },
+
+    { "indicator_id": "blood_glucose", "value": 92, "minutes_ago": 2400 },
+    { "indicator_id": "blood_glucose", "value": 85, "minutes_ago": 1200 },
+    { "indicator_id": "blood_glucose", "value": 76, "minutes_ago": 480 },
+    { "indicator_id": "blood_glucose", "value": 68, "minutes_ago": 60 },
+
+    { "indicator_id": "body_temperature", "value": 36.6, "minutes_ago": 1800 },
+    { "indicator_id": "body_temperature", "value": 36.8, "minutes_ago": 700 },
+    { "indicator_id": "body_temperature", "value": 36.7, "minutes_ago": 90 },
+
+    { "indicator_id": "sleep_hours", "value": 7.5, "minutes_ago": 2700 },
+    { "indicator_id": "sleep_hours", "value": 7.25, "minutes_ago": 1260 },
+    { "indicator_id": "sleep_hours", "value": 6.25, "minutes_ago": 420 },
+
+    { "indicator_id": "mood", "value": 4, "minutes_ago": 1800 },
+    { "indicator_id": "mood", "value": 3, "minutes_ago": 700 },
+    { "indicator_id": "mood", "value": 4, "minutes_ago": 100 }
+  ]
+}

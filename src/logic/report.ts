@@ -66,6 +66,8 @@ export interface ReportJson {
   emergency_actions: ReportEmergencyJson[];
   information_to_include: Array<{ protocol_id: string; protocol_title: string; fields: string[] }>;
   has_placeholders: boolean;
+  /** El informe incluye lecturas sinteticas de demostracion (no mediciones reales). */
+  has_demo: boolean;
   disclaimer: string;
 }
 
@@ -73,6 +75,7 @@ export interface Report {
   text: string;
   json: ReportJson;
   hasPlaceholders: boolean;
+  hasDemo: boolean;
 }
 
 export function buildReport(input: ReportInput): Report {
@@ -165,6 +168,8 @@ export function buildReport(input: ReportInput): Report {
     [...usedIndicators].some((id) => indicatorById.get(id)?.status === "PLACEHOLDER") ||
     usedProtocols.some((p) => p.status === "PLACEHOLDER");
 
+  const hasDemo = inPeriod.some((r) => r.demo === true);
+
   const generatedText = t("report.generated_at", { time: dateTime(nowMs) });
   const json: ReportJson = {
     app_name: content.app.app_name,
@@ -177,10 +182,11 @@ export function buildReport(input: ReportInput): Report {
     emergency_actions: emergency,
     information_to_include: info,
     has_placeholders: hasPlaceholders,
+    has_demo: hasDemo,
     disclaimer: content.app.disclaimer,
   };
 
-  return { text: renderText(json, t, hasPlaceholders, etaText), json, hasPlaceholders };
+  return { text: renderText(json, t, hasPlaceholders, etaText), json, hasPlaceholders, hasDemo };
 }
 
 function renderText(json: ReportJson, t: TFunction, hasPlaceholders: boolean, etaText: string): string {
@@ -221,7 +227,11 @@ function renderText(json: ReportJson, t: TFunction, hasPlaceholders: boolean, et
     }
   }
 
-  if (hasPlaceholders) lines.push("", t("report.warnings").toUpperCase(), t("report.placeholder_warning"));
+  if (hasPlaceholders || json.has_demo) {
+    lines.push("", t("report.warnings").toUpperCase());
+    if (hasPlaceholders) lines.push(t("report.placeholder_warning"));
+    if (json.has_demo) lines.push(t("report.demo_warning"));
+  }
   lines.push("", `${t("disclaimer.label")}: ${json.disclaimer}`);
   return lines.join("\n");
 }

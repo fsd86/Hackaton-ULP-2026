@@ -2,10 +2,9 @@ import { useContent } from "../content/ContentContext";
 import { useEnvironment } from "../hooks/useEnvironment";
 import { classifyDelay, formatDelay } from "../logic/delay";
 import { PlaceholderBadge } from "./PlaceholderBadge";
-import { SourceLinks } from "./SourceLinks";
 
-/** Elemento-firma: demora de comunicación solo ida del entorno actual, siempre visible bajo el header. */
-export function DelayBanner() {
+/** Elemento-firma: demora de comunicación (solo ida) del entorno actual, compacta y siempre visible en la barra superior. */
+export function DelayBanner({ className = "" }: { className?: string }) {
   const { t } = useContent();
   const { environment } = useEnvironment();
   const delay = environment.comm_delay_one_way_s;
@@ -14,52 +13,23 @@ export function DelayBanner() {
   const isPlaceholder = environment.status === "PLACEHOLDER" || kind === "unknown";
 
   return (
-    <section
-      aria-label={t("environment.delay.label")}
-      className="mission-grid border-b border-[var(--color-line)] bg-[var(--color-panel)]"
-    >
-      <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-2 md:flex-row md:py-4 md:items-center md:gap-8">
-        <div className="min-w-0 md:flex-1">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-            {t("environment.delay.label")}
-          </p>
-          <p aria-live="polite" className="mt-1 text-2xl font-bold leading-tight sm:text-3xl">
-            <span className="sr-only">{t("environment.delay.sr_prefix")} </span>
-            {text}
-          </p>
-          {isPlaceholder && <PlaceholderBadge className="mt-2" />}
-          <SourceLinks ids={delay.source_ids} label={t("sources.delay_sources")} className="mt-2 block" />
-        </div>
-        {/* Enlace visual nave—Tierra: decorativo, el dato está en el texto. */}
-        <div aria-hidden="true" className="flex items-center gap-3 md:w-72">
-          <span className="h-4 w-4 shrink-0 rounded-sm border-2 border-[var(--color-muted)]" />
-          <span className="relative h-0.5 flex-1 bg-[var(--color-line)]">
-            <span className="signal-dot" />
-          </span>
-          <span className="h-5 w-5 shrink-0 rounded-full border-2 border-[var(--color-accent)]" />
-        </div>
+    <div className={`glass flex min-w-0 items-center gap-3 rounded-sm px-3 py-1.5 ${className}`}>
+      {/* Enlace visual nave—Tierra: decorativo, el dato está en el texto. */}
+      <div aria-hidden="true" className="hidden w-14 shrink-0 items-center gap-1.5 sm:flex">
+        <span className="h-2.5 w-2.5 shrink-0 rounded-[1px] border border-[var(--color-muted)]" />
+        <span className="relative h-px flex-1 bg-[var(--color-line)]">
+          <span className="signal-dot" />
+        </span>
+        <span className="h-3 w-3 shrink-0 rounded-full border border-[var(--color-accent)]" />
       </div>
-      <details className="mx-auto max-w-5xl px-4 pb-2">
-        <summary className="inline-flex min-h-11 cursor-pointer items-center gap-2 font-bold">
-          {t("environment.description")}
-        </summary>
-        <div className="space-y-2 pb-2">
-          {environment.status === "PLACEHOLDER" && <PlaceholderBadge />}
-          <p>{environment.description}</p>
-          <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">
-            {t("environment.equipment")}
-          </p>
-          {environment.available_equipment.length === 0 ? (
-            <p className="text-[var(--color-muted)]">{t("environment.equipment.none")}</p>
-          ) : (
-            <ul className="list-disc pl-6">
-              {environment.available_equipment.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </details>
-    </section>
+      <div className="min-w-0">
+        <p className="eyebrow !text-[0.62rem] leading-tight">{t("environment.delay.label")}</p>
+        <p aria-live="polite" className="text-sm font-semibold leading-tight">
+          <span className="sr-only">{t("environment.delay.sr_prefix")} </span>
+          {text}
+        </p>
+      </div>
+      {isPlaceholder && <PlaceholderBadge short className="shrink-0" />}
+    </div>
   );
 }

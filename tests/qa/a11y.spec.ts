@@ -75,7 +75,8 @@ for (const route of ROUTES_TO_AUDIT) {
 }
 
 test.describe("keyboard", () => {
-  test("tab order: skip link, environment select, Emergency, nav; visible focus on every stop", async ({ page }, testInfo) => {
+  // Rediseño: el header sigue el orden marca → pestañas → entorno → Emergency.
+  test("tab order: skip link, nav, environment select, Emergency; visible focus on every stop", async ({ page }, testInfo) => {
     await page.goto("/#/");
     await page.getByRole("heading", { level: 1, name: strings["board.title"] }).waitFor();
     const trail: FocusInfo[] = [];
@@ -93,7 +94,8 @@ test.describe("keyboard", () => {
     expect.soft(emergency, "Emergency button reachable after the select").toBeGreaterThan(env);
     for (const label of NAV_LABELS) {
       const i = idx((f) => f.name === label);
-      expect.soft(i, `nav link "${label}" reachable within 14 tabs, after Emergency`).toBeGreaterThan(emergency);
+      expect.soft(i, `nav link "${label}" reachable within 14 tabs, after the skip link`).toBeGreaterThan(skip);
+      expect.soft(i, `nav link "${label}" before the environment select`).toBeLessThan(env);
     }
     const weak = trail.filter((f) => !hasVisibleFocus(f)).map((f) => f.name || f.tag);
     expect.soft(weak, "tab stops without a visible focus indicator").toEqual([]);

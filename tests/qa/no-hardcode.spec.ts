@@ -60,7 +60,7 @@ test("strings.en.json: nav labels, skip link, view titles", async ({ page }) => 
 
 test("environments.json: selector options = environment names, in order", async ({ page }) => {
   await page.goto("/#/");
-  const options = await page.getByLabel(strings["environment.label"], { exact: true }).locator("option").allInnerTexts();
+  const options = await page.getByRole("combobox", { name: strings["environment.label"], exact: true }).locator("option").allInnerTexts();
   expect(options).toEqual(environments.map((e) => e.name));
 });
 

@@ -9,6 +9,8 @@ export interface Reading {
   value: ReadingValue;
   environmentId: string;
   timestamp: number; // epoch ms
+  /** true = lectura sintetica de demostracion (data/demo-readings.json), no una medicion real. */
+  demo?: boolean;
 }
 
 export interface EmergencyLogEntry {
@@ -93,6 +95,7 @@ const ReadingSchema = z.object({
   value: z.union([num, z.tuple([num, num])]),
   environmentId: z.string(),
   timestamp: num,
+  demo: z.boolean().optional(),
 });
 const EmergencyLogEntrySchema = z.object({
   protocolId: z.string(),
@@ -115,9 +118,11 @@ export interface StorageState {
   issues: StorageIssues;
   /** Se incrementa con clearAll(): las vistas con estado local se remontan con esta clave. */
   version: number;
+  /** Se incrementa al cargar/quitar datos demo: las vistas que leen lecturas se refrescan sin remontarse. */
+  readingsRev: number;
 }
 
-let state: StorageState = { issues: { total: 0, byKey: {} }, version: 0 };
+let state: StorageState = { issues: { total: 0, byKey: {} }, version: 0, readingsRev: 0 };
 const listeners = new Set<() => void>();
 
 function emit(next: StorageState): void {
@@ -213,6 +218,27 @@ export function addReading(input: Omit<Reading, "id" | "timestamp"> & { timestam
   return reading;
 }
 
+/** Lectura demo a guardar: sin id (se genera) y con timestamp ya resuelto. */
+export type DemoReadingInput = Omit<Reading, "id" | "demo">;
+
+/** Agrega lecturas sinteticas marcadas demo: true y avisa a las vistas (readingsRev++). */
+export function addDemoReadings(items: DemoReadingInput[]): void {
+  const added: Reading[] = items.map((i) => ({ ...i, id: newId(), demo: true }));
+  writeRaw(KEYS.readings, JSON.stringify([...getReadings(), ...added]));
+  emit({ ...state, readingsRev: state.readingsRev + 1 });
+}
+
+/** Quita solo las lecturas demo; las reales se conservan. */
+export function removeDemoReadings(): void {
+  const rest = getReadings().filter((r) => r.demo !== true);
+  writeRaw(KEYS.readings, JSON.stringify(rest));
+  emit({ ...state, readingsRev: state.readingsRev + 1 });
+}
+
+export function hasDemoReadings(): boolean {
+  return getReadings().some((r) => r.demo === true);
+}
+
 export function getEmergencyLog(): EmergencyLogEntry[] {
   return readList<EmergencyLogEntry>(KEYS.emergencyLog, "emergency_log", EmergencyLogEntrySchema);
 }
@@ -251,7 +277,7 @@ export function setEnvironmentId(id: string): void {
 /** Borra todo lo guardado, cierra el aviso de descartes y avisa (version++) para remontar las vistas. */
 export function clearAll(): void {
   for (const key of Object.values(KEYS)) removeRaw(key);
-  emit({ issues: { total: 0, byKey: {} }, version: state.version + 1 });
+  emit({ issues: { total: 0, byKey: {} }, version: state.version + 1, readingsRev: state.readingsRev + 1 });
 }
 
 /** Lee todas las claves una vez (al arrancar) para limpiar lo corrupto y registrar los descartes. */

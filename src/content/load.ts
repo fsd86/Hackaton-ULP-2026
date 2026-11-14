@@ -3,17 +3,20 @@ import sourcesRaw from "../../data/sources.json";
 import indicatorsRaw from "../../data/indicators.json";
 import environmentsRaw from "../../data/environments.json";
 import protocolsRaw from "../../data/protocols.json";
+import demoRaw from "../../data/demo-readings.json";
 import appRaw from "../../config/app.json";
 import stringsRaw from "../../config/strings.en.json";
 import { ESCALATION_MESSAGE_KEYS } from "../logic/escalation";
 import { resolveToken, templateTokens } from "../logic/indicatorText";
 import {
   AppConfig,
+  DemoReadingsFile,
   EnvironmentsFile,
   IndicatorsFile,
   ProtocolsFile,
   SourcesFile,
   Strings,
+  type DemoReading,
   type Environment,
   type Indicator,
   type Protocol,
@@ -34,6 +37,8 @@ export interface Content {
   protocols: Protocol[];
   app: AppConfig;
   strings: Strings;
+  /** Lecturas sinteticas de data/demo-readings.json ([] si el archivo no se entrega). */
+  demoReadings: DemoReading[];
 }
 
 export interface RawContent {
@@ -43,6 +48,8 @@ export interface RawContent {
   protocols: unknown;
   app: unknown;
   strings: unknown;
+  /** Opcional: los tests antiguos no lo pasan. */
+  demoReadings?: unknown;
 }
 
 export type LoadResult = { ok: true; content: Content } | { ok: false; errors: ContentError[] };
@@ -54,6 +61,7 @@ export const FILES = {
   protocols: "data/protocols.json",
   app: "config/app.json",
   strings: "config/strings.en.json",
+  demoReadings: "data/demo-readings.json",
 } as const;
 
 /** ["indicators", 2, "ranges", 0, "min"] → "indicators[2].ranges[0].min" */
@@ -182,7 +190,10 @@ export function validateContent(raw: RawContent): LoadResult {
   const protocolsFile = parseFile(ProtocolsFile, raw.protocols, FILES.protocols, errors);
   const app = parseFile(AppConfig, raw.app, FILES.app, errors);
   const strings = parseFile(Strings, raw.strings, FILES.strings, errors);
+  const demoFile =
+    raw.demoReadings === undefined ? { readings: [] as DemoReading[] } : parseFile(DemoReadingsFile, raw.demoReadings, FILES.demoReadings, errors);
 
+  if (!demoFile) return { ok: false, errors };
   if (!sourcesFile || !indicatorsFile || !environmentsFile || !protocolsFile || !app || !strings) {
     return { ok: false, errors };
   }
@@ -279,6 +290,23 @@ export function validateContent(raw: RawContent): LoadResult {
     p.steps.forEach((s, k) => checkSources(s.source_ids, FILES.protocols, [...base, "steps", k]));
   });
 
+  demoFile.readings.forEach((r, i) => {
+    const ind = indicators.find((x) => x.id === r.indicator_id);
+    if (!ind) {
+      errors.push({
+        file: FILES.demoReadings,
+        path: formatPath(["readings", i, "indicator_id"]),
+        message: `indicator "${r.indicator_id}" does not exist in ${FILES.indicators}`,
+      });
+    } else if (Array.isArray(r.value) !== (ind.input.kind === "pair")) {
+      errors.push({
+        file: FILES.demoReadings,
+        path: formatPath(["readings", i, "value"]),
+        message: `value shape does not match the input kind "${ind.input.kind}" of indicator "${ind.id}"`,
+      });
+    }
+  });
+
   if (!environmentIds.has(app.default_environment)) {
     errors.push({
       file: FILES.app,
@@ -294,7 +322,7 @@ export function validateContent(raw: RawContent): LoadResult {
   }
 
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, content: { sources, indicators, environments, protocols, app, strings } };
+  return { ok: true, content: { sources, indicators, environments, protocols, app, strings, demoReadings: demoFile.readings } };
 }
 
 let cached: LoadResult | undefined;
@@ -308,6 +336,7 @@ export function loadContent(): LoadResult {
     protocols: protocolsRaw,
     app: appRaw,
     strings: stringsRaw,
+    demoReadings: demoRaw,
   });
   return cached;
 }

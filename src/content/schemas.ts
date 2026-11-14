@@ -93,6 +93,12 @@ export const Action = z.object({
 
 export const Hazard = z.enum(["radiation", "isolation", "distance", "gravity", "environment"]);
 
+// Iconos propios disponibles para las tarjetas de indicador (src/components/IndicatorIcon.tsx).
+export const IndicatorIconName = z.enum(["heart", "gauge", "drop", "thermometer", "moon", "smile", "pulse"]);
+
+// Zonas de la figura del cuerpo del tablero (DISENO de UI, no medico).
+export const BodyZone = z.enum(["head", "chest", "abdomen", "arm", "body"]);
+
 export const Indicator = z
   .object({
     id: z.string(),
@@ -100,6 +106,10 @@ export const Indicator = z
     unit: z.string(),
     category: z.string(),
     hazards: z.array(Hazard).default([]),
+    // Zona de la figura del cuerpo donde se muestra el indicador (ausente = no aparece en la figura).
+    body_zone: BodyZone.optional(),
+    // Icono de la tarjeta del tablero (ausente = icono generico).
+    icon: IndicatorIconName.optional(),
     input: Input,
     how_to_measure: z.array(z.string()),
     why_it_matters: z.string(),
@@ -183,6 +193,17 @@ export const AppConfig = z.object({
   theme: z.object({
     mode: z.enum(["dark", "light"]),
     accent: z.string(),
+    // Tokens de superficie (CSS variables en <html>); ver _comment de config/app.json.
+    surfaces: z.object({
+      background: z.string(),
+      panel: z.string(),
+      panel_raised: z.string(),
+      glass: z.string(),
+      glass_border: z.string(),
+      line: z.string(),
+      text: z.string(),
+      muted: z.string(),
+    }),
     // z.object (no z.record): exige las 3 claves y da tipos no opcionales.
     status_colors: z.object({ normal: z.string(), attention: z.string(), critical: z.string() }),
     status_icons: z.object({ normal: z.string(), attention: z.string(), critical: z.string() }),
@@ -204,6 +225,16 @@ export const AppConfig = z.object({
   disclaimer: z.string(),
 });
 
+// ---- demo-readings.json (datos sinteticos de demostracion, no mediciones reales)
+const demoNum = z.number().finite();
+export const DemoReading = z.object({
+  indicator_id: z.string(),
+  // Antiguedad de la lectura al cargar la demo (minutos): valores relativos, la demo nunca queda "vieja".
+  minutes_ago: z.number().finite().nonnegative(),
+  value: z.union([demoNum, z.tuple([demoNum, demoNum])]),
+});
+export const DemoReadingsFile = z.object({ _comment: Comment, readings: z.array(DemoReading) });
+
 // ---- config/strings.en.json
 export const Strings = z.record(z.string(), z.string());
 
@@ -217,6 +248,9 @@ export type Input = z.infer<typeof Input>;
 export type Frequency = z.infer<typeof Frequency>;
 export type Action = z.infer<typeof Action>;
 export type Indicator = z.infer<typeof Indicator>;
+export type BodyZone = z.infer<typeof BodyZone>;
+export type IndicatorIconName = z.infer<typeof IndicatorIconName>;
+export type DemoReading = z.infer<typeof DemoReading>;
 export type Environment = z.infer<typeof Environment>;
 export type Step = z.infer<typeof Step>;
 export type Protocol = z.infer<typeof Protocol>;

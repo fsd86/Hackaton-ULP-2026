@@ -14,6 +14,8 @@ const previewHeaders = Object.fromEntries(
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   preview: { headers: previewHeaders },
+  // Las fuentes nunca se incrustan como data: URI: la CSP (font-src 'self') las bloquearía.
+  build: { assetsInlineLimit: (file) => (/\.woff2?$/.test(file) ? false : undefined) },
   test: {
     include: ["tests/unit/**/*.test.ts"],
     environment: "node",

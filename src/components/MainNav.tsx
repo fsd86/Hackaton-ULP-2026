@@ -2,29 +2,34 @@ import { useContent } from "../content/ContentContext";
 import type { RouteId } from "../hooks/useHashRoute";
 import { visibleNav } from "../logic/features";
 
-/** Navegación principal: barra inferior fija en móvil, inline bajo el banner en escritorio. El Emergency va en el header. */
+/**
+ * Navegación principal. Una sola <nav>: pestañas monoespaciadas enmarcadas en la barra superior (lg+) y
+ * barra inferior fija de píldoras en móvil. El Emergency va aparte, en el header. El activo se distingue por
+ * marco + marcador + aria-current (no solo por color).
+ */
 export function MainNav({ current }: { current: RouteId }) {
   const { t, content } = useContent();
   const items = visibleNav(content.app.features);
   return (
     <nav
       aria-label={t("nav.main_label")}
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-[var(--color-line)] bg-[var(--color-panel)] md:static md:border-t-0 md:border-b"
+      className="glass fixed inset-x-2 bottom-2 z-40 rounded-full p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.55)] lg:static lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
     >
-      <ul className="mx-auto flex max-w-5xl">
+      <ul className="flex gap-1 lg:gap-2">
         {items.map((r) => {
           const active = r.id === current;
           return (
-            <li key={r.id} className="min-w-0 flex-1 md:flex-none">
+            <li key={r.id} className="min-w-0 flex-1 lg:flex-none">
               <a
                 href={r.path}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-14 items-center justify-center border-t-4 px-2 text-center text-sm font-bold leading-tight md:min-h-12 md:border-t-0 md:border-b-4 md:px-5 md:text-base ${
+                className={`flex min-h-11 items-center justify-center gap-1.5 rounded-full border px-2 text-center font-mono text-[0.68rem] font-semibold uppercase leading-tight tracking-wide lg:min-h-10 lg:rounded-sm lg:px-3.5 lg:text-xs lg:tracking-[0.14em] ${
                   active
-                    ? "border-[var(--color-accent)] bg-[var(--color-panel-2)] text-[var(--color-text)]"
-                    : "border-transparent text-[var(--color-muted)] hover:text-[var(--color-text)]"
+                    ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-[#05080f] lg:bg-[color-mix(in_srgb,var(--color-accent)_14%,transparent)] lg:text-[var(--color-accent)] lg:shadow-[inset_0_0_12px_color-mix(in_srgb,var(--color-accent)_18%,transparent)]"
+                    : "border-transparent text-[var(--color-text)] hover:border-[var(--glass-border)]"
                 }`}
               >
+                {active && <span aria-hidden="true" className="hidden h-1.5 w-1.5 bg-current lg:block" />}
                 {t(r.navKey)}
               </a>
             </li>

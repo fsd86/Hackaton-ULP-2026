@@ -147,6 +147,13 @@ function ReportBody() {
         </div>
       )}
 
+      {report.hasDemo && (
+        <div role="note" className="flex flex-wrap items-center gap-3 rounded border border-dashed border-[var(--status-attention)] p-3">
+          <span className="font-mono text-sm font-bold uppercase tracking-[0.16em]">{t("demo.title")}</span>
+          <p className="font-semibold">{t("report.demo_warning")}</p>
+        </div>
+      )}
+
       {!hasReadings && !hasActions && (
         <EmptyState title={t("report.readings.empty")} help={t("report.empty.hint")}>
           <p className="mt-1 text-[var(--color-muted)]">{t("report.emergency_log.empty")}</p>

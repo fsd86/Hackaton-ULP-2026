@@ -6,7 +6,7 @@ import stringsRaw from "../config/strings.en.json";
 import { EnvironmentProvider } from "./environment/EnvironmentProvider";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { ContentErrorScreen } from "./components/ContentErrorScreen";
-import { DelayBanner } from "./components/DelayBanner";
+import { DemoBanner } from "./components/DemoBanner";
 import { EmptyState } from "./components/EmptyState";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Footer } from "./components/Footer";
@@ -15,7 +15,6 @@ import { useStorageState } from "./hooks/useStorageState";
 import { FeatureDisabled } from "./components/FeatureDisabled";
 import { isRouteEnabled } from "./logic/features";
 import { Header } from "./components/Header";
-import { MainNav } from "./components/MainNav";
 import { DailyCheck } from "./views/DailyCheck";
 import { EmergencyView } from "./views/EmergencyView";
 import { ReportView } from "./views/ReportView";
@@ -30,6 +29,17 @@ function useTheme(): void {
     const root = document.documentElement;
     root.dataset.mode = theme.mode;
     root.style.setProperty("--color-accent", theme.accent);
+    if (theme.mode === "dark") {
+      const s = theme.surfaces;
+      root.style.setProperty("--color-ink", s.background);
+      root.style.setProperty("--color-panel", s.panel);
+      root.style.setProperty("--color-panel-2", s.panel_raised);
+      root.style.setProperty("--glass-bg", s.glass);
+      root.style.setProperty("--glass-border", s.glass_border);
+      root.style.setProperty("--color-line", s.line);
+      root.style.setProperty("--color-text", s.text);
+      root.style.setProperty("--color-muted", s.muted);
+    }
     root.style.setProperty("--color-emergency", theme.status_colors.critical);
     root.style.setProperty("--emergency-bg", theme.emergency_button.background);
     root.style.setProperty("--emergency-text", theme.emergency_button.text);
@@ -74,15 +84,19 @@ function Shell() {
           e.preventDefault();
           mainRef.current?.focus();
         }}
-        className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-[var(--color-accent)] focus:px-4 focus:py-3 focus:font-bold focus:text-[#070b14]"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-sm focus:bg-[var(--color-accent)] focus:px-4 focus:py-3 focus:font-bold focus:text-[#05080f]"
       >
         {t("nav.skip_to_content")}
       </a>
-      <Header onEmergency={() => navigate("emergency")} emergencyActive={route.id === "emergency"} />
-      <DelayBanner />
+      <Header current={route.id} onEmergency={() => navigate("emergency")} emergencyActive={route.id === "emergency"} />
+      <DemoBanner />
       <StorageNotice />
-      <MainNav current={route.id} />
-      <main id="main" ref={mainRef} tabIndex={-1} className="mx-auto min-h-[50vh] max-w-5xl px-4 py-6">
+      <main
+        id="main"
+        ref={mainRef}
+        tabIndex={-1}
+        className={`mx-auto min-h-[50vh] px-4 py-6 ${route.id === "home" ? "max-w-[1760px]" : "max-w-5xl"}`}
+      >
         {/* La clave remonta la vista al cambiar de ruta o al borrar los datos guardados. */}
         <ErrorBoundary key={`${route.id}/${param ?? ""}/${version}`} t={t}>
           {route.id === "check" ? (

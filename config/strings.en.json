@@ -306,5 +306,33 @@
   "environment.delay.sr_prefix": "Communication delay:",
   "a11y.status_prefix": "Status:",
   "a11y.loading": "Content is loading",
-  "a11y.current_page": "Current page"
+  "a11y.current_page": "Current page",
+
+  "hud.vitals": "Vitals",
+  "hud.body_map": "Body map",
+  "hud.ground_answer": "Ground answer",
+  "hud.ground_answer.help": "If you had to escalate to ground now:",
+  "hud.environment": "Environment",
+  "hud.trends": "Trends",
+  "hud.last": "Last",
+
+  "zone.head": "Head",
+  "zone.chest": "Chest",
+  "zone.abdomen": "Abdomen",
+  "zone.arm": "Arm",
+  "zone.body": "Whole body",
+  "zone.figure_label": "Body map. Select a zone to see its indicators.",
+  "zone.button": "{zone}: {items}. Open zone details",
+  "zone.item": "{name} {status}",
+  "zone.close": "Close zone details",
+  "zone.close_hint": "Press Escape to close",
+  "zone.no_reading": "No reading yet",
+
+  "demo.title": "DEMO DATA",
+  "demo.text": "Synthetic sample readings for demonstration, not real measurements.",
+  "demo.load": "Load demo data",
+  "demo.load.help": "Or explore the board with synthetic sample readings.",
+  "demo.remove": "Remove demo data",
+  "demo.tag": "Demo",
+  "report.demo_warning": "This report includes demo readings (synthetic, not real measurements)."
 }

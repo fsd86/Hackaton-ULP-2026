@@ -1,5 +1,5 @@
 {
-  "_comment": "Ranges contain only cut-offs explicit in the cited sources. Edges are inclusive unless a range sets min_exclusive / max_exclusive (e.g. '<70' is max 70 with max_exclusive true). Consecutive numeric ranges must touch exactly with exactly one exclusive edge (the loader checks it); a gap is an error unless the indicator sets \"allow_gaps\": true, an explicit decision that the stretch evaluates to 'unknown' because the source does not define it. An empty range (min and max null) means the sources do not define it. Action texts may use {unit}, {range.<status>.min|max} and {range2.<status>.min|max} (ranges_secondary); they resolve from the effective ranges, so a threshold lives in one place. Numbers that are not range edges (e.g. the 15 g of the 15-15 rule) stay literal and keep their source. input.min / input.max / input.step are input plausibility limits, a design parameter of the form and not a medical threshold. Escalation levels (self/crew/ground) and protocol_id are DESIGN decisions, not medical. Every indicator stays PLACEHOLDER while any of frequency, how_to_measure or the actions has an unsourced part.",
+  "_comment": "body_zone (head | chest | abdomen | arm | body) is a UI DESIGN decision, not medical: it only chooses where the indicator is anchored on the status board body figure ('body' = whole body / general); an indicator without body_zone is not shown on the figure. icon (heart | gauge | drop | thermometer | moon | smile | pulse) is the status board card icon, also a UI design choice. Ranges contain only cut-offs explicit in the cited sources. Edges are inclusive unless a range sets min_exclusive / max_exclusive (e.g. '<70' is max 70 with max_exclusive true). Consecutive numeric ranges must touch exactly with exactly one exclusive edge (the loader checks it); a gap is an error unless the indicator sets \"allow_gaps\": true, an explicit decision that the stretch evaluates to 'unknown' because the source does not define it. An empty range (min and max null) means the sources do not define it. Action texts may use {unit}, {range.<status>.min|max} and {range2.<status>.min|max} (ranges_secondary); they resolve from the effective ranges, so a threshold lives in one place. Numbers that are not range edges (e.g. the 15 g of the 15-15 rule) stay literal and keep their source. input.min / input.max / input.step are input plausibility limits, a design parameter of the form and not a medical threshold. Escalation levels (self/crew/ground) and protocol_id are DESIGN decisions, not medical. Every indicator stays PLACEHOLDER while any of frequency, how_to_measure or the actions has an unsourced part.",
   "indicators": [
     {
       "id": "heart_rate",
@@ -7,6 +7,8 @@
       "unit": "bpm",
       "category": "cardiovascular",
       "hazards": [],
+      "body_zone": "chest",
+      "icon": "heart",
       "input": {
         "_comment": "input plausibility limits, design parameter, not a medical threshold",
         "kind": "number",
@@ -53,6 +55,8 @@
       "unit": "mmHg",
       "category": "cardiovascular",
       "hazards": [],
+      "body_zone": "chest",
+      "icon": "gauge",
       "input": {
         "_comment": "input plausibility limits, design parameter, not a medical threshold. second_lower_than_first: diastolic must be lower than systolic.",
         "kind": "pair",
@@ -104,6 +108,8 @@
       "unit": "mg/dL",
       "category": "metabolic",
       "hazards": [],
+      "body_zone": "abdomen",
+      "icon": "drop",
       "input": {
         "_comment": "input plausibility limits, design parameter, not a medical threshold",
         "kind": "number",
@@ -148,6 +154,8 @@
       "unit": "°C",
       "category": "general",
       "hazards": [],
+      "body_zone": "body",
+      "icon": "thermometer",
       "input": {
         "_comment": "input plausibility limits, design parameter, not a medical threshold",
         "kind": "number",
@@ -192,6 +200,8 @@
       "unit": "hours",
       "category": "behavioral",
       "hazards": [],
+      "body_zone": "body",
+      "icon": "moon",
       "input": {
         "_comment": "input plausibility limits, design parameter, not a medical threshold",
         "kind": "number",
@@ -233,6 +243,8 @@
       "unit": "scale",
       "category": "behavioral",
       "hazards": [],
+      "body_zone": "body",
+      "icon": "smile",
       "input": {
         "kind": "scale",
         "min": 1,

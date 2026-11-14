@@ -37,6 +37,7 @@ function makeContent(opts: { indStatus?: "VERIFIED" | "PLACEHOLDER"; delay?: { m
   const status = opts.indStatus ?? "VERIFIED";
   return {
     sources: [],
+    demoReadings: [],
     strings,
     app: { app_name: "TestApp", disclaimer: "Not medical advice." } as Content["app"],
     indicators: [

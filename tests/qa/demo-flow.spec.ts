@@ -62,9 +62,10 @@ test("demo flow: a-f (empty home, environments, critical check, emergency, repor
 
   // ---------------------------------------------------------------- b. cambio de entorno
   await test.step("b. switch environment and back", async () => {
-    const select = page.getByLabel(strings["environment.label"], { exact: true });
-    const banner = page.getByRole("region", { name: strings["environment.delay.label"] });
-    const bannerText = banner.locator("p[aria-live]");
+    // Rediseño: selector y demora viven en el header; las fuentes de la demora, en el panel "Ground answer" del tablero.
+    const select = page.getByRole("combobox", { name: strings["environment.label"], exact: true });
+    const bannerText = page.locator("header p[aria-live]");
+    const delaySources = page.getByRole("region", { name: strings["hud.ground_answer"], exact: true });
     const defText = expectedDelayText(defaultEnv.comm_delay_one_way_s);
     const otherText = expectedDelayText(otherEnv.comm_delay_one_way_s);
 
@@ -85,7 +86,7 @@ test("demo flow: a-f (empty home, environments, critical check, emergency, repor
 
     // La demora debe citar sus fuentes (links a #/sources/<id>) o marcarse como PLACEHOLDER.
     const ids = new Set(defaultEnv.comm_delay_one_way_s.source_ids);
-    await expect.soft(banner.locator('a[href^="#/sources/"]')).toHaveCount(ids.size);
+    await expect.soft(delaySources.locator('a[href^="#/sources/"]')).toHaveCount(ids.size);
   });
 
   // ---------------------------------------------------------------- c. Daily check critico
@@ -363,7 +364,7 @@ test("demo flow: escalation message changes with the environment (fast link: con
   });
   test.skip(!fast, "no environment with a verified delay under realtime_threshold_s");
   await page.goto("/#/");
-  await page.getByLabel(strings["environment.label"], { exact: true }).selectOption({ label: must(fast, "fast env").name });
+  await page.getByRole("combobox", { name: strings["environment.label"], exact: true }).selectOption({ label: must(fast, "fast env").name });
   await openIndicator(page, bp);
   await enterReading(page, bp, value);
   const esc = page.locator(`section[aria-labelledby="esc-${bp.id}"]`);

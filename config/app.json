@@ -1,16 +1,26 @@
 {
-  "_comment": "realtime_threshold_s es un parametro de DISENO (no medico): a partir de que demora de comunicacion (segundos, solo ida) la app prioriza actuar a bordo antes de esperar a tierra. No proviene de ninguna fuente medica. emergency_session_max_age_hours tambien es un parametro de DISENO (no medico): pasado ese tiempo, una sesion de emergencia guardada no se reanuda sola y se le pregunta a la persona si continua o reinicia.",
+  "_comment": "realtime_threshold_s es un parametro de DISENO (no medico): a partir de que demora de comunicacion (segundos, solo ida) la app prioriza actuar a bordo antes de esperar a tierra. No proviene de ninguna fuente medica. emergency_session_max_age_hours tambien es un parametro de DISENO (no medico): pasado ese tiempo, una sesion de emergencia guardada no se reanuda sola y se le pregunta a la persona si continua o reinicia. theme.surfaces son los tokens de superficie (se aplican como CSS variables en <html>); los colores de estado dan al menos 3:1 como no-texto sobre theme.surfaces.panel y el texto siempre usa surfaces.text.",
   "app_name": "Earth Is Far",
   "tagline": "Health guidance for when help is light-minutes away.",
   "default_language": "en",
   "default_environment": "spacecraft",
   "theme": {
     "mode": "dark",
-    "accent": "#4F8CFF",
+    "accent": "#5CE1E6",
+    "surfaces": {
+      "background": "#05080F",
+      "panel": "#0C1422",
+      "panel_raised": "#142138",
+      "glass": "rgba(12, 20, 34, 0.62)",
+      "glass_border": "rgba(92, 225, 230, 0.28)",
+      "line": "#3F6080",
+      "text": "#EAF4F7",
+      "muted": "#A5B8C7"
+    },
     "status_colors": {
-      "normal": "#2E9E5B",
-      "attention": "#E0A100",
-      "critical": "#D64545"
+      "normal": "#3DDC97",
+      "attention": "#FFB224",
+      "critical": "#FF6B6B"
     },
     "status_icons": {
       "normal": "check-circle",
