@@ -23,6 +23,8 @@
 
 - 2026-11-13 — Rediseño visual etapa 1 (WIP, `af129bf`): tablero estilo HUD con mapa del cuerpo por zonas (`bodyZones`), VitalCard + Sparkline, paneles FramePanel / CalloutLines, íconos por indicador; header compacto con pestañas, selector de entorno y demora (las fuentes de la demora pasan al panel "Ground answer" del tablero); lecturas demo sintéticas en `data/demo-readings.json` validadas con zod + DemoBanner; fuentes Space Grotesk / JetBrains Mono (@fontsource, OFL). Arreglo: Vite incrustaba subsets chicos de fuentes como `data:` y la CSP (`font-src 'self'`) los bloqueaba → `assetsInlineLimit` excluye `.woff2`. Tests: fixture con `demoReadings`, selectores QA al header nuevo. Unit 99/99, e2e 39/39 (+3 skip), QA 62/63 (único fallo: 403 anti-bot de CDC). Las imágenes de `docs referencias/` quedan fuera del repo (inspiración de terceros, sin licencia).
 
+- 2026-11-13 — 4 arreglos post-rediseño, un commit cada uno: `CLAUDE.md` con deploy manual en Netlify (`97c0e2b`); Emergency es el primer foco del teclado en todos los tamaños, en móvil coincide con el orden visual y en lg+ se dibuja al final con `lg:order-last` (`8000b3e`); banner DEMO DATA en móvil como franja fija de una línea (~44 px en vez de ~120 px) con texto corto y botón "Remove" (nombre accesible "Remove demo data") (`a0beced`); la demora del header enlaza sus fuentes en todas las vistas con `SourceLinks compact` ("Sources 1 2", ≥24 px, nombre accesible "Source 1: NASA Science") (`2ceddc2`). Textos nuevos en `strings.en.json`. Lint OK, unit 99/99, e2e 39/39 (+3 skip), QA 62/63 (único fallo: 403 anti-bot de CDC), detector de hardcode 0.
+
 ## En curso
 - Rediseño visual: etapa 1 commiteada (WIP); próximas etapas a definir.
 
