@@ -5,14 +5,17 @@ import environmentsRaw from "../../data/environments.json";
 import protocolsRaw from "../../data/protocols.json";
 import demoRaw from "../../data/demo-readings.json";
 import hazardsRaw from "../../data/hazards.json";
+import guidedDemoRaw from "../../data/guided-demo.json";
 import appRaw from "../../config/app.json";
 import stringsRaw from "../../config/strings.en.json";
 import { ESCALATION_MESSAGE_KEYS } from "../logic/escalation";
+import { checkGuidedDemo } from "../logic/guidedDemo";
 import { resolveToken, templateTokens } from "../logic/indicatorText";
 import {
   AppConfig,
   DemoReadingsFile,
   EnvironmentsFile,
+  GuidedDemoFile,
   HazardsFile,
   IndicatorsFile,
   ProtocolsFile,
@@ -20,6 +23,7 @@ import {
   Strings,
   type DemoReading,
   type Environment,
+  type GuidedDemo,
   type HazardInfo,
   type Indicator,
   type Protocol,
@@ -44,6 +48,8 @@ export interface Content {
   demoReadings: DemoReading[];
   /** Los 5 hazards de NASA HRP con resumen y fuente ([] si el archivo no se entrega). */
   hazards: HazardInfo[];
+  /** Guion del modo Guided demo (data/guided-demo.json); null si el archivo no se entrega. */
+  guidedDemo: GuidedDemo | null;
 }
 
 export interface RawContent {
@@ -57,6 +63,8 @@ export interface RawContent {
   demoReadings?: unknown;
   /** Opcional: los tests antiguos no lo pasan. */
   hazards?: unknown;
+  /** Opcional: los tests antiguos no lo pasan. */
+  guidedDemo?: unknown;
 }
 
 export type LoadResult = { ok: true; content: Content } | { ok: false; errors: ContentError[] };
@@ -70,6 +78,7 @@ export const FILES = {
   strings: "config/strings.en.json",
   demoReadings: "data/demo-readings.json",
   hazards: "data/hazards.json",
+  guidedDemo: "data/guided-demo.json",
 } as const;
 
 /** ["indicators", 2, "ranges", 0, "min"] → "indicators[2].ranges[0].min" */
@@ -209,7 +218,10 @@ export function validateContent(raw: RawContent): LoadResult {
   const hazardsFile =
     raw.hazards === undefined ? { hazards: [] as HazardInfo[] } : parseFile(HazardsFile, raw.hazards, FILES.hazards, errors);
 
-  if (!demoFile || !hazardsFile) return { ok: false, errors };
+  const guidedDemo =
+    raw.guidedDemo === undefined ? null : parseFile(GuidedDemoFile, raw.guidedDemo, FILES.guidedDemo, errors);
+
+  if (!demoFile || !hazardsFile || guidedDemo === undefined) return { ok: false, errors };
   if (!sourcesFile || !indicatorsFile || !environmentsFile || !protocolsFile || !app || !strings) {
     return { ok: false, errors };
   }
@@ -359,8 +371,24 @@ export function validateContent(raw: RawContent): LoadResult {
     }
   }
 
+  if (guidedDemo) {
+    errors.push(
+      ...checkGuidedDemo(guidedDemo, {
+        environmentIds,
+        indicators,
+        protocolIds,
+        strings,
+        // Sin archivo de demo (tests antiguos) no se exige que la alerta tenga lecturas demo.
+        demoIndicatorIds: raw.demoReadings === undefined ? null : new Set(demoFile.readings.map((r) => r.indicator_id)),
+      }).map((e) => ({ file: FILES.guidedDemo, ...e })),
+    );
+  }
+
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, content: { sources, indicators, environments, protocols, app, strings, demoReadings: demoFile.readings, hazards: hazardsFile.hazards } };
+  return {
+    ok: true,
+    content: { sources, indicators, environments, protocols, app, strings, demoReadings: demoFile.readings, hazards: hazardsFile.hazards, guidedDemo },
+  };
 }
 
 let cached: LoadResult | undefined;
@@ -376,6 +404,7 @@ export function loadContent(): LoadResult {
     strings: stringsRaw,
     demoReadings: demoRaw,
     hazards: hazardsRaw,
+    guidedDemo: guidedDemoRaw,
   });
   return cached;
 }

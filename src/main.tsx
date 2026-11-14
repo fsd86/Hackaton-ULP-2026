@@ -5,10 +5,13 @@ import "@fontsource-variable/jetbrains-mono";
 import "./index.css";
 import App from "./App";
 import { loadContent } from "./content/load";
-import { getEnvironmentId, scanStorage, seedDemoOnFirstVisit } from "./storage/local";
+import { getEnvironmentId, recoverGuidedDemoSandbox, scanStorage, seedDemoOnFirstVisit } from "./storage/local";
 
 // Limpia lo guardado corrupto antes del primer render y registra los descartes (aviso en el shell).
 scanStorage();
+
+// Guided demo interrumpida (recarga o cierre a mitad): deshace sus efectos (log, sesion, entorno, lecturas DEMO).
+recoverGuidedDemoSandbox();
 
 // Primera visita (config features.demo_on_first_visit): siembra data/demo-readings.json una sola vez para que el
 // tablero nunca arranque vacio. Siguen marcadas demo: true (cartel DEMO DATA + "Remove demo data").

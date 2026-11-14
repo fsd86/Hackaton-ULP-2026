@@ -25,7 +25,7 @@ export function FramePanel({
   /** Retraso de la aparicion suave (escalonado entre paneles). */
   delayMs?: number;
   children: ReactNode;
-} & { "data-testid"?: string; id?: string }) {
+} & { "data-testid"?: string; "data-gd"?: string; id?: string }) {
   const id = useId();
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const style = { animationDelay: `${delayMs}ms` } as CSSProperties;

@@ -310,6 +310,8 @@ export const AppConfig = z.object({
     downlink_report: z.boolean(),
     // Primera visita: siembra la demo una sola vez (opcional; ausente = false).
     demo_on_first_visit: z.boolean().default(false),
+    // Boton "Guided demo" del tablero (data/guided-demo.json). Opcional; ausente = false.
+    guided_demo: z.boolean().default(false),
   }),
   // Parámetro de DISEÑO (no médico).
   realtime_threshold_s: z.number(),
@@ -330,6 +332,38 @@ export const DemoReading = z.object({
   value: z.union([demoNum, z.tuple([demoNum, demoNum])]),
 });
 export const DemoReadingsFile = z.object({ _comment: Comment, readings: z.array(DemoReading) });
+
+// ---- guided-demo.json (guion del modo "Guided demo" para grabar el video; no es contenido medico)
+// Las acciones usan los ids de "scenario" (una sola fuente); el loader verifica que existan.
+export const GuidedDemoAction = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("set_environment") }),
+  z.object({ type: z.literal("select_alert_zone") }),
+  z.object({ type: z.literal("open_protocol") }),
+  z.object({ type: z.literal("mark_step_done") }),
+]);
+export const GuidedDemoStep = z.object({
+  _comment: Comment,
+  id: z.string().min(1),
+  // Hash de la vista ("#/", "#/emergency/<protocol_id>", "#/report"...).
+  route: z.string().regex(/^#\/[A-Za-z0-9_\-/]*$/, 'route must be a hash like "#/" or "#/report"'),
+  // Selector CSS del elemento a destacar (null = sin destacado). Admite {zone} y {indicator} del escenario.
+  target: z.string().min(1).nullable(),
+  // Clave de config/strings.en.json; admite {environment}, {indicator}, {status}, {zone} y {protocol}.
+  caption_key: z.string().min(1),
+  duration_ms: z.number().int().min(1000).max(60_000),
+  action: GuidedDemoAction.optional(),
+});
+export const GuidedDemoFile = z.object({
+  _comment: Comment,
+  // Parametro de DISENO (no medico): duracion total pensada para el video; debe ser la suma de los pasos.
+  design_total_duration_ms: z.number().int().positive(),
+  scenario: z.object({
+    environment_id: z.string().min(1),
+    alert_indicator_id: z.string().min(1),
+    protocol_id: z.string().min(1),
+  }),
+  steps: z.array(GuidedDemoStep).min(1),
+});
 
 // ---- config/strings.en.json
 export const Strings = z.record(z.string(), z.string());
@@ -357,3 +391,6 @@ export type HudConfig = z.infer<typeof HudConfig>;
 export type HazardInfo = z.infer<typeof HazardInfo>;
 export type HazardId = z.infer<typeof Hazard>;
 export type Strings = z.infer<typeof Strings>;
+export type GuidedDemo = z.infer<typeof GuidedDemoFile>;
+export type GuidedDemoStep = z.infer<typeof GuidedDemoStep>;
+export type GuidedDemoAction = z.infer<typeof GuidedDemoAction>;

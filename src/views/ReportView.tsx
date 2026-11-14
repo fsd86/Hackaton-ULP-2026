@@ -96,7 +96,7 @@ function ReportBody() {
       </header>
 
       {/* Encabezado del informe: el punto del producto es la ventana de respuesta esperada. */}
-      <section aria-label={t("report.eta")} className={`${panel} mission-grid space-y-4`}>
+      <section aria-label={t("report.eta")} data-gd="report-eta" className={`${panel} mission-grid space-y-4`}>
         <div>
           <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-muted)]">{t("report.eta")}</p>
           <p className="mt-1 font-mono text-3xl font-extrabold text-[var(--color-accent)] sm:text-4xl" data-testid="report-eta">

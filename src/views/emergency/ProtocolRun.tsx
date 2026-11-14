@@ -232,6 +232,7 @@ export function ProtocolRun({
           <button
             type="button"
             onClick={markDone}
+            data-gd="mark-done"
             className="em-mark-done mt-4 inline-flex min-h-16 w-full items-center justify-center rounded-md bg-[var(--color-accent)] px-6 text-2xl font-extrabold md:mt-4 text-[#070b14] hover:brightness-110"
           >
             {t("emergency.mark_done")}

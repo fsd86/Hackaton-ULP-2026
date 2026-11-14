@@ -7,7 +7,7 @@ export function EnvironmentSelect({ className = "" }: { className?: string }) {
   const { environments, environment, setEnvironmentId } = useEnvironment();
   const id = useId();
   return (
-    <div className={`flex min-w-0 flex-col gap-0.5 ${className}`}>
+    <div data-gd="environment" className={`flex min-w-0 flex-col gap-0.5 ${className}`}>
       <label htmlFor={id} className="eyebrow !text-[0.62rem]">
         {t("environment.label")}
       </label>

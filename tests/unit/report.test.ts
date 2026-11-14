@@ -39,6 +39,7 @@ function makeContent(opts: { indStatus?: "VERIFIED" | "PLACEHOLDER"; delay?: { m
     sources: [],
     demoReadings: [],
     hazards: [],
+    guidedDemo: null,
     strings,
     app: { app_name: "TestApp", disclaimer: "Not medical advice." } as Content["app"],
     indicators: [

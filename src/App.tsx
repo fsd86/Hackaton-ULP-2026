@@ -4,6 +4,7 @@ import { loadContent } from "./content/load";
 import { createT } from "./content/t";
 import stringsRaw from "../config/strings.en.json";
 import { EnvironmentProvider } from "./environment/EnvironmentProvider";
+import { GuidedDemoProvider } from "./components/guided/GuidedDemo";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { ContentErrorScreen } from "./components/ContentErrorScreen";
 import { DemoBanner } from "./components/DemoBanner";
@@ -86,6 +87,8 @@ function Shell() {
 
   return (
     <EnvironmentProvider>
+      {/* La demo guiada agrega su overlay fijo como hermano del contenido (despues del footer). */}
+      <GuidedDemoProvider>
       <SpaceBackdrop />
       <a
         href="#main"
@@ -128,6 +131,7 @@ function Shell() {
         </ErrorBoundary>
       </main>
       <Footer />
+      </GuidedDemoProvider>
     </EnvironmentProvider>
   );
 }

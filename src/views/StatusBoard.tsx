@@ -9,6 +9,7 @@ import { VitalRow } from "../components/hud/VitalRow";
 import { ZoneDetail } from "../components/hud/ZoneDetail";
 import { ZoneStatusList } from "../components/hud/ZoneStatusList";
 import { DemoChip } from "../components/DemoChip";
+import { GuidedDemoButton } from "../components/guided/GuidedDemoButton";
 import { PlaceholderBadge } from "../components/PlaceholderBadge";
 import { EmptyState } from "../components/EmptyState";
 import { EnvironmentDetails } from "../components/EnvironmentDetails";
@@ -158,7 +159,10 @@ export function StatusBoard() {
 
   return (
     <div className="space-y-4">
-      <h1 className="board-title font-mono text-base font-bold uppercase leading-7 tracking-[0.16em]">{t("board.title")}</h1>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h1 className="board-title font-mono text-base font-bold uppercase leading-7 tracking-[0.16em]">{t("board.title")}</h1>
+        <GuidedDemoButton />
+      </div>
 
       <div className={`hud-grid ${hasReadings ? "" : "hud-grid-empty"}`}>
         {/* Izquierda: signos vitales, estado por zona, tendencia destacada y demora / respuesta de Tierra. */}
@@ -213,7 +217,7 @@ export function StatusBoard() {
             </FramePanel>
           )}
 
-          <FramePanel title={t("hud.ground_answer")} corners delayMs={280}>
+          <FramePanel title={t("hud.ground_answer")} corners delayMs={280} data-gd="ground-answer">
             <p className="eyebrow !text-[0.62rem]">{t("hud.ground_answer.delay")}</p>
             <p className="flex flex-wrap items-center gap-2 font-mono text-xl font-semibold leading-tight text-[var(--color-warm)]">
               {formatDelay(delay, t)}
@@ -256,7 +260,7 @@ export function StatusBoard() {
 
         {/* Estado general: bajo el cuerpo (en movil, justo despues del cuerpo). */}
         <div className="hud-overall">
-          <FramePanel title={t("board.overall")} corners delayMs={120} aside={hasReadings ? demoChip : null}>
+          <FramePanel title={t("board.overall")} corners delayMs={120} aside={hasReadings ? demoChip : null} data-gd="overall">
             {!hasReadings ? (
               <EmptyState title={t("board.no_reading")} help={t("board.empty.help")}>
                 <div className="mt-4 flex flex-col items-center gap-3">

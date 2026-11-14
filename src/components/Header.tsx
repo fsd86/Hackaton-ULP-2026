@@ -44,6 +44,7 @@ export function Header({
         {content.app.features.emergency_guide && (
           <a
             href="#/emergency"
+            data-gd="emergency-button"
             aria-current={emergencyActive ? "page" : undefined}
             onClick={(e) => {
               e.preventDefault();

@@ -292,6 +292,77 @@ export function setEnvironmentId(id: string): void {
   writeRaw(KEYS.environment, JSON.stringify(id));
 }
 
+// ---- Guided demo: "caja de arena" para no dejar efectos reales ----
+// Al empezar se guarda una foto cruda del log de emergencia, la sesion y el entorno; al salir se restaura tal cual
+// (las entradas de log y la sesion que creo la demo desaparecen). Si la demo cargo las lecturas DEMO, se quitan.
+// La foto vive en storage: si la pagina se recarga a mitad de la demo, recoverGuidedDemoSandbox() la restaura al arrancar.
+export const GUIDED_DEMO_SANDBOX_KEY = "eif.guided_demo_sandbox";
+
+const SandboxSchema = z.object({
+  emergencyLog: z.string().nullable(),
+  emergencySession: z.string().nullable(),
+  environment: z.string().nullable(),
+  demoLoaded: z.boolean(),
+});
+type Sandbox = z.infer<typeof SandboxSchema>;
+
+function readSandbox(): Sandbox | null {
+  const raw = readRaw(GUIDED_DEMO_SANDBOX_KEY);
+  if (raw === null) return null;
+  const parsed = parseRaw(raw);
+  const r = parsed.ok ? SandboxSchema.safeParse(parsed.value) : null;
+  return r?.success ? r.data : null;
+}
+
+/** true mientras haya una demo guiada en curso (foto guardada). */
+export function isGuidedDemoSandboxActive(): boolean {
+  return readRaw(GUIDED_DEMO_SANDBOX_KEY) !== null;
+}
+
+/** Empieza la caja de arena (si ya habia una, conserva la foto original). Cierra la sesion de emergencia en curso. */
+export function beginGuidedDemoSandbox(): void {
+  if (readRaw(GUIDED_DEMO_SANDBOX_KEY) === null) {
+    const snap: Sandbox = {
+      emergencyLog: readRaw(KEYS.emergencyLog),
+      emergencySession: readRaw(KEYS.emergencySession),
+      environment: readRaw(KEYS.environment),
+      demoLoaded: false,
+    };
+    writeRaw(GUIDED_DEMO_SANDBOX_KEY, JSON.stringify(snap));
+  }
+  clearEmergencySession();
+}
+
+/** Carga las lecturas DEMO para la demo guiada y recuerda quitarlas al salir. */
+export function addGuidedDemoReadings(items: DemoReadingInput[]): void {
+  const snap = readSandbox();
+  if (snap) writeRaw(GUIDED_DEMO_SANDBOX_KEY, JSON.stringify({ ...snap, demoLoaded: true }));
+  addDemoReadings(items);
+}
+
+function restoreRaw(key: string, value: string | null): void {
+  if (value === null) removeRaw(key);
+  else writeRaw(key, value);
+}
+
+/** Termina la caja de arena: restaura log, sesion y entorno, y quita la demo si la cargo la demo guiada. */
+export function endGuidedDemoSandbox(): void {
+  const snap = readSandbox();
+  removeRaw(GUIDED_DEMO_SANDBOX_KEY);
+  if (!snap) return;
+  restoreRaw(KEYS.emergencyLog, snap.emergencyLog);
+  restoreRaw(KEYS.emergencySession, snap.emergencySession);
+  restoreRaw(KEYS.environment, snap.environment);
+  if (snap.demoLoaded) removeDemoReadings();
+}
+
+/** Al arrancar: si quedo una demo guiada a medias (recarga, cierre), deshace sus efectos. */
+export function recoverGuidedDemoSandbox(): boolean {
+  if (readRaw(GUIDED_DEMO_SANDBOX_KEY) === null) return false;
+  endGuidedDemoSandbox();
+  return true;
+}
+
 /** Borra todo lo guardado, cierra el aviso de descartes y avisa (version++) para remontar las vistas. */
 export function clearAll(): void {
   for (const key of Object.values(KEYS)) removeRaw(key);

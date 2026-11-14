@@ -1,0 +1,21 @@
+{
+  "_comment": "Guion del modo Guided demo (para grabar el video). No es contenido medico: solo recorre la app con los datos DEMO (data/demo-readings.json). design_total_duration_ms es un parametro de DISENO (no medico): duracion pensada del recorrido (~90 s) y debe ser la suma de steps[].duration_ms. scenario: entorno, indicador de la alerta y protocolo; las acciones usan esos ids. route = hash de la vista; target = selector CSS a destacar (admite {zone} e {indicator}); caption_key = clave de config/strings.en.json (admite {environment}, {indicator}, {status}, {zone}, {protocol}). Acciones: set_environment, select_alert_zone, open_protocol (abre una sesion de emergencia nueva y temporal), mark_step_done (marca el paso actual; el log se restaura al salir).",
+  "design_total_duration_ms": 90000,
+  "scenario": {
+    "environment_id": "spacecraft",
+    "alert_indicator_id": "heart_rate",
+    "protocol_id": "crew_collapse_chest_pain"
+  },
+  "steps": [
+    { "id": "environment", "route": "#/", "target": "[data-gd=\"environment\"]", "caption_key": "guided_demo.step.environment", "duration_ms": 8000, "action": { "type": "set_environment" } },
+    { "id": "board", "route": "#/", "target": "[data-gd=\"overall\"]", "caption_key": "guided_demo.step.board", "duration_ms": 10000 },
+    { "id": "alert_zone", "route": "#/", "target": "[data-zone=\"{zone}\"]", "caption_key": "guided_demo.step.alert_zone", "duration_ms": 10000, "action": { "type": "select_alert_zone" } },
+    { "id": "alert_vital", "route": "#/", "target": "[data-vital-id=\"{indicator}\"]", "caption_key": "guided_demo.step.alert_vital", "duration_ms": 8000 },
+    { "id": "ground_answer", "route": "#/", "target": "[data-gd=\"ground-answer\"]", "caption_key": "guided_demo.step.ground_answer", "duration_ms": 8000 },
+    { "id": "emergency_button", "route": "#/", "target": "[data-gd=\"emergency-button\"]", "caption_key": "guided_demo.step.emergency_button", "duration_ms": 6000 },
+    { "id": "protocol_open", "route": "#/emergency/crew_collapse_chest_pain", "target": "#em-step-title", "caption_key": "guided_demo.step.protocol_open", "duration_ms": 10000, "action": { "type": "open_protocol" } },
+    { "id": "protocol_step_2", "route": "#/emergency/crew_collapse_chest_pain", "target": "#em-step-title", "caption_key": "guided_demo.step.protocol_step", "duration_ms": 8000, "action": { "type": "mark_step_done" } },
+    { "id": "protocol_log", "route": "#/emergency/crew_collapse_chest_pain", "target": "[data-testid=\"emergency-log\"]", "caption_key": "guided_demo.step.protocol_log", "duration_ms": 8000, "action": { "type": "mark_step_done" } },
+    { "id": "report", "route": "#/report", "target": "[data-gd=\"report-eta\"]", "caption_key": "guided_demo.step.report", "duration_ms": 14000 }
+  ]
+}
