@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { renderIndicatorText } from "../../src/logic/indicatorText";
+import { isPlaceholderText } from "../../src/logic/placeholder";
 import type { Indicator } from "../../src/content/schemas";
 import {
   app,
@@ -122,8 +123,12 @@ test("thresholds come from indicators.json: status, escalation level and actions
       if (action) {
         await expect.soft(page.locator(`section[aria-labelledby="esc-${ind.id}"]`), `${label}: escalation level`).toContainText(strings[`escalation.level.${action.escalation}`]);
         // Plantillas {range...} (QA T10): comparar el texto ya renderizado desde los rangos, como lo muestra la app.
-        for (const line of action.text)
-          await expect.soft(page.getByText(renderIndicatorText(line, ind as unknown as Indicator), { exact: true }), `${label}: action text`).toBeVisible();
+        // Textos sin fuente ("PLACEHOLDER: ...") ya no se muestran crudos: la UI muestra la nota "unverified.note".
+        for (const line of action.text) {
+          if (isPlaceholderText(line))
+            await expect.soft(page.locator(`section[aria-labelledby="todo-${ind.id}"]`).getByText(strings["unverified.note"], { exact: true }).first(), `${label}: unverified note`).toBeVisible();
+          else await expect.soft(page.getByText(renderIndicatorText(line, ind as unknown as Indicator), { exact: true }), `${label}: action text`).toBeVisible();
+        }
       }
     }
   }

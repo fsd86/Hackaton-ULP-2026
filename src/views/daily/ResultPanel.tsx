@@ -1,6 +1,7 @@
 import type { CSSProperties, Ref } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Indicator } from "../../content/schemas";
+import { DataText } from "../../components/DataText";
 import { EarthReferenceNote } from "../../components/EarthReferenceNote";
 import { SourceLinks } from "../../components/SourceLinks";
 import { StatusBadge } from "../../components/StatusBadge";
@@ -76,7 +77,9 @@ export function ResultPanel({
         {lines.length > 0 ? (
           <ul className="list-disc space-y-1 pl-6">
             {lines.map((line, i) => (
-              <li key={i}>{renderIndicatorText(line, indicator, environment)}</li>
+              <li key={i}>
+                <DataText text={renderIndicatorText(line, indicator, environment)} />
+              </li>
             ))}
           </ul>
         ) : (

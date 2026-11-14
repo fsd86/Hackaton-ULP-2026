@@ -1,5 +1,6 @@
 import { useContent } from "../content/ContentContext";
 import { useEnvironment } from "../hooks/useEnvironment";
+import { DataText } from "./DataText";
 import { PlaceholderBadge } from "./PlaceholderBadge";
 
 /** "About this environment": descripcion y equipo disponible del entorno actual (desplegable accesible). */
@@ -13,7 +14,9 @@ export function EnvironmentDetails() {
       </summary>
       <div className="space-y-2 pb-2">
         {environment.status === "PLACEHOLDER" && <PlaceholderBadge />}
-        <p>{environment.description}</p>
+        <p>
+          <DataText text={environment.description} />
+        </p>
         <p className="eyebrow">{t("environment.equipment")}</p>
         {environment.available_equipment.length === 0 ? (
           <p className="text-[var(--color-muted)]">{t("environment.equipment.none")}</p>

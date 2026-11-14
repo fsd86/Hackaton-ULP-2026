@@ -61,3 +61,18 @@ test("daily check: invalid input shows an associated error", async ({ page }) =>
   await expect(alert).toBeVisible();
   await expect(alert).toContainText(first.input.kind === "pair" ? strings["daily.pair_invalid"] : strings["daily.value_invalid"]);
 });
+
+// Los textos sin fuente de data/indicators.json ("PLACEHOLDER: ...") se muestran como nota "No verified source yet",
+// nunca con el marcador crudo (lista, paso del wizard y resultado).
+test("daily check: unsourced texts show the 'no verified source' note, never the raw PLACEHOLDER marker", async ({ page }) => {
+  const raw = JSON.parse(readFileSync(resolve("data/indicators.json"), "utf8")) as {
+    indicators: Array<{ id: string; name: string; frequency: { label: string } }>;
+  };
+  const target = raw.indicators.find((i) => i.frequency.label.startsWith("PLACEHOLDER"));
+  test.skip(!target, "no indicator with an unsourced frequency label");
+  await page.goto("/#/check");
+  await expect(page.locator("#main")).not.toContainText("PLACEHOLDER");
+  await page.getByRole("button", { name: `${strings["daily.open_indicator"]}: ${target!.name}` }).first().click();
+  await expect(page.locator(`section[aria-labelledby="freq-${target!.id}"]`)).toContainText(strings["unverified.note"]);
+  await expect(page.locator("#main")).not.toContainText("PLACEHOLDER");
+});

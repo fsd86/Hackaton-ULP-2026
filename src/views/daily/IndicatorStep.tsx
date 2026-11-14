@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Environment, Indicator } from "../../content/schemas";
+import { DataText } from "../../components/DataText";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
 import { SourceLinks } from "../../components/SourceLinks";
 import { effectiveFrequency } from "../../logic/daily";
@@ -77,7 +78,9 @@ export function IndicatorStep(p: StepProps) {
         </h3>
         <ol className="list-decimal space-y-1 pl-6">
           {ind.how_to_measure.map((s, i) => (
-            <li key={i}>{renderIndicatorText(s, ind, p.env)}</li>
+            <li key={i}>
+              <DataText text={renderIndicatorText(s, ind, p.env)} />
+            </li>
           ))}
         </ol>
       </section>
@@ -87,14 +90,18 @@ export function IndicatorStep(p: StepProps) {
           <h3 id={`why-${ind.id}`} className="mb-2 text-xl font-bold">
             {t("daily.why_it_matters")}
           </h3>
-          <p>{renderIndicatorText(ind.why_it_matters, ind, p.env)}</p>
+          <p>
+            <DataText text={renderIndicatorText(ind.why_it_matters, ind, p.env)} />
+          </p>
           <SourceLinks ids={ind.source_ids} className="mt-3" />
         </section>
         <section aria-labelledby={`freq-${ind.id}`} className={panel}>
           <h3 id={`freq-${ind.id}`} className="mb-2 text-xl font-bold">
             {t("daily.frequency")}
           </h3>
-          <p>{freq.label}</p>
+          <p>
+            <DataText text={freq.label} />
+          </p>
         </section>
       </div>
 

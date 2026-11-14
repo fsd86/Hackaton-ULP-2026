@@ -1,9 +1,12 @@
 import { useEffect, useMemo } from "react";
 import { useContent } from "../content/ContentContext";
+import { CoverageSection } from "../components/CoverageSection";
+import { DataText } from "../components/DataText";
 import { EmptyState } from "../components/EmptyState";
 import { PlaceholderBadge } from "../components/PlaceholderBadge";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { buildCitations, summarizeVerification, type Citation } from "../logic/citations";
+import { buildCoverage } from "../logic/coverage";
 import { panel } from "./daily/ui";
 
 /** Vista Sources. Ruta #/sources[/<sourceId>]: la fuente indicada recibe scroll y foco. */
@@ -15,6 +18,8 @@ export function SourcesView({ param }: { param: string | undefined }) {
     [sources, indicators, environments, protocols, hazards],
   );
   const summary = summarizeVerification({ sources, indicators, protocols, environments });
+  // Cobertura por dato: el status global PLACEHOLDER de un indicador escondía cuánto SÍ tiene fuente.
+  const coverage = useMemo(() => buildCoverage({ indicators, protocols, environments }), [indicators, protocols, environments]);
   const target = param !== undefined ? sources.find((s) => s.id === param) : undefined;
 
   // setTimeout: el Shell enfoca <main> en su propio efecto (corre después de los hijos); esperamos un tick.
@@ -33,11 +38,9 @@ export function SourcesView({ param }: { param: string | undefined }) {
     return t(`sources.cite.${c.kind}`, vars);
   };
 
+  // Fuentes: el status por fuente sí es por dato (cada fuente es un registro). El resto se muestra por dato abajo.
   const rows: Array<{ key: string; label: string; v: { verified: number; placeholder: number } }> = [
     { key: "sources", label: t("sources.summary.sources"), v: summary.sources },
-    { key: "indicators", label: t("sources.summary.indicators"), v: summary.indicators },
-    { key: "protocols", label: t("sources.summary.protocols"), v: summary.protocols },
-    { key: "environments", label: t("sources.summary.environments"), v: summary.environments },
   ];
 
   return (
@@ -55,6 +58,10 @@ export function SourcesView({ param }: { param: string | undefined }) {
         </h2>
         <p className="mb-3 text-sm text-[var(--color-muted)]">{t("sources.summary.intro")}</p>
         <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div data-testid="summary-total" className="rounded-md border border-[var(--color-line)] bg-[var(--color-ink)] p-3 sm:col-span-1 lg:col-span-3">
+            <dt className="font-bold">{t("coverage.title")}</dt>
+            <dd className="mt-1 text-2xl font-extrabold">{t("coverage.total", { ...coverage.totals.all })}</dd>
+          </div>
           {rows.map((r) => (
             <div key={r.key} data-testid={`summary-${r.key}`} className="rounded-md border border-[var(--color-line)] bg-[var(--color-ink)] p-3">
               <dt className="font-bold">{r.label}</dt>
@@ -65,6 +72,7 @@ export function SourcesView({ param }: { param: string | undefined }) {
             </div>
           ))}
         </dl>
+        <CoverageSection coverage={coverage} />
       </section>
 
       {param !== undefined && !target && (
@@ -116,11 +124,15 @@ export function SourcesView({ param }: { param: string | undefined }) {
                       )}
                     </dd>
                     <dt className="font-semibold text-[var(--color-muted)]">{t("sources.accessed")}</dt>
-                    <dd>{s.accessed}</dd>
+                    <dd>
+                      <DataText text={s.accessed} />
+                    </dd>
                     {s.license && (
                       <>
                         <dt className="font-semibold text-[var(--color-muted)]">{t("sources.license")}</dt>
-                        <dd>{s.license}</dd>
+                        <dd>
+                          <DataText text={s.license} />
+                        </dd>
                       </>
                     )}
                     {s.notes && (

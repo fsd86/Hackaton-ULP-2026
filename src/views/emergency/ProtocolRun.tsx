@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Protocol } from "../../content/schemas";
 import { ReferenceNote } from "../../components/EarthReferenceNote";
+import { DataText } from "../../components/DataText";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
 import { SourceLinks } from "../../components/SourceLinks";
 import { StatusIcon } from "../../components/StatusIcon";
 import { useEnvironment } from "../../hooks/useEnvironment";
 import { formatTime } from "../../logic/daily";
 import { escalate } from "../../logic/escalation";
+import { isPlaceholderText, plainDataText } from "../../logic/placeholder";
 import { firstUndoneIndex, formatElapsed } from "../../logic/emergency";
 import {
   addEmergencyLogEntry,
@@ -123,7 +125,7 @@ export function ProtocolRun({
               <span>
                 <span className="font-bold">{t("emergency.step_label", { n: e.stepIndex + 1 })}</span>
                 {" — "}
-                {protocol.steps[e.stepIndex]?.text}
+                {plainDataText(protocol.steps[e.stepIndex]?.text ?? "", t)}
               </span>
               <time dateTime={new Date(e.timestamp).toISOString()} className="shrink-0 font-mono font-bold">
                 {formatTime(e.timestamp, locale)}
@@ -209,9 +211,11 @@ export function ProtocolRun({
             )}
           </p>
           <h1 id="em-step-title" ref={headingRef} tabIndex={-1} className="mt-1 text-2xl font-extrabold leading-snug outline-none md:mt-1">
-            {step.text}
+            <DataText text={step.text} withTopic />
           </h1>
-          {step.detail && <p className="mt-2 text-base leading-snug text-[var(--color-muted)] md:mt-2 md:text-lg md:leading-snug">{step.detail}</p>}
+          {step.detail && !isPlaceholderText(step.detail) && (
+            <p className="mt-2 text-base leading-snug text-[var(--color-muted)] md:mt-2 md:text-lg md:leading-snug">{step.detail}</p>
+          )}
 
           <div className="mt-3 flex flex-wrap md:mt-4 items-center gap-x-4 gap-y-2 text-base">
             {step.source_ids.length > 0 ? (
@@ -257,7 +261,9 @@ export function ProtocolRun({
           <ul className="space-y-2">
             {protocol.notes.map((n, i) => (
               <li key={i} className="rounded-md border border-[var(--color-line)] bg-[var(--color-panel)] p-3">
-                <p>{n.text}</p>
+                <p>
+                  <DataText text={n.text} withTopic />
+                </p>
                 {n.earth_reference && <ReferenceNote earth compact className="mt-2" />}
                 {n.source_ids.length > 0 ? (
                   <SourceLinks ids={n.source_ids} label={t("emergency.step_sources")} className="mt-2" />

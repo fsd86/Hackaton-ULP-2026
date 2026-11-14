@@ -5,6 +5,7 @@ import type { Indicator, Protocol } from "../content/schemas";
 import { formatDelay } from "./delay";
 import { formatValue, readingsFor, statusOfReading } from "./daily";
 import type { EvalStatus } from "./evaluate";
+import { plainDataText } from "./placeholder";
 
 // Informe de bajada (downlink). Función pura: recibe los datos, no lee storage ni reloj.
 
@@ -153,7 +154,7 @@ export function buildReport(input: ReportInput): Report {
       protocol_id: p.id,
       protocol_title: p.title,
       step_index: entry.stepIndex,
-      step_text: p.steps[entry.stepIndex]?.text ?? "",
+      step_text: plainDataText(p.steps[entry.stepIndex]?.text ?? "", t),
       timestamp: entry.timestamp,
       time: hm(entry.timestamp),
     });

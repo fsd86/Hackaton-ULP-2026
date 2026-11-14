@@ -1,5 +1,6 @@
 import { useContent } from "../../content/ContentContext";
 import type { Environment, Indicator } from "../../content/schemas";
+import { DataText } from "../../components/DataText";
 import { DueBadge } from "../../components/DueBadge";
 import { PlaceholderBadge } from "../../components/PlaceholderBadge";
 import { labelFor } from "../../logic/labels";
@@ -63,7 +64,7 @@ export function IndicatorList({
                     {ind.status === "PLACEHOLDER" && <PlaceholderBadge short />}
                   </div>
                   <p className="text-sm text-[var(--color-muted)]">
-                    {t("daily.frequency")}: {freq.label}
+                    {t("daily.frequency")}: <DataText text={freq.label} />
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     {last ? (

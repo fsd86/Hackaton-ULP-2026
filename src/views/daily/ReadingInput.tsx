@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { Indicator } from "../../content/schemas";
 import type { ReadingValue } from "../../logic/evaluate";
+import { isPlaceholderText } from "../../logic/placeholder";
 import { validateReading } from "../../logic/validateInput";
 import { btnPrimary, inputClass } from "./ui";
 
@@ -83,7 +84,9 @@ export function ReadingInput({ indicator, onSubmit }: { indicator: Indicator; on
         <legend className="mb-2 font-semibold">{t("daily.scale_pick")}</legend>
         <div className="grid gap-2">
           {options.map((n) => {
-            const label = input.labels[String(n)];
+            // Etiqueta sin fuente (PLACEHOLDER) no se muestra: queda solo el número.
+            const raw = input.labels[String(n)];
+            const label = raw && !isPlaceholderText(raw) ? raw : undefined;
             const checked = scale === n;
             return (
               <label

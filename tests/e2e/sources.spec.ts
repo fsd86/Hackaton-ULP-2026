@@ -16,6 +16,13 @@ test("sources: lists every source from data/sources.json with its verification s
   await page.goto("/#/sources");
   await expect(page.getByRole("heading", { level: 1, name: strings["sources.title"] })).toBeVisible();
   await expect(page.getByTestId("summary-sources")).toBeVisible();
+  // Antes el resumen contaba indicadores enteros ("0 verified / 6 placeholder"); ahora la cobertura es por dato.
+  await expect(page.getByTestId("summary-total")).toContainText(/\d+ of \d+/);
+  for (const ind of indicators) await expect(page.getByTestId(`coverage-row-${ind.id}`)).toContainText(ind.name);
+  await expect(page.getByTestId("coverage-protocols")).toBeVisible();
+  await expect(page.getByTestId("coverage-environments")).toBeVisible();
+  // El marcador crudo nunca se muestra en la vista de fuentes.
+  await expect(page.locator("#main")).not.toContainText("PLACEHOLDER");
   for (const s of sources) {
     const card = page.locator(`#source-${s.id}`);
     await expect(card).toHaveCount(1);

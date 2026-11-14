@@ -1,6 +1,7 @@
 import { useContent } from "../../content/ContentContext";
 import type { Environment, Indicator } from "../../content/schemas";
 import { renderIndicatorText } from "../../logic/indicatorText";
+import { DataText } from "../DataText";
 import { EarthReferenceNote } from "../EarthReferenceNote";
 import { SourceLinks } from "../SourceLinks";
 import { StatusBadge } from "../StatusBadge";
@@ -72,7 +73,9 @@ export function ZoneDetail({
                   <p className="eyebrow mt-3 !text-[0.62rem]">{t("hud.zone_detail.what_to_do")}</p>
                   <ul className="mt-1 list-disc space-y-1 pl-5 text-[0.82rem] leading-snug">
                     {lines.map((line, i) => (
-                      <li key={i}>{renderIndicatorText(line, ind, environment)}</li>
+                      <li key={i}>
+                        <DataText text={renderIndicatorText(line, ind, environment)} />
+                      </li>
                     ))}
                   </ul>
                 </>
