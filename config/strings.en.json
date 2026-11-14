@@ -209,6 +209,7 @@
   "sources.summary.verified": "{n} verified",
   "sources.summary.placeholder": "{n} placeholder",
   "sources.links.label": "Sources",
+  "sources.links.compact_item": "Source {n}: {publisher}",
   "sources.cite.indicator": "Indicator: {name}",
   "sources.cite.range": "Range \"{status}\" of {name}",
   "sources.cite.range_secondary": "Secondary range \"{status}\" of {name}",

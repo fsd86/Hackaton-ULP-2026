@@ -2,6 +2,7 @@ import { useContent } from "../content/ContentContext";
 import { useEnvironment } from "../hooks/useEnvironment";
 import { classifyDelay, formatDelay } from "../logic/delay";
 import { PlaceholderBadge } from "./PlaceholderBadge";
+import { SourceLinks } from "./SourceLinks";
 
 /** Elemento-firma: demora de comunicación (solo ida) del entorno actual, compacta y siempre visible en la barra superior. */
 export function DelayBanner({ className = "" }: { className?: string }) {
@@ -28,6 +29,8 @@ export function DelayBanner({ className = "" }: { className?: string }) {
           <span className="sr-only">{t("environment.delay.sr_prefix")} </span>
           {text}
         </p>
+        {/* La demora es una afirmación científica: su fuente se enlaza aquí, visible en todas las vistas. */}
+        <SourceLinks compact ids={delay.source_ids} className="mt-1" />
       </div>
       {isPlaceholder && <PlaceholderBadge short className="shrink-0" />}
     </div>
