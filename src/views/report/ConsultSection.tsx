@@ -4,7 +4,18 @@ import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { ReferenceNote } from "../../components/EarthReferenceNote";
 import { SourceLinks } from "../../components/SourceLinks";
 import type { Consult, ConsultHelp, ConsultQuestion, Environment } from "../../content/schemas";
-import { activeSets, answeredSetIds, computeCounter, counterAssumption, counterText, isAnswered, roundTripText, visibleQuestions, type ConsultJson } from "../../logic/consult";
+import {
+  activeSets,
+  completeSetIds,
+  computeCounter,
+  counterAssumption,
+  counterParams,
+  counterText,
+  isAnswered,
+  roundTripText,
+  visibleQuestions,
+  type ConsultJson,
+} from "../../logic/consult";
 import type { ConsultAnswerValue, ConsultDraft } from "../../storage/local";
 import { btnPrimary, btnSecondary, inputClass, panel } from "../daily/ui";
 
@@ -198,7 +209,12 @@ function ConsultForm({
             <legend className="px-1 text-lg font-bold">{set.title}</legend>
             {/* space-y en un contenedor propio: aplicado al fieldset separaba de más la legend. */}
             <div className="space-y-4">
-              <p className="text-sm text-[var(--color-muted)]">{t("consult.module.progress", { n: done, m: userQs.length })}</p>
+              <p className="text-sm text-[var(--color-muted)]" data-testid="consult-module-progress">
+                {t("consult.module.progress", { n: done, m: userQs.length })}
+                {userQs.length > 0 && done === userQs.length && (
+                  <span className="ml-2 font-semibold text-[var(--color-text)]">· {t("consult.module.complete")}</span>
+                )}
+              </p>
               {help && <HelpText help={help} className="text-sm" />}
               {qs.map((q) => (
                 <QuestionField
@@ -393,8 +409,8 @@ function QuestionField({
 
 function Counter({ consult, draft, environment }: { consult: Consult; draft: ConsultDraft; environment: Environment }) {
   const { t, content } = useContent();
-  const perSet = content.app.consult.round_trips_per_answered_set;
-  const c = computeCounter(answeredSetIds(consult, draft).length, perSet, environment.comm_delay_one_way_s);
+  const params = counterParams(content.app.consult);
+  const c = computeCounter(completeSetIds(consult, draft).length, params, environment.comm_delay_one_way_s);
   const text = counterText(c, t);
   return (
     <section aria-labelledby="consult-counter-title" data-testid="consult-counter" className="rounded border-2 border-[var(--color-accent)] p-4">
@@ -412,7 +428,7 @@ function Counter({ consult, draft, environment }: { consult: Consult; draft: Con
         </p>
         {text.detail && <p className="mt-1 font-semibold">{text.detail}</p>}
       </div>
-      <p className="mt-2 text-sm">{counterAssumption(perSet, t)}</p>
+      <p className="mt-2 text-sm">{counterAssumption(params, t)}</p>
       <p className="mt-1 text-sm text-[var(--color-muted)]">{roundTripText(environment.comm_delay_one_way_s, t)}</p>
       <SourceLinks ids={environment.comm_delay_one_way_s.source_ids} label={t("sources.delay_sources")} compact className="mt-1" />
     </section>

@@ -28,6 +28,19 @@ const symptom = read<{ symptoms: Array<{ id: string; label: string }> }>("data/c
   (s) => s.id === demo.scenario.consult?.symptom_id,
 );
 const total = demo.steps.length;
+// Sets del sintoma con TODAS sus preguntas propias (no auto, sin skip_if) en las respuestas DEMO.
+const consultData = read<{
+  symptoms: Array<{ id: string; modules: string[] }>;
+  question_sets: Array<{ id: string; questions: Array<{ id: string; answer: { type: string }; skip_if?: unknown }> }>;
+}>("data/consult.json");
+const demoIds = new Set(demo.scenario.consult!.demo_answers.map((a) => a.question_id));
+const completeDemoSets = consultData.symptoms
+  .find((s) => s.id === demo.scenario.consult!.symptom_id)!
+  .modules.map((m) => consultData.question_sets.find((s) => s.id === m)!)
+  .filter((set) => {
+    const own = set.questions.filter((q) => q.answer.type !== "auto" && q.skip_if === undefined);
+    return own.length > 0 && own.every((q) => demoIds.has(q.id));
+  }).length;
 const zone = ind.body_zone ?? "body";
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -91,7 +104,9 @@ test("guided demo: Next through every step, then Esc restores focus and leaves n
         if (a.text !== undefined) await expect(q.locator("textarea"), a.question_id).toHaveValue(a.text);
         if (a.minutes_ago !== undefined) await expect(q.locator('input[type="datetime-local"]'), a.question_id).not.toHaveValue("");
       }
-      await expect(page.getByTestId("consult-counter-headline")).not.toHaveText(strings["consult.counter.none"]!);
+      // Solo cuentan los sets COMPLETOS (OPQRST y escala de dolor; SAMPLE queda a medias): rango 1..N round trips.
+      await expect(page.getByTestId("consult-counter-headline")).toContainText(`between 1 and ${completeDemoSets} round trips`);
+      await expect(page.getByTestId("consult-counter")).toContainText(strings["consult.counter.badge"]!);
       // Todavia no hubo colapso: no hay sesion de emergencia de la demo.
       expect(await page.evaluate(() => localStorage.getItem("eif.emergency_session"))).toBeNull();
     }

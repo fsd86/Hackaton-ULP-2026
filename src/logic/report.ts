@@ -1,7 +1,7 @@
 import type { Content } from "../content/load";
 import type { TFunction } from "../content/t";
 import type { ConsultDraft, EmergencyLogEntry, Reading } from "../storage/local";
-import { buildConsultSection, renderConsultText, type ConsultJson } from "./consult";
+import { buildConsultSection, counterParams, renderConsultText, type ConsultJson } from "./consult";
 import type { Indicator, Protocol } from "../content/schemas";
 import { formatDelay } from "./delay";
 import { formatValue, readingsFor, statusOfReading } from "./daily";
@@ -179,7 +179,7 @@ export function buildReport(input: ReportInput): Report {
   // ---- One-shot consult (lecturas automáticas: la última de cada indicador, sin ventana de período)
   const consult =
     content.consult && input.consultDraft
-      ? buildConsultSection(content.consult, input.consultDraft, content.app.consult.round_trips_per_answered_set, {
+      ? buildConsultSection(content.consult, input.consultDraft, counterParams(content.app.consult), {
           now,
           env,
           indicators: content.indicators,

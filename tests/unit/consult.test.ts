@@ -4,9 +4,12 @@ import { validateContent, type Content } from "../../src/content/load";
 import { createT } from "../../src/content/t";
 import {
   activeSets,
-  answeredSetIds,
+  completeSetIds,
   computeCounter,
+  counterAssumption,
+  counterParams,
   counterText,
+  isSetComplete,
   visibleQuestions,
 } from "../../src/logic/consult";
 import { buildReport } from "../../src/logic/report";
@@ -87,48 +90,108 @@ describe("data/consult.json: schema and cross-checks", () => {
   });
 });
 
-describe("counter: N answered sets and X = N x round trip from environments.json only", () => {
+// Respuestas que completan OPQRST (6 preguntas) y la escala de dolor (2).
+const FULL_OPQRST: ConsultDraft["answers"] = {
+  o_when: { value: "2026-11-14T11:50" },
+  o_how: { value: "Suddenly" },
+  p: { text: "nothing changes it" },
+  q: { text: "pressure" },
+  r: { text: "centre of the chest" },
+  t: { value: "Constant" },
+};
+const FULL_PAIN: ConsultDraft["answers"] = { pain_now: { value: 6 }, pain_words: { value: "Moderate" } };
+const ONE_ONE = { upperPerCompleteSet: 1, lower: 1 };
+
+describe("counter: range of round trips from complete sets, minutes from environments.json only", () => {
   const mars = environmentsJson.environments.find((e) => e.id === "spacecraft")!.comm_delay_one_way_s;
   const strings = loadReal().strings;
   const t = createT(strings, { strict: true });
 
-  it("Mars: min and max defined", () => {
-    const c = computeCounter(3, 1, mars);
-    expect(c.roundTrips).toBe(3);
+  it("Mars, 2 complete sets: between 1 and 2 round trips; 1 × 2 × min one-way to 2 × 2 × max one-way", () => {
+    const c = computeCounter(2, ONE_ONE, mars);
+    expect(c.roundTrips).toEqual({ min: 1, max: 2 });
     expect(c.roundTripS).toEqual({ min: 2 * mars.min!, max: 2 * mars.max! });
-    expect(c.maxSavedS).toBe(3 * 2 * mars.max!);
-    expect(c.minSavedS).toBe(3 * 2 * mars.min!);
+    expect(c.savedS).toEqual({ min: 1 * 2 * mars.min!, max: 2 * 2 * mars.max! });
     const text = counterText(c, t);
-    expect(text.headline).toContain(`${(3 * 2 * mars.max!) / 60} min`);
-    expect(text.detail).toContain(`${(3 * 2 * mars.min!) / 60} min`);
+    // 3–22 min de ida → de 6 a 88 min.
+    expect(text.headline).toBe("Avoids between 1 and 2 round trips — about 6 min to 88 min");
+    expect(text.detail).toContain("Lower bound: 1 round trip at the shortest delay (6 min)");
+    expect(text.detail).toContain("Upper bound: 2 round trips at the longest delay (88 min)");
   });
 
-  it("min equal to max: no separate minimum", () => {
-    const c = computeCounter(2, 1, { min: 90, max: 90 });
-    expect(c.maxSavedS).toBe(360);
-    expect(c.minSavedS).toBeNull();
+  it("one complete set: exactly 1 round trip, minutes still a range over the delay", () => {
+    const c = computeCounter(1, ONE_ONE, mars);
+    expect(c.roundTrips).toEqual({ min: 1, max: 1 });
+    expect(counterText(c, t).headline).toBe("Avoids about 1 round trip — about 6 min to 44 min");
   });
 
-  it("unknown delay (PLACEHOLDER): no time estimate", () => {
-    const c = computeCounter(2, 1, { min: null, max: null });
+  it("fixed delay (min = max) and one set: a single value", () => {
+    const c = computeCounter(1, ONE_ONE, { min: 90, max: 90 });
+    expect(c.savedS).toEqual({ min: 180, max: 180 });
+    expect(counterText(c, t).headline).toBe("Avoids about 1 round trip — about 3 min");
+  });
+
+  it("N = 0: no saving is claimed", () => {
+    const c = computeCounter(0, ONE_ONE, mars);
+    expect(c.roundTrips).toEqual({ min: 0, max: 0 });
+    expect(counterText(c, t)).toEqual({ headline: strings["consult.counter.none"], detail: null });
+  });
+
+  it("unknown delay (PLACEHOLDER): round trips but no minutes", () => {
+    const c = computeCounter(2, ONE_ONE, { min: null, max: null });
     expect(c.delayKnown).toBe(false);
-    expect(c.maxSavedS).toBeNull();
+    expect(c.savedS).toEqual({ min: null, max: null });
     const text = counterText(c, t);
+    expect(text.headline).toBe("Avoids between 1 and 2 round trips");
     expect(text.detail).toBe(strings["consult.counter.unknown"]);
   });
 
-  it("round trips per set comes from config (design parameter)", () => {
-    expect(computeCounter(2, 2, mars).roundTrips).toBe(4);
-    expect(counterText(computeCounter(0, 1, mars), t).headline).toBe(strings["consult.counter.none"]);
+  it("design parameters come from config; the lower bound never exceeds the upper bound", () => {
+    expect(computeCounter(2, { upperPerCompleteSet: 2, lower: 1 }, mars).roundTrips).toEqual({ min: 1, max: 4 });
+    expect(computeCounter(1, { upperPerCompleteSet: 1, lower: 3 }, mars).roundTrips).toEqual({ min: 1, max: 1 });
+    expect(counterParams(loadReal().app.consult)).toEqual(ONE_ONE);
+    const assumption = counterAssumption(ONE_ONE, t);
+    expect(assumption).toContain("one set per message");
+    expect(assumption).toContain("batch all its follow-up questions in one message");
   });
 });
 
-describe("answered sets and skip rules", () => {
+describe("complete sets and skip rules", () => {
   const consult = loadReal().consult!;
+  const draft = (answers: ConsultDraft["answers"]): ConsultDraft => ({ symptomId: "chest_pain", answers, updatedAt: 0 });
 
-  it("counts only sets with an answer from the person (auto fields do not count)", () => {
-    const draft: ConsultDraft = { symptomId: "chest_pain", answers: { q: { text: "pressure" }, pain_now: { value: 6 } }, updatedAt: 0 };
-    expect(answeredSetIds(consult, draft)).toEqual(["opqrst", "pain_scale"]);
+  it("a set with only some answers does NOT count (one answer is not a whole set)", () => {
+    expect(completeSetIds(consult, draft({ q: { text: "pressure" }, pain_now: { value: 6 } }))).toEqual([]);
+    const fiveOfSix = { ...FULL_OPQRST };
+    delete fiveOfSix.t;
+    expect(completeSetIds(consult, draft(fiveOfSix))).toEqual([]);
+  });
+
+  it("a set counts only when every visible, non-auto question has an answer", () => {
+    expect(completeSetIds(consult, draft({ ...FULL_OPQRST, ...FULL_PAIN, a_allergies: { value: "No" } }))).toEqual(["opqrst", "pain_scale"]);
+  });
+
+  it("questions hidden by skip_if do not block a set; auto fields never count as answers", () => {
+    const sets = activeSets(consult, "chest_pain");
+    const ids = new Set(sets.map((s) => s.id));
+    const sample = sets.find((s) => s.id === "sample")!;
+    const remote = sets.find((s) => s.id === "remote_min")!;
+    // e_events se oculta cuando o_when esta respondida: SAMPLE se completa sin ella.
+    const sampleAnswers: ConsultDraft["answers"] = {
+      o_when: { value: "2026-11-14T11:50" },
+      s_symptoms: { text: "x" },
+      a_allergies: { value: "No" },
+      m_before: { text: "x" },
+      m_since: { text: "x" },
+      p_past: { text: "x" },
+      l_last_intake: { value: "2026-11-14T08:00" },
+    };
+    expect(isSetComplete(sample, ids, sampleAnswers)).toBe(true);
+    const withoutWhen = { ...sampleAnswers };
+    delete withoutWhen.o_when;
+    expect(isSetComplete(sample, ids, withoutWhen)).toBe(false); // e_events visible y sin respuesta
+    // remote_min: las auto (hora, lecturas, contexto) no cuentan; con solo ellas el set no esta completo.
+    expect(isSetComplete(remote, ids, {})).toBe(false);
   });
 
   it("e_events hides once o_when is answered; course hides when OPQRST is active", () => {
@@ -168,7 +231,7 @@ describe("report: consult section", () => {
   it("groups answers by module, lists unanswered questions and the counter", () => {
     const draft: ConsultDraft = {
       symptomId: "chest_pain",
-      answers: { q: { text: "pressure" }, o_how: { value: "Suddenly" }, pain_now: { value: 7 } },
+      answers: { ...FULL_OPQRST, pain_now: { value: 7 } }, // OPQRST completo; escala a medias (no cuenta)
       updatedAt: 0,
     };
     const r = buildReport({ ...base, consultDraft: draft });
@@ -176,9 +239,12 @@ describe("report: consult section", () => {
     expect(c.symptom.label).toBe("Chest pain or pressure");
     expect(c.modules.map((m) => m.id)).toEqual(["opqrst", "sample", "pain_scale", "remote_min"]);
     expect(c.modules.find((m) => m.id === "opqrst")!.questions.find((q) => q.id === "q")!.answer).toBe("pressure");
-    expect(c.not_answered.some((q) => q.id === "p")).toBe(true);
-    expect(c.counter.round_trips).toBe(2);
-    expect(c.counter.max_saved_s).toBe(2 * 2 * 1320);
+    expect(c.not_answered.some((q) => q.id === "pain_words")).toBe(true);
+    expect(c.modules.map((m) => [m.id, m.complete])).toEqual([["opqrst", true], ["sample", false], ["pain_scale", false], ["remote_min", false]]);
+    expect(c.counter.complete_sets).toBe(1);
+    expect(c.counter.round_trips).toEqual({ min: 1, max: 1 });
+    expect(c.counter.saved_s).toEqual({ min: 1 * 2 * 180, max: 1 * 2 * 1320 });
+    expect(r.text).toContain(c.counter.assumption);
     const vitals = c.modules.find((m) => m.id === "remote_min")!.questions.find((q) => q.id === "vitals")!;
     expect(vitals.status).toBe("auto");
     expect(vitals.auto?.[0]).toContain(content.indicators[0].name);

@@ -334,13 +334,16 @@ export const AppConfig = z.object({
   // Opcional: sin hero, el tablero dibuja el cuerpo SVG.
   hero: HeroConfig.optional(),
   hud: HudConfig,
-  // One-shot consult: parametro de DISENO (no medico) del contador "Avoids up to N round trips"; ver _comment.
+  // One-shot consult: parametros de DISENO (no medicos) del contador "Avoids between 1 and N round trips"; ver _comment.
   consult: z
     .object({
       _comment: Comment,
-      round_trips_per_answered_set: z.number().int().positive(),
+      // Cota superior: round trips evitados por set COMPLETO (tierra pregunta un set por mensaje).
+      upper_round_trips_per_complete_set: z.number().int().positive(),
+      // Cota inferior: round trips evitados con al menos un set completo (tierra agrupa todo en un mensaje).
+      lower_round_trips: z.number().int().positive(),
     })
-    .default({ round_trips_per_answered_set: 1 }),
+    .default({ upper_round_trips_per_complete_set: 1, lower_round_trips: 1 }),
 });
 
 // ---- demo-readings.json (datos sinteticos de demostracion, no mediciones reales)

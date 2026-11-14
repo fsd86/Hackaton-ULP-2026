@@ -116,41 +116,61 @@ export function visibleQuestions(set: ConsultQuestionSet, activeSetIds: Readonly
   return set.questions.filter((q) => !isSkipped(q, activeSetIds, answers));
 }
 
-/** Sets con al menos una respuesta propia (cada uno = un intercambio que el médico ya no tiene que pedir). */
-export function answeredSetIds(consult: Consult, draft: ConsultDraft): string[] {
-  const sets = activeSets(consult, draft.symptomId);
-  const ids = new Set(sets.map((s) => s.id));
-  return sets.filter((s) => visibleQuestions(s, ids, draft.answers).some((q) => isAnswered(draft.answers[q.id]))).map((s) => s.id);
+/**
+ * Set COMPLETO: tiene al menos una pregunta para la persona y TODAS las preguntas visibles que no son automáticas
+ * (las que no saltó una regla skip_if) tienen respuesta propia. Un set a medias no cuenta para el contador.
+ */
+export function isSetComplete(set: ConsultQuestionSet, activeSetIds: ReadonlySet<string>, answers: ConsultDraft["answers"]): boolean {
+  const own = visibleQuestions(set, activeSetIds, answers).filter((q) => q.answer.type !== "auto");
+  return own.length > 0 && own.every((q) => isAnswered(answers[q.id]));
 }
 
-// ---------- contador "Avoids up to N round trips" ----------
+/** Sets completos del síntoma elegido, en su orden. */
+export function completeSetIds(consult: Consult, draft: ConsultDraft): string[] {
+  const sets = activeSets(consult, draft.symptomId);
+  const ids = new Set(sets.map((s) => s.id));
+  return sets.filter((s) => isSetComplete(s, ids, draft.answers)).map((s) => s.id);
+}
+
+// ---------- contador "Avoids between 1 and N round trips" ----------
+
+/** Parámetros de DISEÑO del contador (config/app.json → consult). */
+export interface CounterParams {
+  /** Cota superior: round trips evitados por cada set completo (supuesto: tierra pregunta un set por mensaje). */
+  upperPerCompleteSet: number;
+  /** Cota inferior: round trips evitados si hay al menos un set completo (supuesto: tierra agrupa todo en un mensaje). */
+  lower: number;
+}
+
+/** config/app.json → consult (validado por zod) → parámetros del contador. */
+export function counterParams(cfg: { upper_round_trips_per_complete_set: number; lower_round_trips: number }): CounterParams {
+  return { upperPerCompleteSet: cfg.upper_round_trips_per_complete_set, lower: cfg.lower_round_trips };
+}
 
 export interface ConsultCounter {
-  answeredSets: number;
-  /** N = sets respondidos × round_trips_per_answered_set (config/app.json, parámetro de diseño). */
-  roundTrips: number;
-  /** Ida y vuelta (s) = 2 × comm_delay_one_way_s del entorno; null si no hay dato. */
+  completeSets: number;
+  /** Rango de round trips evitados: min = lower (si hay sets completos), max = N × upperPerCompleteSet. 0/0 sin sets. */
+  roundTrips: { min: number; max: number };
+  /** Ida y vuelta (s) = 2 × comm_delay_one_way_s del entorno (min y max); null si no hay dato. */
   roundTripS: { min: number | null; max: number | null };
-  /** X = N × ida y vuelta (s), con el máximo; null si el retardo es desconocido. */
-  maxSavedS: number | null;
-  /** Igual con el mínimo, solo si el entorno define un mínimo distinto del máximo. */
-  minSavedS: number | null;
+  /** Minutos ahorrados (s): min = roundTrips.min × ida y vuelta mínima; max = roundTrips.max × ida y vuelta máxima. */
+  savedS: { min: number | null; max: number | null };
   delayKnown: boolean;
 }
 
-export function computeCounter(answeredSets: number, perSet: number, delay: { min: number | null; max: number | null }): ConsultCounter {
-  const roundTrips = answeredSets * perSet;
+export function computeCounter(completeSets: number, params: CounterParams, delay: { min: number | null; max: number | null }): ConsultCounter {
+  const max = completeSets * params.upperPerCompleteSet;
+  const min = completeSets > 0 ? Math.min(params.lower, max) : 0;
+  const lo = delay.min ?? delay.max;
   const hi = delay.max ?? delay.min;
-  const minDistinct = delay.min !== null && delay.max !== null && delay.min !== delay.max ? delay.min : null;
+  const rtMin = lo === null ? null : 2 * lo;
   const rtMax = hi === null ? null : 2 * hi;
-  const rtMin = minDistinct === null ? null : 2 * minDistinct;
   return {
-    answeredSets,
-    roundTrips,
+    completeSets,
+    roundTrips: { min, max },
     roundTripS: { min: rtMin, max: rtMax },
-    maxSavedS: rtMax === null ? null : roundTrips * rtMax,
-    minSavedS: rtMin === null ? null : roundTrips * rtMin,
-    delayKnown: rtMax !== null,
+    savedS: { min: rtMin === null ? null : min * rtMin, max: rtMax === null ? null : max * rtMax },
+    delayKnown: rtMin !== null && rtMax !== null,
   };
 }
 
@@ -160,21 +180,35 @@ export function formatDuration(seconds: number, t: TFunction): string {
   return t("consult.duration.minutes", { m: formatMinutes(seconds) });
 }
 
-/** Texto del supuesto (parámetro de diseño round_trips_per_answered_set de config/app.json). */
-export function counterAssumption(perSet: number, t: TFunction): string {
-  const exchanges = t(perSet === 1 ? "consult.counter.exchanges_one" : "consult.counter.exchanges_other", { n: perSet });
-  return t("consult.counter.assumption", { exchanges });
+function tripsWord(n: number, t: TFunction): string {
+  return t(n === 1 ? "consult.counter.trips_one" : "consult.counter.trips_other", { n });
+}
+
+/** Texto de los supuestos (parámetros de diseño de config/app.json → consult). */
+export function counterAssumption(params: CounterParams, t: TFunction): string {
+  return t("consult.counter.assumption", { per_set: tripsWord(params.upperPerCompleteSet, t), lower: tripsWord(params.lower, t) });
 }
 
 export function counterText(c: ConsultCounter, t: TFunction): { headline: string; detail: string | null } {
-  if (c.roundTrips === 0) return { headline: t("consult.counter.none"), detail: null };
-  const trips = t(c.roundTrips === 1 ? "consult.counter.trips_one" : "consult.counter.trips_other", { n: c.roundTrips });
-  if (!c.delayKnown || c.maxSavedS === null) {
+  if (c.roundTrips.max === 0) return { headline: t("consult.counter.none"), detail: null };
+  const trips =
+    c.roundTrips.min === c.roundTrips.max
+      ? t("consult.counter.trips_exact", { trips: tripsWord(c.roundTrips.max, t) })
+      : t("consult.counter.trips_range", { min: c.roundTrips.min, max: c.roundTrips.max });
+  const { min, max } = c.savedS;
+  if (!c.delayKnown || min === null || max === null) {
     return { headline: t("consult.counter.headline_unknown", { trips }), detail: t("consult.counter.unknown") };
   }
-  const headline = t("consult.counter.headline", { trips, max: formatDuration(c.maxSavedS, t) });
-  const detail = c.minSavedS !== null ? t("consult.counter.min", { min: formatDuration(c.minSavedS, t) }) : null;
-  return { headline, detail };
+  const lo = formatDuration(min, t);
+  const hi = formatDuration(max, t);
+  const time = lo === hi ? t("consult.counter.time_single", { value: hi }) : t("consult.counter.time_range", { min: lo, max: hi });
+  const detail = t("consult.counter.bounds", {
+    min_trips: tripsWord(c.roundTrips.min, t),
+    min: lo,
+    max_trips: tripsWord(c.roundTrips.max, t),
+    max: hi,
+  });
+  return { headline: t("consult.counter.headline", { trips, time }), detail };
 }
 
 // ---------- campos automáticos ----------
@@ -251,7 +285,8 @@ export interface ConsultQuestionJson {
 export interface ConsultModuleJson {
   id: string;
   title: string;
-  answered: boolean;
+  /** Set completo: todas sus preguntas visibles para la persona tienen respuesta (solo estos cuentan). */
+  complete: boolean;
   questions: ConsultQuestionJson[];
 }
 
@@ -261,11 +296,10 @@ export interface ConsultJson {
   modules: ConsultModuleJson[];
   not_answered: Array<{ id: string; text: string; module_id: string }>;
   counter: {
-    answered_sets: number;
-    round_trips: number;
+    complete_sets: number;
+    round_trips: { min: number; max: number };
     round_trip_s: { min: number | null; max: number | null };
-    max_saved_s: number | null;
-    min_saved_s: number | null;
+    saved_s: { min: number | null; max: number | null };
     text: string;
     assumption: string;
   };
@@ -287,7 +321,7 @@ export function answerText(q: ConsultQuestion, a: ConsultAnswerValue | undefined
 export function buildConsultSection(
   consult: Consult,
   draft: ConsultDraft,
-  perSet: number,
+  params: CounterParams,
   ctx: AutoContext,
 ): ConsultJson | null {
   const symptom = findSymptom(consult, draft.symptomId);
@@ -295,12 +329,12 @@ export function buildConsultSection(
   const { t } = ctx;
   const sets = activeSets(consult, draft.symptomId);
   const setIds = new Set(sets.map((s) => s.id));
-  const answered = new Set(answeredSetIds(consult, draft));
+  const complete = new Set(completeSetIds(consult, draft));
   const notAnswered: ConsultJson["not_answered"] = [];
   const modules: ConsultModuleJson[] = sets.map((set) => ({
     id: set.id,
     title: set.title,
-    answered: answered.has(set.id),
+    complete: complete.has(set.id),
     questions: visibleQuestions(set, setIds, draft.answers).map((q) => {
       const a = draft.answers[q.id];
       const answer = answerText(q, a, t);
@@ -311,7 +345,7 @@ export function buildConsultSection(
       return { id: q.id, text: q.text, status: answer === null ? ("not_answered" as const) : ("answered" as const), answer };
     }),
   }));
-  const c = computeCounter(answered.size, perSet, ctx.env.comm_delay_one_way_s);
+  const c = computeCounter(complete.size, params, ctx.env.comm_delay_one_way_s);
   const ct = counterText(c, t);
   return {
     symptom: { id: symptom.id, label: symptom.label },
@@ -319,13 +353,12 @@ export function buildConsultSection(
     modules,
     not_answered: notAnswered,
     counter: {
-      answered_sets: c.answeredSets,
+      complete_sets: c.completeSets,
       round_trips: c.roundTrips,
       round_trip_s: c.roundTripS,
-      max_saved_s: c.maxSavedS,
-      min_saved_s: c.minSavedS,
+      saved_s: c.savedS,
       text: ct.detail ? `${ct.headline} ${ct.detail}` : ct.headline,
-      assumption: counterAssumption(perSet, t),
+      assumption: counterAssumption(params, t),
     },
     after: consult.help.filter((h) => h.placement === "after").map((h) => h.text),
   };
