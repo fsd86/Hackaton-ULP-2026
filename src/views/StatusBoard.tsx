@@ -210,7 +210,7 @@ export function StatusBoard() {
 
           <FramePanel title={t("hud.ground_answer")} corners delayMs={280}>
             <p className="eyebrow !text-[0.62rem]">{t("hud.ground_answer.delay")}</p>
-            <p className="flex flex-wrap items-center gap-2 font-mono text-xl font-semibold leading-tight text-[var(--color-accent)]">
+            <p className="flex flex-wrap items-center gap-2 font-mono text-xl font-semibold leading-tight text-[var(--color-warm)]">
               {formatDelay(delay, t)}
               {delayPlaceholder && <PlaceholderBadge short />}
             </p>

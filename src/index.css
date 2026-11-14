@@ -27,6 +27,13 @@
   --emergency-bg: #b3261e;
   --emergency-text: #ffffff;
   --sticky-offset: 12rem;
+  /* Acentos calidos y fondo espacial: valores por defecto; useTheme los pisa con config theme.warm / theme.space. */
+  --color-warm: #ff9447;
+  --color-hot: #ff5a5f;
+  --warm-glow: rgba(255, 148, 71, 0.35);
+  --space-star: #dcebff;
+  --space-horizon: #0a2a5c;
+  --space-rim: #6fd3ff;
   color-scheme: dark;
 }
 
@@ -74,14 +81,80 @@ body {
   /* Grilla sutil + resplandor suave arriba: referencia a pantalla de instrumentos, sin ruido. */
   background-image:
     radial-gradient(ellipse 70% 40% at 50% -5%, color-mix(in srgb, var(--color-accent) 9%, transparent), transparent 70%),
-    linear-gradient(to right, color-mix(in srgb, var(--color-accent) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 5%, transparent) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in srgb, var(--color-accent) 3.5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 3.5%, transparent) 1px, transparent 1px);
   background-size: auto, 40px 40px, 40px 40px;
   background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: 18px;
   line-height: 1.5;
+}
+
+/* Fondo espacial (SpaceBackdrop): capa fija detras de todo, hermana del contenido (nunca ancestro del cuerpo). */
+.space-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.space-stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.space-star {
+  fill: var(--space-star);
+}
+.space-star-tw {
+  animation: star-twinkle 4s ease-in-out infinite;
+}
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* Nebulosa tenue: cian a la izquierda, calido a la derecha. */
+.space-nebula {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 45% 35% at 12% 30%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 88% 40%, color-mix(in srgb, var(--color-warm) 6%, transparent), transparent 70%);
+}
+/* Arco del horizonte terrestre: elipse enorme cuyo borde superior asoma abajo, con atmosfera luminosa y un
+   destello calido de amanecer. */
+.space-horizon {
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  top: 84vh;
+  height: 120vh;
+  border-radius: 50%;
+  background: radial-gradient(ellipse 50% 40% at 50% 0%, color-mix(in srgb, var(--space-horizon) 85%, #000), #02060f 75%);
+  border-top: 2px solid color-mix(in srgb, var(--space-rim) 75%, transparent);
+  box-shadow:
+    0 -6px 26px color-mix(in srgb, var(--space-rim) 45%, transparent),
+    0 -40px 120px color-mix(in srgb, var(--space-rim) 18%, transparent),
+    inset 0 18px 50px color-mix(in srgb, var(--space-rim) 22%, transparent);
+}
+.space-horizon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  width: 26%;
+  height: 8px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-warm) 85%, white), transparent 70%);
+  filter: blur(3px);
 }
 
 /* Foco visible y consistente para teclado. */
@@ -110,8 +183,8 @@ main:focus {
 .glass {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
 }
 
 /* Etiqueta monoespaciada en mayusculas (el texto sale de strings; la capitalizacion es solo estilo). */
@@ -308,9 +381,17 @@ main:focus {
   border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
   background: linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 7%, var(--glass-bg)), var(--glass-bg) 45%);
   box-shadow:
-    0 0 18px color-mix(in srgb, var(--color-accent) 18%, transparent),
-    inset 0 0 24px color-mix(in srgb, var(--color-accent) 6%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--color-accent) 35%, transparent);
+    0 0 22px color-mix(in srgb, var(--color-accent) 24%, transparent),
+    0 0 2px color-mix(in srgb, var(--color-accent) 70%, transparent),
+    inset 0 0 28px color-mix(in srgb, var(--color-accent) 8%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+.hud-col .corner-tr,
+.hud-col .corner-bl,
+.hud-overall .corner-tr,
+.hud-overall .corner-bl {
+  border-color: var(--color-warm);
+  filter: drop-shadow(0 0 4px var(--warm-glow));
 }
 .hud-col .panel-title,
 .hud-grid-empty .hud-overall .panel-title {
@@ -379,6 +460,7 @@ main:focus {
 }
 .hero-ring-2 {
   inset: 9%;
+  border-color: color-mix(in srgb, var(--color-warm) 80%, transparent);
   border-style: dashed;
   border-width: 2px;
   box-shadow: none;
@@ -778,6 +860,7 @@ main:focus {
     display: none;
   }
   .hero-ring,
+  .space-star-tw,
   .pulse-track,
   .hero-heat-spot {
     animation: none;

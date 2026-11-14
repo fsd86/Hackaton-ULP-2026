@@ -7,6 +7,7 @@ import { EnvironmentProvider } from "./environment/EnvironmentProvider";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { ContentErrorScreen } from "./components/ContentErrorScreen";
 import { DemoBanner } from "./components/DemoBanner";
+import { SpaceBackdrop } from "./components/SpaceBackdrop";
 import { EmptyState } from "./components/EmptyState";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Footer } from "./components/Footer";
@@ -43,6 +44,12 @@ function useTheme(): void {
     root.style.setProperty("--color-emergency", theme.status_colors.critical);
     root.style.setProperty("--emergency-bg", theme.emergency_button.background);
     root.style.setProperty("--emergency-text", theme.emergency_button.text);
+    root.style.setProperty("--color-warm", theme.warm.accent);
+    root.style.setProperty("--color-hot", theme.warm.hot);
+    root.style.setProperty("--warm-glow", theme.warm.glow);
+    root.style.setProperty("--space-star", theme.space.stars);
+    root.style.setProperty("--space-horizon", theme.space.horizon);
+    root.style.setProperty("--space-rim", theme.space.horizon_rim);
     for (const [status, color] of Object.entries(theme.status_colors)) {
       root.style.setProperty(`--status-${status}`, color);
     }
@@ -78,6 +85,7 @@ function Shell() {
 
   return (
     <EnvironmentProvider>
+      <SpaceBackdrop />
       <a
         href="#main"
         onClick={(e) => {

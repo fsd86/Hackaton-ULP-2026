@@ -253,6 +253,19 @@ export const AppConfig = z.object({
     status_icons: z.object({ normal: z.string(), attention: z.string(), critical: z.string() }),
     // Fondo/texto del botón Emergency (contraste AA); status_colors.critical queda para íconos y bordes.
     emergency_button: z.object({ background: z.string(), text: z.string() }),
+    // Acentos calidos junto al cian (marcos, detalles); como texto solo sobre superficies oscuras (AA).
+    warm: z
+      .object({ accent: z.string(), hot: z.string(), glow: z.string() })
+      .default({ accent: "#FF9447", hot: "#FF5A5F", glow: "rgba(255, 148, 71, 0.35)" }),
+    // Fondo espacial generado por codigo (sin imagenes): estrellas y arco del horizonte terrestre.
+    space: z
+      .object({
+        stars: z.string(),
+        star_count: z.number().int().min(0).max(600),
+        horizon: z.string(),
+        horizon_rim: z.string(),
+      })
+      .default({ stars: "#DCEBFF", star_count: 160, horizon: "#0A2A5C", horizon_rim: "#6FD3FF" }),
   }),
   // Flags soportados (todos cableados): charts, reminders, emergency_guide, downlink_report.
   features: z.object({

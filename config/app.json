@@ -1,5 +1,5 @@
 {
-  "_comment": "realtime_threshold_s es un parametro de DISENO (no medico): a partir de que demora de comunicacion (segundos, solo ida) la app prioriza actuar a bordo antes de esperar a tierra. No proviene de ninguna fuente medica. emergency_session_max_age_hours tambien es un parametro de DISENO (no medico): pasado ese tiempo, una sesion de emergencia guardada no se reanuda sola y se le pregunta a la persona si continua o reinicia. theme.surfaces son los tokens de superficie (se aplican como CSS variables en <html>); los colores de estado dan al menos 3:1 como no-texto sobre theme.surfaces.panel y el texto siempre usa surfaces.text.",
+  "_comment": "realtime_threshold_s es un parametro de DISENO (no medico): a partir de que demora de comunicacion (segundos, solo ida) la app prioriza actuar a bordo antes de esperar a tierra. No proviene de ninguna fuente medica. emergency_session_max_age_hours tambien es un parametro de DISENO (no medico): pasado ese tiempo, una sesion de emergencia guardada no se reanuda sola y se le pregunta a la persona si continua o reinicia. theme.surfaces son los tokens de superficie (se aplican como CSS variables en <html>); los colores de estado dan al menos 3:1 como no-texto sobre theme.surfaces.panel y el texto siempre usa surfaces.text. theme.warm son acentos calidos (marcos y detalles; como texto dan mas de 7:1 sobre surfaces.panel). theme.space es el fondo generado por codigo (estrellas + arco del horizonte terrestre, sin imagenes).",
   "app_name": "Earth Is Far",
   "tagline": "Health guidance for when help is light-minutes away.",
   "default_language": "en",
@@ -30,6 +30,17 @@
     "emergency_button": {
       "background": "#B3261E",
       "text": "#FFFFFF"
+    },
+    "warm": {
+      "accent": "#FF9447",
+      "hot": "#FF5A5F",
+      "glow": "rgba(255, 148, 71, 0.35)"
+    },
+    "space": {
+      "stars": "#DCEBFF",
+      "star_count": 160,
+      "horizon": "#0A2A5C",
+      "horizon_rim": "#6FD3FF"
     }
   },
   "features": {
