@@ -12,7 +12,7 @@ Rúbrica de jueces (base): Impact, Creativity, Validity, Relevance, Presentation
 
 ## Reglas generales
 - Idioma de la interfaz y del README: inglés. Comunicación interna y comentarios de trabajo: español.
-- Stack mínimo: Next.js o Vite + React + TypeScript + Tailwind. Desplegable en Vercel. Sin base de datos salvo que haga falta de verdad.
+- Stack mínimo: Next.js o Vite + React + TypeScript + Tailwind. Deploy manual en Netlify arrastrando dist. Sin base de datos salvo que haga falta de verdad.
 - Trabajá en slices chicos (≤90 min), cada uno desplegable, con un commit claro.
 - Sin secretos en el repo: usá `.env` (ignorado por git) y `.env.example`.
 - Nada de assets, código o marca de terceros sin licencia. Inspirarse sí, copiar no.
