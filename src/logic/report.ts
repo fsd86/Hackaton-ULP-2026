@@ -1,6 +1,7 @@
 import type { Content } from "../content/load";
 import type { TFunction } from "../content/t";
-import type { EmergencyLogEntry, Reading } from "../storage/local";
+import type { ConsultDraft, EmergencyLogEntry, Reading } from "../storage/local";
+import { buildConsultSection, renderConsultText, type ConsultJson } from "./consult";
 import type { Indicator, Protocol } from "../content/schemas";
 import { formatDelay } from "./delay";
 import { formatValue, readingsFor, statusOfReading } from "./daily";
@@ -21,6 +22,8 @@ export interface ReportInput {
   locale?: string;
   sinceMs?: number; // ventana hacia atrás desde now (default 24 h)
   timeZone?: string; // IANA; undefined = zona local (tests pasan "UTC")
+  /** Borrador del One-shot consult; sin síntoma elegido (o sin data/consult.json) no hay sección. */
+  consultDraft?: ConsultDraft | null;
 }
 
 export interface ReportReadingJson {
@@ -69,6 +72,8 @@ export interface ReportJson {
   has_placeholders: boolean;
   /** El informe incluye lecturas sinteticas de demostracion (no mediciones reales). */
   has_demo: boolean;
+  /** Sección "One-shot consult": respuestas por módulo, no respondidas y contador; null si no se preparó. */
+  consult: ConsultJson | null;
   disclaimer: string;
 }
 
@@ -171,6 +176,20 @@ export function buildReport(input: ReportInput): Report {
 
   const hasDemo = inPeriod.some((r) => r.demo === true);
 
+  // ---- One-shot consult (lecturas automáticas: la última de cada indicador, sin ventana de período)
+  const consult =
+    content.consult && input.consultDraft
+      ? buildConsultSection(content.consult, input.consultDraft, content.app.consult.round_trips_per_answered_set, {
+          now,
+          env,
+          indicators: content.indicators,
+          readings: input.readings,
+          t,
+          dateTime,
+          delayText,
+        })
+      : null;
+
   const generatedText = t("report.generated_at", { time: dateTime(nowMs) });
   const json: ReportJson = {
     app_name: content.app.app_name,
@@ -184,6 +203,7 @@ export function buildReport(input: ReportInput): Report {
     information_to_include: info,
     has_placeholders: hasPlaceholders,
     has_demo: hasDemo,
+    consult,
     disclaimer: content.app.disclaimer,
   };
 
@@ -227,6 +247,8 @@ function renderText(json: ReportJson, t: TFunction, hasPlaceholders: boolean, et
       for (const f of p.fields) lines.push(`  [ ] ${f}`);
     }
   }
+
+  if (json.consult) lines.push(...renderConsultText(json.consult, t));
 
   if (hasPlaceholders || json.has_demo) {
     lines.push("", t("report.warnings").toUpperCase());

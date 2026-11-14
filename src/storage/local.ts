@@ -28,11 +28,25 @@ export interface EmergencySession {
   startedAt: number; // epoch ms
 }
 
+/** Respuesta guardada de una pregunta del One-shot consult (value: opción, hora o 0-10; text: texto libre). */
+export interface ConsultAnswerValue {
+  value?: string | number;
+  text?: string;
+}
+
+/** Borrador del One-shot consult (Downlink report): síntoma elegido + respuestas por id de pregunta. */
+export interface ConsultDraft {
+  symptomId: string | null;
+  answers: Record<string, ConsultAnswerValue>;
+  updatedAt: number; // epoch ms
+}
+
 const KEYS = {
   readings: "eif.readings",
   emergencyLog: "eif.emergency_log",
   emergencySession: "eif.emergency_session",
   environment: "eif.environment",
+  consultDraft: "eif.consult_draft",
 } as const;
 
 /**
@@ -111,6 +125,16 @@ const EmergencyLogEntrySchema = z.object({
 });
 const EmergencySessionSchema = z.object({ sessionId: z.string(), protocolId: z.string(), startedAt: num });
 const EnvironmentSchema = z.string();
+// Límite de largo de texto guardado: defensa contra storage corrupto/enorme, no un dato médico.
+const ConsultAnswerSchema = z.object({
+  value: z.union([z.string().max(200), num]).optional(),
+  text: z.string().max(5000).optional(),
+});
+const ConsultDraftSchema = z.object({
+  symptomId: z.string().nullable(),
+  answers: z.record(z.string(), ConsultAnswerSchema),
+  updatedAt: num,
+});
 
 // ---- Registro de descartes (store mínimo para useSyncExternalStore) ----
 export interface StorageIssues {
@@ -292,6 +316,20 @@ export function setEnvironmentId(id: string): void {
   writeRaw(KEYS.environment, JSON.stringify(id));
 }
 
+export function getConsultDraft(): ConsultDraft | null {
+  return readOne<ConsultDraft>(KEYS.consultDraft, "consult_draft", ConsultDraftSchema);
+}
+
+export function setConsultDraft(draft: Omit<ConsultDraft, "updatedAt"> & { updatedAt?: number }): ConsultDraft {
+  const full: ConsultDraft = { ...draft, updatedAt: draft.updatedAt ?? Date.now() };
+  writeRaw(KEYS.consultDraft, JSON.stringify(full));
+  return full;
+}
+
+export function clearConsultDraft(): void {
+  removeRaw(KEYS.consultDraft);
+}
+
 // ---- Guided demo: "caja de arena" para no dejar efectos reales ----
 // Al empezar se guarda una foto cruda del log de emergencia, la sesion y el entorno; al salir se restaura tal cual
 // (las entradas de log y la sesion que creo la demo desaparecen). Si la demo cargo las lecturas DEMO, se quitan.
@@ -302,6 +340,8 @@ const SandboxSchema = z.object({
   emergencyLog: z.string().nullable(),
   emergencySession: z.string().nullable(),
   environment: z.string().nullable(),
+  // Opcional: fotos guardadas antes de existir el One-shot consult no lo traen (se trata como "sin borrador").
+  consultDraft: z.string().nullable().optional(),
   demoLoaded: z.boolean(),
 });
 type Sandbox = z.infer<typeof SandboxSchema>;
@@ -326,6 +366,7 @@ export function beginGuidedDemoSandbox(): void {
       emergencyLog: readRaw(KEYS.emergencyLog),
       emergencySession: readRaw(KEYS.emergencySession),
       environment: readRaw(KEYS.environment),
+      consultDraft: readRaw(KEYS.consultDraft),
       demoLoaded: false,
     };
     writeRaw(GUIDED_DEMO_SANDBOX_KEY, JSON.stringify(snap));
@@ -353,6 +394,8 @@ export function endGuidedDemoSandbox(): void {
   restoreRaw(KEYS.emergencyLog, snap.emergencyLog);
   restoreRaw(KEYS.emergencySession, snap.emergencySession);
   restoreRaw(KEYS.environment, snap.environment);
+  // La demo guiada no deja borradores del consult: se vuelve al que hubiera antes (o a ninguno).
+  restoreRaw(KEYS.consultDraft, snap.consultDraft ?? null);
   if (snap.demoLoaded) removeDemoReadings();
 }
 
@@ -375,4 +418,5 @@ export function scanStorage(): void {
   getEmergencyLog();
   getEmergencySession();
   getEnvironmentId();
+  getConsultDraft();
 }

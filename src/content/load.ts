@@ -6,13 +6,16 @@ import protocolsRaw from "../../data/protocols.json";
 import demoRaw from "../../data/demo-readings.json";
 import hazardsRaw from "../../data/hazards.json";
 import guidedDemoRaw from "../../data/guided-demo.json";
+import consultRaw from "../../data/consult.json";
 import appRaw from "../../config/app.json";
 import stringsRaw from "../../config/strings.en.json";
 import { ESCALATION_MESSAGE_KEYS } from "../logic/escalation";
 import { checkGuidedDemo } from "../logic/guidedDemo";
+import { checkConsult } from "../logic/consult";
 import { resolveToken, templateTokens } from "../logic/indicatorText";
 import {
   AppConfig,
+  ConsultFile,
   DemoReadingsFile,
   EnvironmentsFile,
   GuidedDemoFile,
@@ -21,6 +24,7 @@ import {
   ProtocolsFile,
   SourcesFile,
   Strings,
+  type Consult,
   type DemoReading,
   type Environment,
   type GuidedDemo,
@@ -50,6 +54,8 @@ export interface Content {
   hazards: HazardInfo[];
   /** Guion del modo Guided demo (data/guided-demo.json); null si el archivo no se entrega. */
   guidedDemo: GuidedDemo | null;
+  /** One-shot consult del Downlink report (data/consult.json); null si el archivo no se entrega. */
+  consult: Consult | null;
 }
 
 export interface RawContent {
@@ -65,6 +71,8 @@ export interface RawContent {
   hazards?: unknown;
   /** Opcional: los tests antiguos no lo pasan. */
   guidedDemo?: unknown;
+  /** Opcional: los tests antiguos no lo pasan. */
+  consult?: unknown;
 }
 
 export type LoadResult = { ok: true; content: Content } | { ok: false; errors: ContentError[] };
@@ -79,6 +87,7 @@ export const FILES = {
   demoReadings: "data/demo-readings.json",
   hazards: "data/hazards.json",
   guidedDemo: "data/guided-demo.json",
+  consult: "data/consult.json",
 } as const;
 
 /** ["indicators", 2, "ranges", 0, "min"] → "indicators[2].ranges[0].min" */
@@ -221,7 +230,9 @@ export function validateContent(raw: RawContent): LoadResult {
   const guidedDemo =
     raw.guidedDemo === undefined ? null : parseFile(GuidedDemoFile, raw.guidedDemo, FILES.guidedDemo, errors);
 
-  if (!demoFile || !hazardsFile || guidedDemo === undefined) return { ok: false, errors };
+  const consult = raw.consult === undefined ? null : parseFile(ConsultFile, raw.consult, FILES.consult, errors);
+
+  if (!demoFile || !hazardsFile || guidedDemo === undefined || consult === undefined) return { ok: false, errors };
   if (!sourcesFile || !indicatorsFile || !environmentsFile || !protocolsFile || !app || !strings) {
     return { ok: false, errors };
   }
@@ -384,10 +395,25 @@ export function validateContent(raw: RawContent): LoadResult {
     );
   }
 
+  if (consult) {
+    errors.push(...checkConsult(consult, { sourceIds, protocolIds }).map((e) => ({ file: FILES.consult, ...e })));
+  }
+
   if (errors.length > 0) return { ok: false, errors };
   return {
     ok: true,
-    content: { sources, indicators, environments, protocols, app, strings, demoReadings: demoFile.readings, hazards: hazardsFile.hazards, guidedDemo },
+    content: {
+      sources,
+      indicators,
+      environments,
+      protocols,
+      app,
+      strings,
+      demoReadings: demoFile.readings,
+      hazards: hazardsFile.hazards,
+      guidedDemo,
+      consult,
+    },
   };
 }
 
@@ -405,6 +431,7 @@ export function loadContent(): LoadResult {
     demoReadings: demoRaw,
     hazards: hazardsRaw,
     guidedDemo: guidedDemoRaw,
+    consult: consultRaw,
   });
   return cached;
 }

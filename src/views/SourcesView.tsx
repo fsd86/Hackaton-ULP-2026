@@ -12,10 +12,10 @@ import { panel } from "./daily/ui";
 /** Vista Sources. Ruta #/sources[/<sourceId>]: la fuente indicada recibe scroll y foco. */
 export function SourcesView({ param }: { param: string | undefined }) {
   const { t, content } = useContent();
-  const { sources, indicators, protocols, environments, hazards } = content;
+  const { sources, indicators, protocols, environments, hazards, consult } = content;
   const citations = useMemo(
-    () => buildCitations({ sources, indicators, environments, protocols, hazards }),
-    [sources, indicators, environments, protocols, hazards],
+    () => buildCitations({ sources, indicators, environments, protocols, hazards, consult }),
+    [sources, indicators, environments, protocols, hazards, consult],
   );
   const summary = summarizeVerification({ sources, indicators, protocols, environments });
   // Cobertura por dato: el status global PLACEHOLDER de un indicador escondía cuánto SÍ tiene fuente.
@@ -148,8 +148,9 @@ export function SourcesView({ param }: { param: string | undefined }) {
                       <p>{t("sources.none_cited")}</p>
                     ) : (
                       <ul className="list-disc pl-6">
-                        {cited.map((c, i) => (
-                          <li key={i}>{citeText(c)}</li>
+                        {/* Únicos: varias preguntas de un mismo módulo del consult citan la misma fuente. */}
+                        {[...new Set(cited.map(citeText))].map((text) => (
+                          <li key={text}>{text}</li>
                         ))}
                       </ul>
                     )}

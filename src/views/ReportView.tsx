@@ -6,7 +6,17 @@ import { StatusBadge } from "../components/StatusBadge";
 import { useEnvironment } from "../hooks/useEnvironment";
 import { downloadFile, reportFilename } from "../logic/export";
 import { buildReport } from "../logic/report";
-import { getEmergencyLog, getReadings, type EmergencyLogEntry, type Reading } from "../storage/local";
+import {
+  clearConsultDraft,
+  getConsultDraft,
+  getEmergencyLog,
+  getReadings,
+  setConsultDraft,
+  type ConsultDraft,
+  type EmergencyLogEntry,
+  type Reading,
+} from "../storage/local";
+import { ConsultSection } from "./report/ConsultSection";
 import { btnPrimary, btnSecondary, panel } from "./daily/ui";
 
 type Period = "24h" | "all";
@@ -38,6 +48,18 @@ function ReportBody() {
   const [feedback, setFeedback] = useState("");
   const [manualCopy, setManualCopy] = useState(false);
   const manualRef = useRef<HTMLTextAreaElement>(null);
+  // Borrador del One-shot consult: se guarda en storage en cada cambio (validado al leer; Clear saved data lo borra).
+  const [draft, setDraft] = useState<ConsultDraft | null>(getConsultDraft);
+
+  function updateDraft(next: ConsultDraft | null) {
+    setFeedback("");
+    if (next === null) {
+      clearConsultDraft();
+      setDraft(null);
+    } else {
+      setDraft(setConsultDraft({ symptomId: next.symptomId, answers: next.answers }));
+    }
+  }
 
   const report = useMemo(() => {
     const sinceMs = PERIOD_MS[period];
@@ -51,8 +73,9 @@ function ReportBody() {
       t,
       locale: "en",
       sinceMs,
+      consultDraft: draft,
     });
-  }, [content, environment.id, period, snap, t]);
+  }, [content, environment.id, period, snap, t, draft]);
 
   const { json } = report;
 
@@ -250,6 +273,17 @@ function ReportBody() {
           </div>
         )}
       </section>
+
+      {content.consult && (
+        <ConsultSection
+          consult={content.consult}
+          draft={draft}
+          section={json.consult}
+          environment={environment}
+          now={snap.now}
+          onChange={updateDraft}
+        />
+      )}
 
       <section aria-labelledby="report-export" className={panel}>
         <h2 id="report-export" className="mb-3 text-xl font-bold">

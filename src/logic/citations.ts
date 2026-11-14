@@ -1,4 +1,4 @@
-import type { Environment, HazardInfo, Indicator, Protocol, Range, Source } from "../content/schemas";
+import type { Consult, Environment, HazardInfo, Indicator, Protocol, Range, Source } from "../content/schemas";
 
 // "Cited by": qué entidades de data/ citan cada fuente. Función pura.
 
@@ -10,7 +10,10 @@ export type CitationKind =
   | "protocol"
   | "step"
   | "environment_delay"
-  | "hazard";
+  | "hazard"
+  | "consult_help"
+  | "consult_symptom"
+  | "consult_question";
 
 export interface Citation {
   kind: CitationKind;
@@ -32,6 +35,8 @@ export interface CitationInput {
   protocols: Protocol[];
   /** Opcional: los 5 hazards de data/hazards.json. ownerName es el id; la vista lo traduce con hazard.<id>. */
   hazards?: HazardInfo[];
+  /** Opcional: data/consult.json (ayudas, síntomas y preguntas del One-shot consult). */
+  consult?: Consult | null;
 }
 
 /** Devuelve un mapa sourceId → citas (todas las fuentes aparecen, con [] si nadie las cita). */
@@ -84,6 +89,17 @@ export function buildCitations(input: CitationInput): Record<string, Citation[]>
 
   for (const h of input.hazards ?? []) {
     for (const id of h.source_ids) add(id, { kind: "hazard", ownerId: h.id, ownerName: h.id });
+  }
+
+  const consult = input.consult;
+  if (consult) {
+    for (const h of consult.help) for (const id of h.source_ids) add(id, { kind: "consult_help", ownerId: h.id, ownerName: h.id });
+    for (const sy of consult.symptoms) for (const id of sy.source_ids) add(id, { kind: "consult_symptom", ownerId: sy.id, ownerName: sy.label });
+    for (const set of consult.question_sets) {
+      set.questions.forEach((q, i) => {
+        for (const id of q.source_ids) add(id, { kind: "consult_question", ownerId: set.id, ownerName: set.title, stepIndex: i });
+      });
+    }
   }
 
   return out;

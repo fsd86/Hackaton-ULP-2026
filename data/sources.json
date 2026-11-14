@@ -460,6 +460,166 @@
       "license": "CC BY 4.0",
       "notes": "Acute coronary syndrome is first among 10 conditions prioritized for long-duration missions.",
       "status": "VERIFIED"
+    },
+    {
+      "id": "prachanukool_2023_ed_pain_opqrst",
+      "title": "Best Practices in End of Life and Palliative Care in the Emergency Department (Prachanukool et al., Clin Geriatr Med 2023)",
+      "publisher": "Clinics in Geriatric Medicine / PMC (author manuscript)",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11300921/",
+      "accessed": "2026-11-14",
+      "license": "PMC author manuscript, no CC license; cite and paraphrase only",
+      "notes": "Table 4 outlines OPQRST questions for a focused pain assessment (adapted from EMS1).",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "saranteas_2019_trauma_pain_opqrst",
+      "title": "Pain is vital in resuscitation in trauma (Saranteas et al., SICOT-J 2019)",
+      "publisher": "SICOT-J / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6694744/",
+      "accessed": "2026-11-14",
+      "license": "CC BY 4.0",
+      "notes": "Defines OPQRST (Onset, Provocation/palliation, Quality, Region/radiation, Severity, Time) for acute pain.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "uchida_2026_chest_pain_opqrst",
+      "title": "Association Between Symptom Characteristics, Knowledge Sources, and Patient Interpretation of Acute Coronary Syndrome (Uchida et al., Circ Rep 2026)",
+      "publisher": "Circulation Reports / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13065442/",
+      "accessed": "2026-11-14",
+      "license": "CC BY-NC-ND 4.0; cite only",
+      "notes": "A chest-pain registry evaluated symptoms with the OPQRST method.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "jayaprakash_2016_sample_history",
+      "title": "The incorporation of focused history in checklist for early recognition and treatment of acute illness and injury (Jayaprakash et al., BMC Emerg Med 2016)",
+      "publisher": "BMC Emergency Medicine / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5006415/",
+      "accessed": "2026-11-14",
+      "license": "CC BY 4.0",
+      "notes": "ATLS and PALS recommend the SAMPLE acronym for a focused history.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "who_icrc_bec_quick_cards",
+      "title": "WHO-ICRC Basic Emergency Care: approach to the acutely ill and injured — Quick Cards (2018)",
+      "publisher": "World Health Organization / ICRC",
+      "url": "https://cdn.who.int/media/docs/default-source/integrated-health-services-(ihs)/csy/bec-quick-cards/becp-edu29-pdf-en-finl.pdf",
+      "accessed": "2026-11-14",
+      "license": "CC BY-NC-SA 3.0 IGO (per publication page https://www.who.int/publications/i/item/9789241513081); item names and short paraphrase only",
+      "notes": "Lists SAMPLE history items and an SBAR handover format; diagnostic columns are not used.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "ihi_sbar_tool",
+      "title": "SBAR Tool: Situation-Background-Assessment-Recommendation",
+      "publisher": "Institute for Healthcare Improvement",
+      "url": "https://www.ihi.org/library/tools/sbar-tool-situation-background-assessment-recommendation",
+      "accessed": "2026-11-14",
+      "license": "© IHI, All Rights Reserved; cite and paraphrase only",
+      "notes": "SBAR is a structured way to frame a message that needs a clinician's attention.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "mca_scmg_ch13_radio_advice",
+      "title": "The Ship Captain's Medical Guide, 22nd ed., Chapter 13: External assistance (withdrawn edition)",
+      "publisher": "Maritime and Coastguard Agency (UK)",
+      "url": "https://assets.publishing.service.gov.uk/media/5da84a23ed915d429d114666/mcga-shs_capt_guide_chap13.pdf",
+      "accessed": "2026-11-14",
+      "license": "Open Government Licence v3.0 (gov.uk page); © Crown copyright",
+      "notes": "Historical maritime checklist of information to prepare before requesting radio medical advice; edition withdrawn in 2019.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "mca_mgn623_tmas",
+      "title": "MGN 623 (M+F) Amendment 1: Telemedical advice service (TMAS) for ships at sea",
+      "publisher": "Maritime and Coastguard Agency (UK)",
+      "url": "https://www.gov.uk/government/publications/mgn-623-mf-amendment-1-telemedical-advice-service-tmas-for-ships-at-sea/mgn-623-mf-amendment-1-telemedical-advice-service-tmas-for-ships-at-sea",
+      "accessed": "2026-11-14",
+      "license": "Open Government Licence v3.0",
+      "notes": "The ship medical guide includes a form for TMAS information; photographs can help.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "imha_2013_maritime_telemedicine_consensus",
+      "title": "Maritime telemedicine – state of the art. Consensus (IMHA/NCMM workshop, Malta, 2013)",
+      "publisher": "International Maritime Health Association",
+      "url": "https://www.imha.net/0104114%20MALTA%20Workshop%20consensus%20paper.pdf",
+      "accessed": "2026-11-14",
+      "license": "No license stated; cite and paraphrase only",
+      "notes": "Consensus calls for a pre-call form to assemble data on board before contacting telemedical services.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "levin_2023_eimo",
+      "title": "Enabling Human Space Exploration Missions Through Progressively Earth Independent Medical Operations (EIMO) (Levin et al., IEEE OJEMB 2023)",
+      "publisher": "IEEE Open Journal of Engineering in Medicine and Biology / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10810302/",
+      "accessed": "2026-11-14",
+      "license": "CC BY 4.0",
+      "notes": "Two-way delay for Mars may reach 40 minutes; ISS medical data go to ground flight surgeons.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "yule_2023_crew_autonomy",
+      "title": "Crew Autonomy During Simulated Medical Event Management on Long Duration Space Exploration Missions (Yule et al., Hum Factors 2023)",
+      "publisher": "Human Factors / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10466940/",
+      "accessed": "2026-11-14",
+      "license": "CC BY-NC 4.0; cite and paraphrase only",
+      "notes": "Real-time consults may be impractical on Mars missions; checklists and guidance tools can mitigate delay.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "jones_2008_iss_medical_operations",
+      "title": "International Space Station Medical Operations (Jones, 2008 preprint)",
+      "publisher": "NASA Technical Reports Server",
+      "url": "https://ntrs.nasa.gov/citations/20080010877",
+      "accessed": "2026-11-14",
+      "license": "Work of the U.S. Government; public use permitted",
+      "notes": "ISS crews hold private medical conferences regularly and on request (2008).",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "yeam_2026_comm_delay_suturing",
+      "title": "Communication delay increases procedure time and instructor task load during simulated suturing by novices (Yeam et al., npj Microgravity 2026)",
+      "publisher": "npj Microgravity / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13623917/",
+      "accessed": "2026-11-14",
+      "license": "CC BY 4.0",
+      "notes": "In a small simulation (n = 8), a 4-second delay lengthened a remotely guided procedure.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "krebs_2009_peg_pain_scale",
+      "title": "Development and Initial Validation of the PEG, a Three-item Scale Assessing Pain Intensity and Interference (Krebs et al., J Gen Intern Med 2009)",
+      "publisher": "Journal of General Internal Medicine / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2686775/",
+      "accessed": "2026-11-14",
+      "license": "© The Author(s) 2009; BPI items used with permission; cite and paraphrase only",
+      "notes": "0–10 pain ratings are a format familiar to patients and clinicians.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "pathak_2018_pain_scales",
+      "title": "The utility and validity of pain intensity rating scales for use in developing countries (Pathak et al., Pain Rep 2018)",
+      "publisher": "PAIN Reports / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6181466/",
+      "accessed": "2026-11-14",
+      "license": "CC BY 4.0",
+      "notes": "The 0–10 NRS (0 no pain, 10 maximum pain) gives enough options for precise ratings.",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "larsson_2022_prehospital_abdominal_pain",
+      "title": "Prehospital assessment of patients with abdominal pain triaged to self-care at home: an observation study (Larsson et al., BMC Emerg Med 2022)",
+      "publisher": "BMC Emergency Medicine / PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9164890/",
+      "accessed": "2026-11-14",
+      "license": "CC BY 4.0",
+      "notes": "Ambulance records of abdominal pain often missed history items such as last oral intake (11%).",
+      "status": "VERIFIED"
     }
   ]
 }

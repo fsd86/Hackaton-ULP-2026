@@ -81,5 +81,9 @@
       "horizon_hours": 24,
       "min_points": 4
     }
+  },
+  "consult": {
+    "_comment": "Parametro de DISENO (no medico) del contador del One-shot consult. Supuesto: cada set de preguntas (modulo) respondido de antemano evita round_trips_per_answered_set intercambios extra con tierra que, si no, el medico tendria que pedir. Es una estimacion MAXIMA: N = sets con al menos una respuesta propia x round_trips_per_answered_set; X = N x ida y vuelta, con ida y vuelta = 2 x comm_delay_one_way_s del entorno elegido (data/environments.json; max y, si existe, min). Sin retardo verificado (null) no se calcula. No usa cifras de papers (40 / 20-40 / 44 min) ni tiempos de analisis.",
+    "round_trips_per_answered_set": 1
   }
 }

@@ -3,6 +3,7 @@ import indicators from "../../data/indicators.json";
 import environments from "../../data/environments.json";
 import protocols from "../../data/protocols.json";
 import hazards from "../../data/hazards.json";
+import consult from "../../data/consult.json";
 import app from "../../config/app.json";
 import strings from "../../config/strings.en.json";
 import type { RawContent } from "../../src/content/load";
@@ -10,7 +11,7 @@ import type { Environment, Indicator } from "../../src/content/schemas";
 
 /** Copia profunda de los JSON reales para romperlos en tests sin tocar los originales. */
 export function realRaw(): RawContent {
-  return structuredClone({ sources, indicators, environments, protocols, app, strings, hazards }) as RawContent;
+  return structuredClone({ sources, indicators, environments, protocols, app, strings, hazards, consult }) as RawContent;
 }
 
 /** Indicador sintético (datos de prueba, NO médicos). */

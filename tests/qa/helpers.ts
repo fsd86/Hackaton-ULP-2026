@@ -93,6 +93,8 @@ export const indicators = load<{ indicators: IndicatorJson[] }>("data/indicators
 export const environments = load<{ environments: EnvironmentJson[] }>("data/environments.json").environments;
 export const protocols = load<{ protocols: ProtocolJson[] }>("data/protocols.json").protocols;
 export const sources = load<{ sources: SourceJson[] }>("data/sources.json").sources;
+/** One-shot consult del Downlink report (ayudas, sintomas, preguntas). */
+export const consult = load<Record<string, unknown>>("data/consult.json");
 
 export function must<T>(value: T | undefined | null, what: string): T {
   if (value === undefined || value === null) throw new Error(`QA setup: ${what} not found in the JSON files`);
@@ -382,6 +384,17 @@ export const ROUTES_TO_AUDIT: RouteSetup[] = [
     run: async (p) => {
       await p.goto("/#/report");
       await p.getByRole("heading", { level: 1, name: strings["report.title"] }).waitFor();
+    },
+  },
+  {
+    // One-shot consult abierto (sintoma con protocolo previo + todos los modulos visibles).
+    name: "consult",
+    seeded: true,
+    run: async (p) => {
+      await p.goto("/#/report");
+      await p.getByRole("button", { name: strings["consult.start"], exact: true }).click();
+      await p.locator('input[name="consult-symptom"]').first().check();
+      await p.getByTestId("consult-counter").waitFor();
     },
   },
   {

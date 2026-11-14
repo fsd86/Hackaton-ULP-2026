@@ -1,0 +1,340 @@
+{
+  "_comment": "One-shot consult (Downlink report). Fuente unica: docs/research/5-verificacion.md, seccion 'Listo para cargar' (solo VERIFIED / VERIFIED-WITH-EDIT, con su texto final). design_text = texto de DISENO (UX), sin fuente y sin source_ids. earth_reference = referencia terrestre (marina mercante / emergencias): la UI muestra el aviso. La app NO diagnostica ni sugiere tratamiento: preguntar que medicacion se tomo es historia. Excluidos a proposito: diagnostico y diferencial (SCMG 5.0), 'Assessment' de SBAR, alcohol/drogas, historia familiar/social, etnia. answer.type: free_text | choice (options, with_text) | time (with_text) | scale_0_10 (anchors) | auto (fill: timestamp | latest_readings | mission_context; with_text). skip_if: { answered: <question id> } oculta la pregunta si esa otra ya tiene respuesta; { set_active: <set id> } la oculta si el sintoma incluye ese set. placement de help: notice (aviso fijo), top, why (desplegable), module (ayuda de un set via help_id), after (despues de enviar).",
+  "help": [
+    {
+      "id": "not_diagnosis",
+      "placement": "notice",
+      "text": "This report collects information only. It does not diagnose or suggest treatment.",
+      "design_text": true
+    },
+    {
+      "id": "intro",
+      "_comment": "Primera mitad con fuente (SCMG: completar el formulario antes de pedir ayuda); 'so the ground team gets as much as possible in one message' es (UX).",
+      "placement": "top",
+      "text": "Fill this in before you transmit, so the ground team gets as much as possible in one message.",
+      "earth_reference": true,
+      "source_ids": ["mca_scmg_ch13_radio_advice"]
+    },
+    {
+      "id": "why_delay",
+      "placement": "why",
+      "text": "On long missions such as to Mars, consulting doctors on Earth in real time may be impractical.",
+      "source_ids": ["yule_2023_crew_autonomy"]
+    },
+    {
+      "id": "why_checklist",
+      "placement": "why",
+      "text": "Checklists and clinical guidance tools can help crews work with long communication delays.",
+      "source_ids": ["yule_2023_crew_autonomy"]
+    },
+    {
+      "id": "today_iss",
+      "placement": "why",
+      "text": "On the ISS, medical data are sent to flight surgeons on the ground for interpretation.",
+      "source_ids": ["levin_2023_eimo"]
+    },
+    {
+      "id": "opqrst_help",
+      "placement": "module",
+      "text": "These questions follow OPQRST, a memory aid used to assess acute pain.",
+      "source_ids": ["saranteas_2019_trauma_pain_opqrst"]
+    },
+    {
+      "id": "sample_help",
+      "placement": "module",
+      "text": "SAMPLE is a memory aid that emergency care courses use for taking a short, focused history.",
+      "source_ids": ["jayaprakash_2016_sample_history"]
+    },
+    {
+      "id": "readback",
+      "_comment": "SCMG: anotar el consejo y repetirlo. 'in your next message' es adaptacion por retardo (UX).",
+      "placement": "after",
+      "text": "Write down the reply and read it back in your next message.",
+      "earth_reference": true,
+      "source_ids": ["mca_scmg_ch13_radio_advice"]
+    }
+  ],
+  "symptoms": [
+    {
+      "id": "chest_pain",
+      "_comment": "Abrir primero el protocolo crew_chest_pain_conscious (UX). No se cita la fila 'Chest pain' de WHO (diagnostico + aspirina).",
+      "label": "Chest pain or pressure",
+      "modules": ["opqrst", "sample", "pain_scale", "remote_min"],
+      "open_protocol_id": "crew_chest_pain_conscious",
+      "source_ids": ["uchida_2026_chest_pain_opqrst", "jayaprakash_2016_sample_history"]
+    },
+    {
+      "id": "abdominal_pain",
+      "label": "Abdominal pain",
+      "modules": ["opqrst", "sample", "pain_scale", "remote_min"],
+      "source_ids": ["larsson_2022_prehospital_abdominal_pain"]
+    },
+    {
+      "id": "headache",
+      "_comment": "Inferencia (UX): sin fuente especifica de cefalea; OPQRST se aplica por ser dolor.",
+      "label": "Headache",
+      "modules": ["opqrst", "sample", "pain_scale", "remote_min"],
+      "source_ids": ["saranteas_2019_trauma_pain_opqrst", "prachanukool_2023_ed_pain_opqrst"]
+    },
+    {
+      "id": "injury",
+      "_comment": "La tarjeta WHO TRAUMA no tiene SAMPLE (W1, REJECTED): no se cita.",
+      "label": "Injury",
+      "modules": ["sample", "injury", "opqrst", "pain_scale", "remote_min"],
+      "earth_reference": true,
+      "source_ids": ["mca_scmg_ch13_radio_advice", "saranteas_2019_trauma_pain_opqrst", "jayaprakash_2016_sample_history"]
+    },
+    {
+      "id": "breathing",
+      "_comment": "Sin OPQRST. No se usa la columna REMEMBER de WHO.",
+      "label": "Shortness of breath or difficulty breathing",
+      "modules": ["sample", "remote_min"],
+      "source_ids": ["who_icrc_bec_quick_cards", "mca_scmg_ch13_radio_advice"]
+    },
+    {
+      "id": "fever_unwell",
+      "_comment": "Sin OPQRST. No se cita la fila WHO 'Fever or HIV' (diagnostica).",
+      "label": "Fever or feeling unwell",
+      "modules": ["sample", "remote_min"],
+      "earth_reference": true,
+      "source_ids": ["mca_scmg_ch13_radio_advice", "jayaprakash_2016_sample_history", "cdc_fever"]
+    },
+    {
+      "id": "other",
+      "label": "Other",
+      "modules": ["sample", "remote_min"],
+      "source_ids": ["jayaprakash_2016_sample_history"]
+    }
+  ],
+  "question_sets": [
+    {
+      "id": "opqrst",
+      "_comment": "Set 1. La S (severidad) es pain_now del set pain_scale.",
+      "title": "About the pain (OPQRST)",
+      "help_id": "opqrst_help",
+      "questions": [
+        {
+          "id": "o_when",
+          "text": "When did it start, and what were you doing at that moment?",
+          "answer": { "type": "time", "with_text": true },
+          "source_ids": ["prachanukool_2023_ed_pain_opqrst"]
+        },
+        {
+          "id": "o_how",
+          "text": "Did it start suddenly or gradually?",
+          "answer": { "type": "choice", "options": ["Suddenly", "Gradually", "Not sure"] },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "p",
+          "_comment": "Los ejemplos (moving, breathing, resting, position) son (UX).",
+          "text": "Does anything make it better or worse (for example moving, breathing, resting, position)?",
+          "answer": { "type": "free_text" },
+          "source_ids": ["prachanukool_2023_ed_pain_opqrst"]
+        },
+        {
+          "id": "q",
+          "text": "Describe it in your own words. For example: cramping, stabbing, burning, electric shock, pressure.",
+          "answer": { "type": "free_text" },
+          "source_ids": ["prachanukool_2023_ed_pain_opqrst"]
+        },
+        {
+          "id": "r",
+          "text": "Where exactly do you feel it? Does it spread or move anywhere else?",
+          "answer": { "type": "free_text" },
+          "source_ids": ["prachanukool_2023_ed_pain_opqrst"]
+        },
+        {
+          "id": "t",
+          "text": "Is it constant, or does it come and go? Has it changed since it started?",
+          "answer": { "type": "choice", "options": ["Constant", "Comes and goes"], "with_text": true },
+          "source_ids": ["prachanukool_2023_ed_pain_opqrst", "mca_scmg_ch13_radio_advice"]
+        }
+      ]
+    },
+    {
+      "id": "sample",
+      "_comment": "Set 2.",
+      "title": "Focused history (SAMPLE)",
+      "help_id": "sample_help",
+      "questions": [
+        {
+          "id": "s_symptoms",
+          "text": "What symptoms do you have? List all of them, starting with the one that bothers you most.",
+          "answer": { "type": "free_text" },
+          "source_ids": ["jayaprakash_2016_sample_history", "mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "a_allergies",
+          "text": "Do you have any known allergies? If yes, what happens when you react?",
+          "answer": { "type": "choice", "options": ["No", "Yes"], "with_text": true },
+          "source_ids": ["jayaprakash_2016_sample_history", "mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "m_before",
+          "text": "List all medicines you were taking before this started: name, dose and how often.",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice", "jayaprakash_2016_sample_history"]
+        },
+        {
+          "id": "m_since",
+          "_comment": "Historia, no recomendacion. Sin cita WHO (su ejemplo es tratamiento).",
+          "text": "List all medicines taken or given since this started: name, dose and the time of each dose.",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "p_past",
+          "text": "Any important past illnesses, injuries or operations?",
+          "answer": { "type": "free_text" },
+          "source_ids": ["mca_scmg_ch13_radio_advice", "jayaprakash_2016_sample_history"]
+        },
+        {
+          "id": "l_last_intake",
+          "text": "When did you last eat or drink?",
+          "answer": { "type": "time" },
+          "source_ids": ["jayaprakash_2016_sample_history", "who_icrc_bec_quick_cards"]
+        },
+        {
+          "id": "e_events",
+          "_comment": "Se omite si ya se respondio o_when (UX).",
+          "text": "What were you doing just before this started? Describe what happened.",
+          "answer": { "type": "free_text" },
+          "skip_if": { "answered": "o_when" },
+          "source_ids": ["jayaprakash_2016_sample_history"]
+        }
+      ]
+    },
+    {
+      "id": "pain_scale",
+      "_comment": "Set 4. Anclas de Pathak (CC BY), no las del BPI. pain_words: opciones de Prachanukool; 'None' y la frase de ayuda son (UX).",
+      "title": "Pain scale",
+      "questions": [
+        {
+          "id": "pain_now",
+          "text": "How strong is it right now, from 0 (no pain) to 10 (maximum pain)?",
+          "answer": { "type": "scale_0_10", "anchors": { "min_label": "no pain", "max_label": "maximum pain" } },
+          "source_ids": ["pathak_2018_pain_scales", "krebs_2009_peg_pain_scale"]
+        },
+        {
+          "id": "pain_words",
+          "text": "Some people find words easier than numbers. You can also choose a word.",
+          "answer": { "type": "choice", "options": ["None", "Mild", "Moderate", "Severe"] },
+          "source_ids": ["prachanukool_2023_ed_pain_opqrst"]
+        }
+      ]
+    },
+    {
+      "id": "injury",
+      "_comment": "Preguntas del Set 3 marcadas 'solo Injury'.",
+      "title": "About the injury",
+      "questions": [
+        {
+          "id": "injury_loc",
+          "text": "Did you lose consciousness, even briefly? Do you remember everything that happened?",
+          "answer": { "type": "choice", "options": ["No", "Yes", "Not sure"], "with_text": true },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "injury_blood",
+          "text": "Any bleeding? About how much?",
+          "answer": { "type": "choice", "options": ["No", "Yes"], "with_text": true },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        }
+      ]
+    },
+    {
+      "id": "remote_min",
+      "_comment": "Set 3: datos minimos para el medico remoto (estructura S-B-Observations-Questions, UX sobre SBAR; sin 'Assessment'). Sin foto adjunta en la app (limitacion).",
+      "title": "For the remote physician",
+      "questions": [
+        {
+          "id": "timestamp",
+          "text": "Date and time (UTC)",
+          "answer": { "type": "auto", "fill": "timestamp" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "basic_info",
+          "_comment": "La app no guarda edad ni sexo: se pide como texto libre.",
+          "text": "Age and sex (name optional)",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice", "who_icrc_bec_quick_cards"]
+        },
+        {
+          "id": "chief_complaint",
+          "text": "In your own words, what is the main problem?",
+          "answer": { "type": "free_text" },
+          "source_ids": ["who_icrc_bec_quick_cards", "mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "course",
+          "_comment": "Se omite si el sintoma incluye OPQRST (UX).",
+          "text": "When did it begin, how did it begin, and how has it changed since?",
+          "answer": { "type": "free_text" },
+          "skip_if": { "set_active": "opqrst" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "vitals",
+          "_comment": "Adjuntar las lecturas registradas con hora es (UX). No se muestran los valores normales WHO.",
+          "text": "Attach your latest readings: temperature, pulse, breathing rate (and blood pressure, oxygen saturation if available).",
+          "answer": { "type": "auto", "fill": "latest_readings", "with_text": true },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice", "who_icrc_bec_quick_cards"]
+        },
+        {
+          "id": "appearance",
+          "text": "Describe your general appearance and how the affected area looks (for example swelling, tenderness or reduced movement). Add a photo if you can.",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice", "mca_mgn623_tmas"]
+        },
+        {
+          "id": "tests",
+          "text": "Any tests or measurements already done? What were the results?",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "care_given",
+          "text": "What first aid or other care has already been given? How did you respond to it?",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "worries",
+          "text": "What worries you most right now?",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "questions",
+          "text": "What do you most need the ground team to answer?",
+          "answer": { "type": "free_text" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice"]
+        },
+        {
+          "id": "context",
+          "_comment": "Mapeo (UX): entorno, descripcion, retardo actual (solo de data/environments.json) y equipo a bordo.",
+          "text": "Mission context: location, current round-trip delay and on-board medical kit",
+          "answer": { "type": "auto", "fill": "mission_context" },
+          "earth_reference": true,
+          "source_ids": ["mca_scmg_ch13_radio_advice", "imha_2013_maritime_telemedicine_consensus"]
+        }
+      ]
+    }
+  ]
+}

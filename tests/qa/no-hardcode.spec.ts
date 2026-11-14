@@ -4,6 +4,7 @@ import { isPlaceholderText } from "../../src/logic/placeholder";
 import type { Indicator } from "../../src/content/schemas";
 import {
   app,
+  consult,
   criticalValueFor,
   enterReading,
   environments,
@@ -148,7 +149,7 @@ function leaves(x: unknown, out: string[]): void {
 test("visible text is traceable to the JSON (hardcode detector, all views)", async ({ page }) => {
   test.setTimeout(150_000);
   const corpus: string[] = [];
-  leaves([app, indicators, environments, protocols, sources, strings], corpus);
+  leaves([app, indicators, environments, protocols, sources, strings, consult], corpus);
   const regs = Object.values(strings)
     .filter((s) => s.includes("{"))
     .map((s) => new RegExp("^" + escapeRe(s).replace(/\\\{\w+\\\}/g, ".+?") + "$"));

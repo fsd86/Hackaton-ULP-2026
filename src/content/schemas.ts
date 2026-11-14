@@ -334,6 +334,13 @@ export const AppConfig = z.object({
   // Opcional: sin hero, el tablero dibuja el cuerpo SVG.
   hero: HeroConfig.optional(),
   hud: HudConfig,
+  // One-shot consult: parametro de DISENO (no medico) del contador "Avoids up to N round trips"; ver _comment.
+  consult: z
+    .object({
+      _comment: Comment,
+      round_trips_per_answered_set: z.number().int().positive(),
+    })
+    .default({ round_trips_per_answered_set: 1 }),
 });
 
 // ---- demo-readings.json (datos sinteticos de demostracion, no mediciones reales)
@@ -378,6 +385,98 @@ export const GuidedDemoFile = z.object({
   steps: z.array(GuidedDemoStep).min(1),
 });
 
+// ---- consult.json (One-shot consult del Downlink report; ver docs/research/5-verificacion.md "Listo para cargar")
+// design_text: texto de DISENO (UX) sin fuente; si no es design_text, exige al menos una fuente.
+function sourcedOrDesign(value: { design_text?: boolean; source_ids: string[] }, ctx: z.RefinementCtx): void {
+  if (value.design_text === true && value.source_ids.length > 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["source_ids"], message: "design_text items are design text (UX) and must not cite sources" });
+  }
+  if (value.design_text !== true && value.source_ids.length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["source_ids"],
+      message: 'needs at least one source in source_ids, or "design_text": true if it is design text (UX)',
+    });
+  }
+}
+
+const ConsultId = z.string().regex(/^[a-z0-9_]+$/, "id must match /^[a-z0-9_]+$/");
+
+export const ConsultHelp = z
+  .object({
+    _comment: Comment,
+    id: ConsultId,
+    // notice: aviso fijo; top: arriba del formulario; why: desplegable; module: ayuda de un set (help_id); after: tras enviar.
+    placement: z.enum(["notice", "top", "why", "module", "after"]),
+    text: z.string().min(1),
+    earth_reference: z.boolean().optional(),
+    design_text: z.boolean().optional(),
+    source_ids: SourceIds,
+  })
+  .superRefine(sourcedOrDesign);
+
+export const ConsultAnswer = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("free_text") }),
+  z.object({ type: z.literal("choice"), options: z.array(z.string().min(1)).min(2), with_text: z.boolean().optional() }),
+  z.object({ type: z.literal("time"), with_text: z.boolean().optional() }),
+  z.object({ type: z.literal("scale_0_10"), anchors: z.object({ min_label: z.string().min(1), max_label: z.string().min(1) }) }),
+  z.object({
+    type: z.literal("auto"),
+    // Lo completa la app desde sus datos: hora actual, ultimas lecturas, entorno + retardo.
+    fill: z.enum(["timestamp", "latest_readings", "mission_context"]),
+    with_text: z.boolean().optional(),
+  }),
+]);
+
+export const ConsultSkipIf = z.union([
+  z.object({ answered: z.string().min(1) }).strict(),
+  z.object({ set_active: z.string().min(1) }).strict(),
+]);
+
+export const ConsultQuestion = z
+  .object({
+    _comment: Comment,
+    id: ConsultId,
+    text: z.string().min(1),
+    answer: ConsultAnswer,
+    skip_if: ConsultSkipIf.optional(),
+    earth_reference: z.boolean().optional(),
+    design_text: z.boolean().optional(),
+    source_ids: SourceIds,
+  })
+  .superRefine(sourcedOrDesign);
+
+export const ConsultQuestionSet = z.object({
+  _comment: Comment,
+  id: ConsultId,
+  // Titulo del modulo: etiqueta de UI (diseno), no afirmacion.
+  title: z.string().min(1),
+  help_id: z.string().optional(),
+  questions: z.array(ConsultQuestion).min(1),
+});
+
+export const ConsultSymptom = z
+  .object({
+    _comment: Comment,
+    id: ConsultId,
+    label: z.string().min(1),
+    // Ids de question_sets, en el orden en que se preguntan.
+    modules: z.array(z.string()).min(1),
+    // Protocolo a abrir ANTES del formulario (p. ej. dolor de pecho); el loader valida que exista.
+    open_protocol_id: z.string().optional(),
+    earth_reference: z.boolean().optional(),
+    design_text: z.boolean().optional(),
+    source_ids: SourceIds,
+  })
+  .superRefine(sourcedOrDesign);
+
+export const ConsultFile = z.object({
+  _comment: Comment,
+  help: z.array(ConsultHelp),
+  symptoms: z.array(ConsultSymptom).min(1),
+  question_sets: z.array(ConsultQuestionSet).min(1),
+});
+
 // ---- config/strings.en.json
 export const Strings = z.record(z.string(), z.string());
 
@@ -407,3 +506,9 @@ export type Strings = z.infer<typeof Strings>;
 export type GuidedDemo = z.infer<typeof GuidedDemoFile>;
 export type GuidedDemoStep = z.infer<typeof GuidedDemoStep>;
 export type GuidedDemoAction = z.infer<typeof GuidedDemoAction>;
+export type Consult = z.infer<typeof ConsultFile>;
+export type ConsultHelp = z.infer<typeof ConsultHelp>;
+export type ConsultSymptom = z.infer<typeof ConsultSymptom>;
+export type ConsultQuestionSet = z.infer<typeof ConsultQuestionSet>;
+export type ConsultQuestion = z.infer<typeof ConsultQuestion>;
+export type ConsultAnswer = z.infer<typeof ConsultAnswer>;
