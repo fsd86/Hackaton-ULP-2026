@@ -205,7 +205,27 @@ export const HeroConfig = z.object({
   zone_anchors: z.record(BodyZone, z.tuple([Pct, Pct])),
   halo: z.object({ x: Pct, y: Pct, w: Pct }),
   platform: z.object({ x: Pct, y: Pct, w: Pct }),
+  // Mapa de calor: radio (en % del ancho de la imagen) del resplandor de cada zona segun su peor estado.
+  heat_radius: Pct.default(16),
 });
+
+// ---- config/app.json → hud (DISENO de UI, no medico): graficos decorativos del tablero.
+const Bpm = z.number().positive().max(400);
+export const HudConfig = z
+  .object({
+    _comment: Comment,
+    pulse_trace: z
+      .object({
+        // Indicador cuya ultima lectura marca el ritmo del dibujo (null = sin traza).
+        indicator_id: z.string().nullable(),
+        // Ritmo del dibujo sin lectura y limites de velocidad de la animacion (no son umbrales medicos).
+        idle_bpm: Bpm,
+        min_bpm: Bpm,
+        max_bpm: Bpm,
+      })
+      .refine((p) => p.min_bpm <= p.max_bpm, { message: "min_bpm must be <= max_bpm", path: ["min_bpm"] }),
+  })
+  .default({ pulse_trace: { indicator_id: null, idle_bpm: 60, min_bpm: 40, max_bpm: 160 } });
 
 // ---- config/app.json
 export const AppConfig = z.object({
@@ -251,6 +271,7 @@ export const AppConfig = z.object({
   disclaimer: z.string(),
   // Opcional: sin hero, el tablero dibuja el cuerpo SVG.
   hero: HeroConfig.optional(),
+  hud: HudConfig,
 });
 
 // ---- demo-readings.json (datos sinteticos de demostracion, no mediciones reales)
@@ -284,6 +305,7 @@ export type Step = z.infer<typeof Step>;
 export type Protocol = z.infer<typeof Protocol>;
 export type AppConfig = z.infer<typeof AppConfig>;
 export type HeroConfig = z.infer<typeof HeroConfig>;
+export type HudConfig = z.infer<typeof HudConfig>;
 export type HazardInfo = z.infer<typeof HazardInfo>;
 export type HazardId = z.infer<typeof Hazard>;
 export type Strings = z.infer<typeof Strings>;

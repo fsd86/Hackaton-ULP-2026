@@ -56,6 +56,11 @@
       "body": [50, 84]
     },
     "halo": { "x": 50, "y": 5.5, "w": 58 },
-    "platform": { "x": 50, "y": 92, "w": 94 }
+    "platform": { "x": 50, "y": 92, "w": 94 },
+    "heat_radius": 16
+  },
+  "hud": {
+    "_comment": "DISENO de UI (no medico). pulse_trace: traza de pulso DECORATIVA (no es un ECG) en la fila del indicador indicator_id; solo la velocidad del dibujo sigue su ultima lectura, acotada a [min_bpm, max_bpm] para que la animacion sea legible; sin lectura usa idle_bpm. Estos limites no son umbrales medicos.",
+    "pulse_trace": { "indicator_id": "heart_rate", "idle_bpm": 60, "min_bpm": 40, "max_bpm": 160 }
   }
 }

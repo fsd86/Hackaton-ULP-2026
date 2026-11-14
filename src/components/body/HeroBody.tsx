@@ -63,6 +63,21 @@ export function HeroBody({
         onError={() => setFailed(true)}
         className="hero-img"
       />
+      {/* Mapa de calor: resplandor por zona segun su PEOR estado (groupByZone). Decorativo: el estado de cada zona
+          ya esta en texto + icono en sus botones y en "Status by zone" (con leyenda). */}
+      <div aria-hidden="true" className="hero-heat">
+        {zones.map((z) => {
+          const anchor = hero.zone_anchors[z.zone];
+          if (!anchor || z.worst === "nodata") return null;
+          const style = {
+            left: `${anchor[0]}%`,
+            top: `${anchor[1]}%`,
+            width: `${hero.heat_radius * 2}%`,
+            "--zc": `var(--status-${z.worst})`,
+          } as CSSProperties;
+          return <span key={z.zone} data-heat-zone={z.zone} className={`hero-heat-spot hero-heat-${z.worst}`} style={style} />;
+        })}
+      </div>
       <div aria-hidden="true" className="hero-scan">
         <span className="hero-scan-band" />
       </div>

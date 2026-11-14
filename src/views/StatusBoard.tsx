@@ -4,6 +4,7 @@ import { HeroBody } from "../components/body/HeroBody";
 import type { FigureZone } from "../components/body/ZoneButton";
 import { FocusTrend } from "../components/hud/FocusTrend";
 import { HazardsPanelBody } from "../components/hud/HazardsPanelBody";
+import { StatusRing } from "../components/hud/StatusRing";
 import { VitalRow } from "../components/hud/VitalRow";
 import { ZoneDetail } from "../components/hud/ZoneDetail";
 import { ZoneStatusList } from "../components/hud/ZoneStatusList";
@@ -163,7 +164,13 @@ export function StatusBoard() {
                 const ind = byId.get(entry.indicatorId);
                 if (!ind) return null;
                 const trend = buildTrend({ indicator: ind, readings, environment, now, maxPoints: 12 });
-                return <VitalRow key={ind.id} indicator={ind} entry={entry} sparkValues={trend.series[0]?.points.map((p) => p.v) ?? []} />;
+                return <VitalRow
+                    key={ind.id}
+                    indicator={ind}
+                    entry={entry}
+                    sparkValues={trend.series[0]?.points.map((p) => p.v) ?? []}
+                    pulse={ind.id === content.app.hud.pulse_trace.indicator_id}
+                  />;
               })}
             </ul>
           </FramePanel>
@@ -259,17 +266,20 @@ export function StatusBoard() {
               </EmptyState>
             ) : (
               <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                <StatusRing counts={board.counts} order={COUNT_ORDER} />
+                <div className="min-w-0 flex-1 space-y-2">
                 <StatusBadge
                   live={false}
                   status={board.overall === "noData" ? "unknown" : board.overall}
                   className="min-h-11 px-4 text-lg"
                 />
-                <ul aria-label={t("board.counts_label")} className="grid grid-cols-2 gap-2">
+                <ul aria-label={t("board.counts_label")} className="grid grid-cols-2 gap-1.5">
                   {COUNT_ORDER.map((s) => (
                     <li
                       key={s}
                       style={{ "--sc": `var(--status-${s})` } as CSSProperties}
-                      className="flex items-center gap-2 rounded-sm border border-[var(--sc)] bg-[color-mix(in_srgb,var(--sc)_8%,var(--color-panel))] px-2 py-1"
+                      className="flex items-center gap-1.5 rounded-sm border border-[var(--sc)] bg-[color-mix(in_srgb,var(--sc)_8%,var(--color-panel))] px-1.5 py-1"
                     >
                       <span className="text-[var(--sc)]">
                         <StatusIcon name={s === "unknown" ? "help-circle" : content.app.theme.status_icons[s]} className="h-4 w-4" />
@@ -279,6 +289,8 @@ export function StatusBoard() {
                     </li>
                   ))}
                 </ul>
+                </div>
+                </div>
                 {board.needsAttention.length > 0 && (
                   <div>
                     <h3 className="eyebrow !text-[0.62rem]">{t("board.needs_attention")}</h3>

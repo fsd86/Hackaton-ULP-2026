@@ -310,7 +310,7 @@ main:focus {
   color: var(--color-text);
   font-size: 0.78rem;
 }
-.vital-row svg polyline {
+.vital-row .spark-line {
   stroke-width: 1.8;
   filter: drop-shadow(0 0 3px var(--color-accent));
 }
@@ -469,6 +469,147 @@ main:focus {
 .demo-chip svg {
   color: var(--status-attention);
 }
+/* Traza de pulso decorativa (no es un ECG): ocupa todo el ancho de la fila de frecuencia cardiaca. */
+.pulse-trace {
+  grid-column: 1 / -1;
+  margin-top: -0.15rem;
+}
+.pulse-window {
+  height: 1.4rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+.pulse-svg {
+  display: block;
+  width: 200%;
+  height: 100%;
+}
+.pulse-track {
+  animation: pulse-scroll var(--pulse-dur, 6s) linear infinite;
+}
+.pulse-line {
+  stroke: var(--sc, var(--color-accent));
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px var(--sc, var(--color-accent)));
+}
+.pulse-caption {
+  display: block;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+@keyframes pulse-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Anillo de estado (conteos reales por estado) del panel Overall status. */
+.status-ring {
+  width: 6.5rem;
+  height: 6.5rem;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+.status-ring text {
+  transform: rotate(90deg);
+  transform-origin: 50px 50px;
+}
+.status-ring-track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-line) 45%, transparent);
+  stroke-width: 9;
+}
+.status-ring-seg {
+  fill: none;
+  stroke: var(--sc);
+  stroke-width: 9;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sc) 70%, transparent));
+}
+.status-ring-num {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  fill: var(--color-text);
+}
+.status-ring-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: var(--color-muted);
+}
+
+/* Barras de lecturas del panel Trend. */
+.trend-bar {
+  fill: color-mix(in srgb, var(--sc) 75%, transparent);
+  stroke: var(--sc);
+  stroke-width: 0.8;
+}
+.trend-bars-label {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--color-muted);
+}
+
+/* Mapa de calor del cuerpo: resplandor por zona segun su peor estado (decorativo, ver leyenda). */
+.hero-heat {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero-heat-spot {
+  position: absolute;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--zc) 60%, transparent), color-mix(in srgb, var(--zc) 22%, transparent) 42%, transparent 68%);
+  border: 1px dashed color-mix(in srgb, var(--zc) 55%, transparent);
+  mix-blend-mode: screen;
+}
+.hero-heat-attention,
+.hero-heat-critical {
+  animation: heat-breathe 3.2s ease-in-out infinite;
+}
+@keyframes heat-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.heat-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+}
+.heat-legend-swatch {
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  color: var(--sc);
+  background: radial-gradient(circle, color-mix(in srgb, var(--sc) 45%, transparent), transparent 75%);
+}
+.heat-legend-nodata {
+  border: 1px dashed var(--color-line);
+  background: none;
+}
+
 .zone-row {
   display: grid;
   gap: 0.3rem;
@@ -629,7 +770,9 @@ main:focus {
   .hero-scan {
     display: none;
   }
-  .hero-ring {
+  .hero-ring,
+  .pulse-track,
+  .hero-heat-spot {
     animation: none;
   }
   .zone-dot {

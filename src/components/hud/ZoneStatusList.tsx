@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { BodyZoneId } from "../../logic/bodyZones";
 import { StatusBadge } from "../StatusBadge";
+import { StatusIcon } from "../StatusIcon";
 import type { FigureZone } from "../body/ZoneButton";
 
 // Orden de los segmentos de la barra (peor primero). "nodata" = indicador sin lectura.
@@ -23,8 +24,11 @@ export function ZoneStatusList({
   onSelect: (zone: BodyZoneId) => void;
   controlsId?: string;
 }) {
-  const { t } = useContent();
+  const { t, content } = useContent();
+  const icons = content.app.theme.status_icons;
+  const legend = ["critical", "attention", "normal", "unknown"] as const;
   return (
+    <>
     <ul className="space-y-1.5">
       {zones.map((z) => {
         const counts = SEGMENTS.map((s) => ({
@@ -65,5 +69,26 @@ export function ZoneStatusList({
         );
       })}
     </ul>
+    {/* Leyenda del mapa de calor del cuerpo: icono + texto por estado (nunca solo color). */}
+    {content.app.hero && (
+      <div className="mt-3 border-t border-[var(--glass-border)] pt-2">
+        <p className="text-[0.7rem] text-[var(--color-muted)]">{t("hud.heatmap.legend")}</p>
+        <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+          {legend.map((s) => (
+            <li key={s} className="heat-legend-item" style={{ "--sc": `var(--status-${s})` } as CSSProperties}>
+              <span aria-hidden="true" className="heat-legend-swatch">
+                <StatusIcon name={s === "unknown" ? "help-circle" : icons[s]} className="h-3 w-3" />
+              </span>
+              {t(`status.${s}`)}
+            </li>
+          ))}
+          <li className="heat-legend-item" style={{ "--sc": "var(--color-line)" } as CSSProperties}>
+            <span aria-hidden="true" className="heat-legend-swatch heat-legend-nodata" />
+            {t("hud.heatmap.nodata")}
+          </li>
+        </ul>
+      </div>
+    )}
+    </>
   );
 }

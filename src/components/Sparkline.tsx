@@ -1,3 +1,4 @@
+import { smoothPath } from "../logic/curve";
 import type { EvalStatus } from "../logic/evaluate";
 
 const W = 120;
@@ -19,8 +20,9 @@ export function Sparkline({ values, status }: { values: number[]; status: EvalSt
   return (
     <svg aria-hidden="true" focusable="false" viewBox={`0 0 ${W} ${H}`} className="block h-7 w-[120px] max-w-full">
       {values.length > 1 && (
-        <polyline
-          points={values.map((v, i) => `${x(i)},${y(v)}`).join(" ")}
+        <path
+          className="spark-line"
+          d={smoothPath(values.map((v, i) => [x(i), y(v)] as const))}
           fill="none"
           stroke="var(--color-accent)"
           strokeOpacity="0.75"

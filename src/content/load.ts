@@ -321,6 +321,15 @@ export function validateContent(raw: RawContent): LoadResult {
     }
   });
 
+  const pulseId = app.hud.pulse_trace.indicator_id;
+  if (pulseId !== null && !indicators.some((x) => x.id === pulseId)) {
+    errors.push({
+      file: FILES.app,
+      path: "hud.pulse_trace.indicator_id",
+      message: `indicator "${pulseId}" does not exist in ${FILES.indicators}`,
+    });
+  }
+
   if (!environmentIds.has(app.default_environment)) {
     errors.push({
       file: FILES.app,

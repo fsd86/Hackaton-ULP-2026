@@ -5,13 +5,25 @@ import type { BoardEntry } from "../../logic/board";
 import { formatValue } from "../../logic/daily";
 import { IndicatorIcon } from "../IndicatorIcon";
 import { Sparkline } from "../Sparkline";
+import { PulseTrace } from "./PulseTrace";
 import { StatusBadge } from "../StatusBadge";
 
 /**
  * Fila compacta de "Vital signs": icono, nombre, valor grande monoespaciado + unidad, mini tendencia y estado.
  * El estado es borde + icono + texto (StatusBadge), nunca solo color.
  */
-export function VitalRow({ indicator, entry, sparkValues }: { indicator: Indicator; entry: BoardEntry; sparkValues: number[] }) {
+export function VitalRow({
+  indicator,
+  entry,
+  sparkValues,
+  pulse = false,
+}: {
+  indicator: Indicator;
+  entry: BoardEntry;
+  sparkValues: number[];
+  /** true: muestra la traza de pulso decorativa (config hud.pulse_trace.indicator_id). */
+  pulse?: boolean;
+}) {
   const { t } = useContent();
   const last = entry.lastReading;
   const style = { "--sc": `var(--status-${entry.status})` } as CSSProperties;
@@ -39,6 +51,7 @@ export function VitalRow({ indicator, entry, sparkValues }: { indicator: Indicat
         <StatusBadge status={entry.status} live={false} size="sm" />
         <Sparkline values={sparkValues} status={entry.status} />
       </div>
+      {pulse && <PulseTrace bpm={last && typeof last.value === "number" ? last.value : null} />}
     </li>
   );
 }
