@@ -55,9 +55,13 @@ firstVisit("board: first visit loads DEMO data once; after removing it, reload d
   await expect(page.getByText(strings["demo.title"]).first()).toBeVisible();
   await expect(page.getByRole("button", { name: strings["demo.load"] })).toHaveCount(0);
 
-  await page.getByRole("button", { name: strings["demo.remove"] }).click();
+  const remove = page.getByRole("button", { name: strings["demo.remove"] });
+  await expect(remove).toBeVisible();
+  await remove.click();
+  await expect(page.locator("[data-demo-banner]")).toHaveCount(0);
   await expect(page.getByRole("button", { name: strings["demo.load"] })).toBeVisible();
   await page.reload();
+  await expect(page.getByRole("heading", { name: strings["board.title"], level: 1 })).toBeVisible();
   await expect(page.getByRole("button", { name: strings["demo.load"] })).toBeVisible();
   await expect(page.locator("[data-demo-banner]")).toHaveCount(0);
 });

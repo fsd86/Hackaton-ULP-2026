@@ -31,6 +31,8 @@
 
 - 2026-11-14 — 3 ajustes del HUD, un commit cada uno: anillos de la plataforma completos con el banner demo (`--hero-top` suma el banner, `3be42ef`); columnas laterales parejas (Delay & ground answer pasa a la izquierda y el último panel de cada columna crece hasta el borde, `41f23c4`); sin lecturas, el estado general sube al tope de la columna derecha y "Go to daily check" queda a 479 px a 1440x900 (`f92f3d6`). Lint OK, unit 104/104, e2e 39/39, QA 62/63 (403 de CDC), axe 0. Build final en `dist` (843 KB) listo para arrastrar a Netlify.
 
+- 2026-11-14 — Etapa 2B del HUD (5 bloques, un commit cada uno): demo sembrada en la primera visita con flag `features.demo_on_first_visit` y marca `eif.demo_seeded` (nunca resiembra; chip DEMO una vez por panel) (`d4dd15e`); gráficos en paneles: traza de pulso decorativa "not an ECG", anillo de conteos, barras de lecturas, mapa de calor por peor estado de zona con leyenda icono+texto, líneas suaves monótonas (`572cf92`); cuerpo más grande con título compacto, anillos a 888 px a 1440x900 con banner, y el foco ya no salta al cargar (`0d6b7d3`); acentos cálidos `theme.warm` y fondo espacial por código `theme.space` (estrellas + horizonte) (`949c13e`); zoom de la zona en Zone details con la misma imagen (`4560488`). Tests e2e parten de visita ya sembrada (fixture) + test nuevo de primera visita; QA usa storageState con la marca. Lint OK, unit 108/108, e2e 41/41 (3 skip).
+
 ## En curso
 - Rediseño visual: etapa 2A commiteada; próximas etapas a definir.
 
