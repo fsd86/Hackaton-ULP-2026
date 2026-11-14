@@ -7,6 +7,8 @@ import { IndicatorIcon } from "../IndicatorIcon";
 import { Sparkline } from "../Sparkline";
 import { PulseTrace } from "./PulseTrace";
 import { StatusBadge } from "../StatusBadge";
+import { BaselineDeviation } from "../BaselineDeviation";
+import type { Baseline } from "../../logic/baseline";
 
 /**
  * Fila compacta de "Vital signs": icono, nombre, valor grande monoespaciado + unidad, mini tendencia y estado.
@@ -17,12 +19,15 @@ export function VitalRow({
   entry,
   sparkValues,
   pulse = false,
+  baseline = null,
 }: {
   indicator: Indicator;
   entry: BoardEntry;
   sparkValues: number[];
   /** true: muestra la traza de pulso decorativa (config hud.pulse_trace.indicator_id). */
   pulse?: boolean;
+  /** Linea de base personal: agrega el desvio NEUTRAL bajo el valor (no cambia el estado). */
+  baseline?: Baseline | null;
 }) {
   const { t } = useContent();
   const last = entry.lastReading;
@@ -35,6 +40,7 @@ export function VitalRow({
       <div className="min-w-0">
         <h3 className="eyebrow truncate !text-[0.62rem]">{indicator.name}</h3>
         {last ? (
+          <>
           <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
             <span
               className={`whitespace-nowrap font-mono font-semibold leading-none tracking-tight ${Array.isArray(last.value) ? "text-[1.3rem]" : "text-[1.65rem]"}`}
@@ -43,6 +49,8 @@ export function VitalRow({
             </span>
             <span className="font-mono text-xs text-[var(--color-muted)]">{indicator.unit}</span>
           </p>
+          <BaselineDeviation indicator={indicator} value={last.value} baseline={baseline} variant="short" className="mt-0.5" />
+          </>
         ) : (
           <p className="text-sm text-[var(--color-muted)]">{t("board.no_reading")}</p>
         )}

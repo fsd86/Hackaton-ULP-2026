@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { useContent } from "../../content/ContentContext";
 import type { BodyZoneId, ZoneStatus } from "../../logic/bodyZones";
-import type { EvalStatus } from "../../logic/evaluate";
+import type { EvalStatus, ReadingValue } from "../../logic/evaluate";
 import { StatusIcon } from "../StatusIcon";
 
 export interface FigureZoneItem {
@@ -10,6 +10,8 @@ export interface FigureZoneItem {
   unit: string;
   /** Ultima lectura formateada, o null si todavia no hay ninguna. */
   valueText: string | null;
+  /** Valor crudo de la ultima lectura (para el desvio respecto de la linea de base personal). */
+  value?: ReadingValue;
   status: EvalStatus;
   /** Notas del rango donde cayo la ultima lectura (data/indicators.json ranges[].notes). */
   notes?: string[];

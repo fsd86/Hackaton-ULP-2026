@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ReadingValue } from "../logic/evaluate";
+import type { Baseline } from "../logic/baseline";
 
 // Wrapper de localStorage con try/catch y fallback en memoria (modo privado, storage bloqueado, tests).
 
@@ -47,6 +48,7 @@ const KEYS = {
   emergencySession: "eif.emergency_session",
   environment: "eif.environment",
   consultDraft: "eif.consult_draft",
+  baseline: "eif.baseline",
 } as const;
 
 /**
@@ -150,9 +152,11 @@ export interface StorageState {
   version: number;
   /** Se incrementa al cargar/quitar datos demo: las vistas que leen lecturas se refrescan sin remontarse. */
   readingsRev: number;
+  /** Se incrementa al guardar o quitar la linea de base personal. */
+  baselineRev: number;
 }
 
-let state: StorageState = { issues: { total: 0, byKey: {} }, version: 0, readingsRev: 0 };
+let state: StorageState = { issues: { total: 0, byKey: {} }, version: 0, readingsRev: 0, baselineRev: 0 };
 const listeners = new Set<() => void>();
 
 function emit(next: StorageState): void {
@@ -330,6 +334,41 @@ export function clearConsultDraft(): void {
   removeRaw(KEYS.consultDraft);
 }
 
+// ---- Linea de base personal (src/logic/baseline.ts): una sola guardada, validada al leer.
+const BaselineMeanSchema = z.union([num, z.tuple([num, num])]);
+const BaselineSchema = z.object({
+  source: z.enum(["readings", "demo"]),
+  createdAt: num,
+  windowDays: num.positive(),
+  minReadings: num.int().min(1),
+  entries: z
+    .array(
+      z.object({
+        indicatorId: z.string(),
+        mean: BaselineMeanSchema,
+        n: num.int().min(1),
+        from: num,
+        to: num,
+      }),
+    )
+    .max(500),
+});
+
+export function getBaseline(): Baseline | null {
+  return readOne<Baseline>(KEYS.baseline, "baseline", BaselineSchema);
+}
+
+/** Guarda (reemplaza) la linea de base y avisa a las vistas (baselineRev++). */
+export function setBaseline(baseline: Baseline): void {
+  writeRaw(KEYS.baseline, JSON.stringify(baseline));
+  emit({ ...state, baselineRev: state.baselineRev + 1 });
+}
+
+export function clearBaseline(): void {
+  removeRaw(KEYS.baseline);
+  emit({ ...state, baselineRev: state.baselineRev + 1 });
+}
+
 // ---- Guided demo: "caja de arena" para no dejar efectos reales ----
 // Al empezar se guarda una foto cruda del log de emergencia, la sesion y el entorno; al salir se restaura tal cual
 // (las entradas de log y la sesion que creo la demo desaparecen). Si la demo cargo las lecturas DEMO, se quitan.
@@ -409,7 +448,12 @@ export function recoverGuidedDemoSandbox(): boolean {
 /** Borra todo lo guardado, cierra el aviso de descartes y avisa (version++) para remontar las vistas. */
 export function clearAll(): void {
   for (const key of Object.values(KEYS)) removeRaw(key);
-  emit({ issues: { total: 0, byKey: {} }, version: state.version + 1, readingsRev: state.readingsRev + 1 });
+  emit({
+    issues: { total: 0, byKey: {} },
+    version: state.version + 1,
+    readingsRev: state.readingsRev + 1,
+    baselineRev: state.baselineRev + 1,
+  });
 }
 
 /** Lee todas las claves una vez (al arrancar) para limpiar lo corrupto y registrar los descartes. */
@@ -419,4 +463,5 @@ export function scanStorage(): void {
   getEmergencySession();
   getEnvironmentId();
   getConsultDraft();
+  getBaseline();
 }

@@ -13,7 +13,8 @@ export type CitationKind =
   | "hazard"
   | "consult_help"
   | "consult_symptom"
-  | "consult_question";
+  | "consult_question"
+  | "baseline";
 
 export interface Citation {
   kind: CitationKind;
@@ -37,6 +38,8 @@ export interface CitationInput {
   hazards?: HazardInfo[];
   /** Opcional: data/consult.json (ayudas, síntomas y preguntas del One-shot consult). */
   consult?: Consult | null;
+  /** Opcional: fuentes del texto "why a personal baseline" (config/app.json baseline.source_ids). */
+  baselineSourceIds?: string[];
 }
 
 /** Devuelve un mapa sourceId → citas (todas las fuentes aparecen, con [] si nadie las cita). */
@@ -101,6 +104,8 @@ export function buildCitations(input: CitationInput): Record<string, Citation[]>
       });
     }
   }
+
+  for (const id of input.baselineSourceIds ?? []) add(id, { kind: "baseline", ownerId: "baseline", ownerName: "" });
 
   return out;
 }

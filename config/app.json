@@ -44,13 +44,14 @@
     }
   },
   "features": {
-    "_comment": "Supported flags: charts (trend charts on the status board), reminders (due / no-frequency badges and the Due now block), emergency_guide (Emergency button, route and links), downlink_report (nav entry, links and route), demo_on_first_visit (on the very first visit load data/demo-readings.json once, marked DEMO DATA and removable; never reseeded after removal or Clear data). guided_demo (Guided demo button on the status board: walks data/guided-demo.json, about 90 s, and restores the environment, emergency log and demo data afterwards). Flags are bundled at build time.",
+    "_comment": "Supported flags: charts (trend charts on the status board), reminders (due / no-frequency badges and the Due now block), emergency_guide (Emergency button, route and links), downlink_report (nav entry, links and route), demo_on_first_visit (on the very first visit load data/demo-readings.json once, marked DEMO DATA and removable; never reseeded after removal or Clear data). guided_demo (Guided demo button on the status board: walks data/guided-demo.json, about 90 s, and restores the environment, emergency log and demo data afterwards). baseline (Baseline view #/baseline, nav entry, and the neutral 'vs your baseline' deviation on the status board and in the Daily check result). Flags are bundled at build time.",
     "charts": true,
     "reminders": true,
     "emergency_guide": true,
     "downlink_report": true,
     "demo_on_first_visit": true,
-    "guided_demo": true
+    "guided_demo": true,
+    "baseline": true
   },
   "realtime_threshold_s": 10,
   "emergency_session_max_age_hours": 12,
@@ -81,6 +82,12 @@
       "horizon_hours": 24,
       "min_points": 4
     }
+  },
+  "baseline": {
+    "_comment": "DESIGN parameters, not medical. Personal baseline = arithmetic mean of the person's own earlier readings of each numeric indicator (input kind number or pair; each pair component on its own) taken in the last window_days days before the moment it is calculated, not counting the most recent reading of each indicator (that one is what gets compared). With fewer than min_readings earlier readings there is no baseline for that indicator. Scale indicators (mood 1-5) are excluded: a percentage change on an ordinal scale is not meaningful. The deviation shown is (latest - mean) / mean in %, for awareness only: it is not a medical threshold and never changes the sourced range status. source_ids back the 'why a personal baseline' text of the Baseline view (CSA CCISS: six astronauts, individual differences); they give no expected values.",
+    "window_days": 7,
+    "min_readings": 3,
+    "source_ids": ["csa_cciss"]
   },
   "consult": {
     "_comment": "Parametros de DISENO (no medicos) del contador del One-shot consult. Solo cuentan los sets COMPLETOS: todas las preguntas visibles del set que no completa la app (no auto, no saltadas por skip_if) tienen respuesta propia. N = sets completos. Rango de round trips evitados: minimo = lower_round_trips (supuesto: tierra agruparia todas sus repreguntas en un solo mensaje) y maximo = N x upper_round_trips_per_complete_set (supuesto: tierra preguntaria un set por mensaje). Minutos SOLO del retardo del entorno (data/environments.json comm_delay_one_way_s): cota baja = minimo x 2 x retardo MINIMO de ida; cota alta = maximo x 2 x retardo MAXIMO de ida. Ejemplo Marte (3-22 min de ida), N = 2: entre 1 y 2 round trips, de 6 a 88 min. N = 0: no se declara ahorro. Sin retardo verificado (null): sin minutos. No usa cifras de papers (40 / 20-40 / 44 min) ni tiempos de analisis o respuesta.",

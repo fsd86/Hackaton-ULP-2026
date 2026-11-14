@@ -18,6 +18,7 @@ import { FeatureDisabled } from "./components/FeatureDisabled";
 import { isRouteEnabled } from "./logic/features";
 import { Header } from "./components/Header";
 import { PrototypeNotice } from "./components/PrototypeNotice";
+import { BaselineView } from "./views/BaselineView";
 import { DailyCheck } from "./views/DailyCheck";
 import { EmergencyView } from "./views/EmergencyView";
 import { ReportView } from "./views/ReportView";
@@ -123,6 +124,8 @@ function Shell() {
             )
           ) : route.id === "report" ? (
             isRouteEnabled("report", features) ? <ReportView /> : <FeatureDisabled titleKey={route.navKey} />
+          ) : route.id === "baseline" ? (
+            isRouteEnabled("baseline", features) ? <BaselineView /> : <FeatureDisabled titleKey={route.navKey} />
           ) : route.id === "sources" ? (
             <SourcesView param={param} />
           ) : (

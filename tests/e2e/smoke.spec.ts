@@ -15,7 +15,7 @@ test("app loads without content errors", async ({ page }) => {
 test("prototype notice is visible on every view and does not cover the tab bar", async ({ page }) => {
   const { readFileSync } = await import("node:fs");
   const strings = JSON.parse(readFileSync("config/strings.en.json", "utf8")) as Record<string, string>;
-  for (const hash of ["#/", "#/check", "#/emergency", "#/report", "#/sources"]) {
+  for (const hash of ["#/", "#/check", "#/baseline", "#/emergency", "#/report", "#/sources"]) {
     await page.goto(`/${hash}`);
     const notice = page.getByRole("note").filter({ hasText: strings["notice.prototype"] });
     await expect(notice, hash).toBeInViewport({ ratio: 1 });

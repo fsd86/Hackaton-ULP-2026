@@ -7,6 +7,7 @@ export type Features = AppConfig["features"];
 const ROUTE_FLAG: Partial<Record<RouteId, keyof Omit<Features, "_comment">>> = {
   emergency: "emergency_guide",
   report: "downlink_report",
+  baseline: "baseline",
 };
 
 export function isRouteEnabled(id: RouteId, features: Features): boolean {

@@ -131,3 +131,29 @@ describe("storage (first-visit demo seed)", () => {
     expect(getReadings()).toHaveLength(1);
   });
 });
+
+describe("storage (personal baseline)", () => {
+  beforeEach(() => clearAll());
+
+  it("stores a valid baseline, drops a corrupted one and clearAll removes it", async () => {
+    const { getBaseline, setBaseline, clearBaseline } = await import("../../src/storage/local");
+    expect(getBaseline()).toBeNull();
+    const b = {
+      source: "demo" as const,
+      createdAt: 1,
+      windowDays: 7,
+      minReadings: 3,
+      entries: [{ indicatorId: "x", mean: [1, 2] as [number, number], n: 3, from: 1, to: 2 }],
+    };
+    setBaseline(b);
+    expect(getBaseline()).toEqual(b);
+    clearBaseline();
+    expect(getBaseline()).toBeNull();
+    setBaseline(b);
+    clearAll();
+    expect(getBaseline()).toBeNull();
+    // Forma invalida (n = 0): se descarta.
+    setBaseline({ ...b, entries: [{ ...b.entries[0]!, n: 0 }] });
+    expect(getBaseline()).toBeNull();
+  });
+});

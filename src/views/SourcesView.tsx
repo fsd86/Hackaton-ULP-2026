@@ -14,8 +14,8 @@ export function SourcesView({ param }: { param: string | undefined }) {
   const { t, content } = useContent();
   const { sources, indicators, protocols, environments, hazards, consult } = content;
   const citations = useMemo(
-    () => buildCitations({ sources, indicators, environments, protocols, hazards, consult }),
-    [sources, indicators, environments, protocols, hazards, consult],
+    () => buildCitations({ sources, indicators, environments, protocols, hazards, consult, baselineSourceIds: content.app.features.baseline ? content.app.baseline.source_ids : [] }),
+    [sources, indicators, environments, protocols, hazards, consult, content.app],
   );
   const summary = summarizeVerification({ sources, indicators, protocols, environments });
   // Cobertura por dato: el status global PLACEHOLDER de un indicador escondía cuánto SÍ tiene fuente.

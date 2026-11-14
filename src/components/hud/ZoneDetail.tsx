@@ -7,6 +7,8 @@ import { SourceLinks } from "../SourceLinks";
 import { StatusBadge } from "../StatusBadge";
 import type { FigureZone } from "../body/ZoneButton";
 import { ZoneZoom } from "./ZoneZoom";
+import { BaselineDeviation } from "../BaselineDeviation";
+import type { Baseline } from "../../logic/baseline";
 
 /**
  * Detalle de la zona elegida: sus indicadores con valor y estado, los hazards de NASA ligados (con fuente) y
@@ -17,10 +19,13 @@ export function ZoneDetail({
   zone,
   indicators,
   environment,
+  baseline = null,
 }: {
   zone: FigureZone | undefined;
   indicators: Map<string, Indicator>;
   environment: Environment;
+  /** Linea de base personal: desvio NEUTRAL de la ultima lectura (aparte del estado por rangos). */
+  baseline?: Baseline | null;
 }) {
   const { t, content } = useContent();
   if (!zone) return <p className="text-sm text-[var(--color-muted)]">{t("hud.zone_detail.help")}</p>;
@@ -54,6 +59,7 @@ export function ZoneDetail({
                 )}
               </div>
               {item.valueText !== null && <StatusBadge status={item.status} live={false} size="sm" className="mt-1" />}
+              {item.value !== undefined && <BaselineDeviation indicator={ind} value={item.value} baseline={baseline} className="mt-1 !text-xs" />}
 
               <p className="eyebrow mt-3 !text-[0.62rem]">{t("hud.zone_detail.hazards")}</p>
               {ind.hazards.length === 0 ? (

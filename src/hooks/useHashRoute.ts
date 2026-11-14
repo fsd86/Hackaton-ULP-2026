@@ -1,6 +1,6 @@
 import { useCallback, useSyncExternalStore } from "react";
 
-export type RouteId = "home" | "check" | "emergency" | "report" | "sources";
+export type RouteId = "home" | "check" | "baseline" | "emergency" | "report" | "sources";
 
 export interface RouteDef {
   id: RouteId;
@@ -12,6 +12,7 @@ export interface RouteDef {
 export const ROUTES: readonly RouteDef[] = [
   { id: "home", path: "#/", navKey: "nav.home" },
   { id: "check", path: "#/check", navKey: "nav.daily_check" },
+  { id: "baseline", path: "#/baseline", navKey: "nav.baseline" },
   { id: "emergency", path: "#/emergency", navKey: "nav.emergency" },
   { id: "report", path: "#/report", navKey: "nav.report" },
   { id: "sources", path: "#/sources", navKey: "nav.sources" },

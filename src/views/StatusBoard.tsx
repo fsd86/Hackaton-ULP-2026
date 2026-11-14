@@ -20,6 +20,8 @@ import { StatusIcon } from "../components/StatusIcon";
 import { TrendChart } from "../components/TrendChart";
 import { useEnvironment } from "../hooks/useEnvironment";
 import { useStorageState } from "../hooks/useStorageState";
+import { useBaseline } from "../hooks/useBaseline";
+import { BaselineAwarenessNote } from "../components/BaselineDeviation";
 import { buildBoard } from "../logic/board";
 import { groupByZone, worstZoneStatus, type BodyZoneId } from "../logic/bodyZones";
 import { classifyDelay, formatDelay } from "../logic/delay";
@@ -56,6 +58,8 @@ export function StatusBoard() {
   const { t, content } = useContent();
   const { environment } = useEnvironment();
   const { readingsRev } = useStorageState();
+  // Linea de base personal (null si no hay o si la funcion esta apagada): desvio NEUTRAL, aparte del estado.
+  const baseline = useBaseline();
   const locale = content.app.default_language;
   // Foto de las lecturas y de "ahora". readingsRev cambia al cargar/quitar datos demo: se relee el almacenamiento.
   const [snap, setSnap] = useState(() => ({ rev: readingsRev, readings: getReadings(), now: Date.now() }));
@@ -98,7 +102,7 @@ export function StatusBoard() {
           // Mismo entorno con el que buildBoard evaluo la lectura (el de la lectura; si no existe, el actual).
           const env = last ? (content.environments.find((x) => x.id === last.environmentId) ?? environment) : environment;
           const notes = last ? rangeNotes(ind, last.value, e.status, env) : [];
-          return [{ id, name: ind.name, unit: ind.unit, valueText: last ? formatValue(last.value) : null, status: e.status, notes }];
+          return [{ id, name: ind.name, unit: ind.unit, valueText: last ? formatValue(last.value) : null, value: last?.value, status: e.status, notes }];
         }),
       })),
     [content.indicators, content.environments, environment, entryById, byId],
@@ -179,9 +183,18 @@ export function StatusBoard() {
                     entry={entry}
                     sparkValues={trend.series[0]?.points.map((p) => p.v) ?? []}
                     pulse={ind.id === content.app.hud.pulse_trace.indicator_id}
+                    baseline={baseline}
                   />;
               })}
             </ul>
+            {baseline && hasReadings && (
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2 border-t border-[var(--glass-border)] px-1 pt-2">
+                <BaselineAwarenessNote className="!text-[0.68rem]" />
+                <a href="#/baseline" className="inline-flex min-h-6 items-center text-xs font-semibold text-[var(--color-accent)] underline underline-offset-2">
+                  {t("baseline.open")}
+                </a>
+              </div>
+            )}
           </FramePanel>
 
           <FramePanel title={t("hud.zone_status")} corners delayMs={160}>
@@ -351,7 +364,7 @@ export function StatusBoard() {
         <div className="hud-col hud-col-right">
           <FramePanel title={t("hud.zone_detail")} corners delayMs={200} id={detailId} aside={demoChip}>
             <div aria-live="polite">
-              <ZoneDetail zone={zoneOf} indicators={byId} environment={environment} />
+              <ZoneDetail zone={zoneOf} indicators={byId} environment={environment} baseline={baseline} />
             </div>
           </FramePanel>
 

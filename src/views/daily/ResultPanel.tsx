@@ -6,6 +6,9 @@ import { EarthReferenceNote } from "../../components/EarthReferenceNote";
 import { SourceLinks } from "../../components/SourceLinks";
 import { StatusBadge } from "../../components/StatusBadge";
 import { useEnvironment } from "../../hooks/useEnvironment";
+import { useBaseline } from "../../hooks/useBaseline";
+import { BaselineAwarenessNote, BaselineDeviation } from "../../components/BaselineDeviation";
+import { findBaselineEntry } from "../../logic/baseline";
 import { rangeNotes, type EvalStatus } from "../../logic/evaluate";
 import type { EscalationResult } from "../../logic/escalation";
 import { formatTime } from "../../logic/daily";
@@ -44,6 +47,9 @@ export function ResultPanel({
   const emergencyOn = content.app.features.emergency_guide;
   const { environment } = useEnvironment();
   const { status, escalation, reading } = result;
+  // Linea de base personal: desvio NEUTRAL de esta lectura, separado del estado por rangos con fuente.
+  const baseline = useBaseline();
+  const hasBaseline = findBaselineEntry(baseline, indicator.id) !== undefined;
   const actions = status === "unknown" ? undefined : indicator.actions[status];
   // Notas del rango concreto donde cayo la lectura (p. ej. "bajo" vs "alto" dentro de attention).
   const notes = rangeNotes(indicator, reading.value, status, environment);
@@ -65,6 +71,12 @@ export function ResultPanel({
           {t("daily.result")}
         </h3>
         <StatusBadge status={status} />
+        {hasBaseline && (
+          <div className="mt-2">
+            <BaselineDeviation indicator={indicator} value={reading.value} baseline={baseline} />
+            <BaselineAwarenessNote className="mt-0.5" />
+          </div>
+        )}
         <p className="mt-2 text-sm text-[var(--color-muted)]">{t("daily.saved_at", { time: formatTime(reading.timestamp) })}</p>
         <SourceLinks ids={rangeSourceIds} className="mt-2" />
         {status !== "unknown" && <EarthReferenceNote indicator={indicator} className="mt-3" />}

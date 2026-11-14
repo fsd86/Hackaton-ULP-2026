@@ -325,6 +325,8 @@ export const AppConfig = z.object({
     demo_on_first_visit: z.boolean().default(false),
     // Boton "Guided demo" del tablero (data/guided-demo.json). Opcional; ausente = false.
     guided_demo: z.boolean().default(false),
+    // Vista Baseline (#/baseline) y desvio neutral "vs your baseline". Opcional; ausente = false.
+    baseline: z.boolean().default(false),
   }),
   // Parámetro de DISEÑO (no médico).
   realtime_threshold_s: z.number(),
@@ -344,6 +346,16 @@ export const AppConfig = z.object({
       lower_round_trips: z.number().int().positive(),
     })
     .default({ upper_round_trips_per_complete_set: 1, lower_round_trips: 1 }),
+  // Linea de base personal: parametros de DISENO (no medicos); ver _comment de config/app.json.
+  baseline: z
+    .object({
+      _comment: Comment,
+      window_days: z.number().positive(),
+      min_readings: z.number().int().min(1),
+      // Fuentes del texto "why a personal baseline" (el loader verifica que existan).
+      source_ids: SourceIds,
+    })
+    .default({ window_days: 7, min_readings: 3, source_ids: [] }),
 });
 
 // ---- demo-readings.json (datos sinteticos de demostracion, no mediciones reales)

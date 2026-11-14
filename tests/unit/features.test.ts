@@ -9,15 +9,15 @@ describe("labelFor", () => {
   });
 });
 
-const on: Features = { charts: true, reminders: true, emergency_guide: true, downlink_report: true, demo_on_first_visit: false, guided_demo: false };
+const on: Features = { charts: true, reminders: true, emergency_guide: true, downlink_report: true, demo_on_first_visit: false, guided_demo: false, baseline: true };
 
 describe("features", () => {
   it("shows every nav entry except Emergency (header) when all flags are on", () => {
-    expect(visibleNav(on).map((r) => r.id)).toEqual(["home", "check", "report", "sources"]);
+    expect(visibleNav(on).map((r) => r.id)).toEqual(["home", "check", "baseline", "report", "sources"]);
   });
 
   it("hides the report entry when downlink_report is off", () => {
-    expect(visibleNav({ ...on, downlink_report: false }).map((r) => r.id)).toEqual(["home", "check", "sources"]);
+    expect(visibleNav({ ...on, downlink_report: false }).map((r) => r.id)).toEqual(["home", "check", "baseline", "sources"]);
   });
 
   it("emergency_guide off never adds Emergency to the nav and disables the route", () => {
@@ -33,5 +33,14 @@ describe("features", () => {
     expect(isRouteEnabled("check", off)).toBe(true);
     expect(isRouteEnabled("sources", off)).toBe(true);
     expect(isRouteEnabled("report", off)).toBe(false);
+  });
+});
+
+describe("features: baseline", () => {
+  it("baseline off hides the nav entry and disables the route", () => {
+    const off = { ...on, baseline: false };
+    expect(visibleNav(off).map((r) => r.id)).not.toContain("baseline");
+    expect(isRouteEnabled("baseline", off)).toBe(false);
+    expect(isRouteEnabled("baseline", on)).toBe(true);
   });
 });

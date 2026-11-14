@@ -368,6 +368,8 @@ export function validateContent(raw: RawContent): LoadResult {
     });
   }
 
+  checkSources(app.baseline.source_ids, FILES.app, ["baseline"]);
+
   if (!environmentIds.has(app.default_environment)) {
     errors.push({
       file: FILES.app,
